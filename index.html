@@ -59,6 +59,13 @@ option{background:#1a120d;color:#e9dcc8}
 <p class="skysay" id="skysay"></p><div class="tabs" id="tabs"><button data-s="fire" type="button">숲속 캠핑 불멍</button><button data-s="beach" type="button">바닷가 물멍</button><button data-s="cabin" type="button">눈 오는 오두막</button></div>
 <div class="log" id="log"></div>
 <div class="ui"><p class="msg" id="msg"></p><div class="chatrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">바다 보기</button><button id="lie" type="button" style="display:none">눕기</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래놀이</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div></div>
+<script>
+/* ▼▼▼ 여기 두 줄만 네 Supabase 값으로 바꿔줘 (Supabase 대시보드 → Project Settings → API) ▼▼▼ */
+window.SUPA_URL='https://mcbauedrqldfhjulvhoi.supabase.co';   /* 예: https://abcdxyz.supabase.co */
+window.SUPA_KEY='sb_publishable_xc-UW0ANURdx90-mIBROAA_lZo_VAXL'; /* anon(public) 키만! service_role 키는 절대 넣지 마 */
+/* ▲▲▲ 여기까지 ▲▲▲ */
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -1403,7 +1410,7 @@ function sync(){
     var aw=p.mv&&!sp?Math.sin(t*.3)*.6:0;p.g.arms[0].rotation.x=ly?0:(sp?-.5:-aw);p.g.arms[1].rotation.x=ly?0:(sp?-.5:aw);if(p.me&&(tea||eat)&&!ly)p.g.arms[1].rotation.x=teaTh;p.g.arms[1].rotation.z=(p.me&&(tea||eat)&&!ly)?teaPh:0;
     p.lab.position.set(0,ly?.9:2.2,ly?1.4:0);p.lab.visible=!(p.me&&ly);if(p.bub)p.bub.position.set(0,ly?.9:2.7,ly?2.1:0);if(p.bub&&t>p.bubT)p.bub.visible=false;
   }
-  var tt=(scene==='fire'&&rainK>.5?'비 오는 불멍':NAMES[scene])+' '+ch+'번방 · 지금 '+list.length+'명';
+  var tt=(scene==='fire'&&rainK>.5?'비 오는 불멍':NAMES[scene])+' '+ch+'번방 · 지금 '+list.length+'명'+(lobby?(lobby.ok===false?' · 연결 중…':''):' · 혼자 보는 중');
   if(tt!==topTxt){topTxt=tt;topEl.textContent=tt;}
 }
 // 장면 전환
@@ -1461,7 +1468,49 @@ document.getElementById('tabs').addEventListener('click',function(e){
     st.classList.add('off');setTimeout(function(){st.style.display='none';},750);
   });
 })();
-(async function(){try{if(typeof claude!=='undefined'){var r=await claude.use('room');if(r){lobby=r;setScene(scene);}}}catch(err){}})();
+// === Supabase 실시간 접속 (GitHub Pages 등 Claude 밖에서 배포할 때 사용) ===
+// Claude 안에서는 claude.use('room')을 쓰고, 밖에서는 Supabase Realtime(Presence)으로 같은 역할을 해요.
+function makeSupaLobby(url,key){
+  var sb=supabase.createClient(url,key,{realtime:{params:{eventsPerSecond:10}}});
+  var myId='p'+Math.random().toString(36).slice(2,10);
+  function mk(name,throttle){
+    var ch=sb.channel(name,{config:{presence:{key:myId}}}),cur=null,ready=false,lastT=0,tm=0,o={ok:false};
+    function push(){tm=0;if(!ready||!cur)return;lastT=Date.now();try{var r=ch.track(cur);if(r&&r.catch)r.catch(function(){});}catch(err){}}
+    o.presence=function(p){
+      cur=p;
+      if(ready){var w=Date.now()-lastT;if(w>=throttle)push();else if(!tm)tm=setTimeout(push,throttle-w);}
+      return Promise.resolve();
+    };
+    o.peers=function(){
+      var st=ch.presenceState(),out=[];
+      for(var k in st){var a=st[k];if(!a||!a.length)continue;out.push({peer:k,isMe:k===myId,kind:'viewer',presence:a[a.length-1]});}
+      return out;
+    };
+    o.on=function(){return function(){};};
+    o.leave=function(){clearTimeout(tm);tm=0;ready=false;o.ok=false;return Promise.resolve(sb.removeChannel(ch));};
+    o.ready=new Promise(function(res,rej){
+      var done=false;
+      ch.subscribe(function(status){
+        if(status==='SUBSCRIBED'){ready=true;o.ok=true;if(cur)push();if(!done){done=true;res(o);}}
+        else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
+          ready=false;o.ok=false;console.warn('[실시간 연결 실패]',name,status);
+          if(!done){done=true;try{sb.removeChannel(ch);}catch(err){}rej(new Error(status));}
+        }else if(status==='CLOSED'){ready=false;o.ok=false;}
+      });
+    });
+    return o;
+  }
+  var lob=mk('hy-lobby',1500);
+  lob.join=function(n){return mk('hy-room-'+n,200).ready;};
+  return lob;
+}
+(async function(){
+  try{if(typeof claude!=='undefined'){var r=await claude.use('room');if(r){lobby=r;setScene(scene);return;}}}catch(err){}
+  try{
+    if(typeof supabase!=='undefined'&&/^https?:\/\//.test(window.SUPA_URL||'')&&(window.SUPA_KEY||'').length>40){var l=makeSupaLobby(window.SUPA_URL,window.SUPA_KEY);if(l){lobby=l;setScene(scene);}}
+    else console.warn('[실시간] SUPA_URL / SUPA_KEY가 아직 설정되지 않아서 혼자 보기 모드예요.');
+  }catch(err){console.warn('[실시간] 연결 오류',err);}
+})();
 say();setInterval(say,11000);
 var cabBtn=document.createElement('button'),cabT=-1;cabBtn.type='button';cabBtn.style.display='none';(function(){var tr=document.getElementById('tent');tr.parentNode.insertBefore(cabBtn,tr);})();
 cabBtn.addEventListener('click',function(){if(cabT<0)return;var c=CAB[cabT];me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';delete me.want;me.x=me.tx=c[0]-1.6;me.z=me.tz=(cabIn()>=0)?c[1]+3.8:c[1]+1.3;});
