@@ -30,6 +30,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ember);outline-
 select{pointer-events:auto;font:inherit;color:var(--text);background:var(--btn-bg);border:1px solid rgba(255,190,120,.35);border-radius:999px;padding:10px 12px;cursor:pointer}
 option{background:#1a120d;color:#e9dcc8}
 .chatrow button{padding:10px 16px}
+.fold{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:10px;z-index:5;padding:5px 13px;font-size:.8rem;opacity:.85}
+body.folded .tabs,body.folded .ui .msg{display:none}
+body.folded .ui .chatrow>*:not(#sky){display:none!important}
+body.folded .ui .chatrow:not(:has(#sky)){display:none}
+@media(max-width:520px){.ui{gap:6px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}.chatrow{gap:6px}.chatrow button,select,#nick{padding:7px 13px;font-size:.88rem}.tabs{gap:6px}.tabs button{padding:5px 11px;font-size:.82rem}.msg{font-size:.95rem}}
 .sandpad{flex-basis:100%;flex-direction:column;align-items:center;gap:6px;pointer-events:none;max-width:96vw}
 #sandin{width:12em;text-align:center}
 #shapes .chatrow{gap:5px}
@@ -56,6 +61,7 @@ option{background:#1a120d;color:#e9dcc8}
 <canvas id="c" aria-label="3D 휴식 공간"></canvas>
 <div id="start" role="dialog" aria-label="입장할 곳 고르기"><h1>나그네</h1><p>오늘은 어디서 쉽니다?</p><div class="picks"><button type="button" data-s="fire"><b>🔥 숲속 캠핑 불멍</b><span>타닥타닥 모닥불 앞에서<br>조용히 불을 바라봐요</span></button><button type="button" data-s="beach"><b>🌊 바닷가 물멍</b><span>파도 소리를 듣고<br>모래에 편지를 써요</span></button><button type="button" data-s="cabin"><b>❄️ 눈 오는 오두막</b><span>눈 내리는 밤,<br>따뜻한 오두막에서 쉬어요</span></button></div></div>
 <p class="top" id="top">나그네</p>
+<button id="fold" class="fold" type="button">접기</button>
 <p class="skysay" id="skysay"></p><div class="tabs" id="tabs"><button data-s="fire" type="button">숲속 캠핑 불멍</button><button data-s="beach" type="button">바닷가 물멍</button><button data-s="cabin" type="button">눈 오는 오두막</button></div>
 <div class="log" id="log"></div>
 <div class="ui"><p class="msg" id="msg"></p><div class="chatrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">바다 보기</button><button id="lie" type="button" style="display:none">눕기</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래놀이</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div></div>
@@ -1298,10 +1304,14 @@ function leaveTent(){
   if(musicOn)toggleMusic();
 }
 tentBtn.addEventListener('click',function(){if(inTent)leaveTent();else enterTent();});
+var folded=false,foldPrev=false,foldBtn=document.getElementById('fold');
+function setFold(v,save){folded=!!v;document.body.classList.toggle('folded',folded);foldBtn.textContent=folded?'펼치기':'접기';if(save!==false){try{localStorage.setItem('hy-fold',folded?'1':'0');}catch(err){}}}
+try{if(localStorage.getItem('hy-fold')==='1')setFold(true,false);}catch(err){}
+foldBtn.addEventListener('click',function(){setFold(!folded);});
 var sky=false,skyBtn=document.getElementById('sky');
 var skyStars=null;for(var sk=0;sk<ig.children.length;sk++)if(ig.children[sk].isPoints)skyStars=ig.children[sk];
 function skyVis(on){for(var i=0;i<ig.children.length;i++){var ch=ig.children[i];if(!ch.isPoints&&!ch.isLight&&!ch.userData.keep)ch.visible=!on;}}
-skyBtn.addEventListener('click',function(){sky=!sky;skyBtn.textContent=sky?'둘러보기':'하늘 보기';skyVis(sky);});
+skyBtn.addEventListener('click',function(){sky=!sky;skyBtn.textContent=sky?'둘러보기':'하늘 보기';skyVis(sky);if(sky){foldPrev=folded;setFold(true,false);}else setFold(foldPrev,false);});
 // 스피커 음악 (잡음 없는 잔잔한 피아노 톤, 브라우저에서 직접 만들어 재생)
 var mac=null,mg=null,mf=null,mTimer=0,mNext=0,mBeat=0,musicOn=false,musBtn=document.getElementById('mus');
 var CHM=[[48,55,59,64],[45,52,55,60],[41,48,52,57],[43,50,59,64]],ARP=[0,2,1,3,2,3,1,2],PENT=[72,74,76,79,81];
@@ -1469,49 +1479,54 @@ document.getElementById('tabs').addEventListener('click',function(e){
   });
 })();
 // === Supabase 실시간 접속 (GitHub Pages 등 Claude 밖에서 배포할 때 사용) ===
-// 누가 들어와 있는지(명단)는 Presence, 움직임(위치)은 Broadcast로 보내요. 위치처럼 자주 바뀌는 건 Broadcast가 안정적이에요.
+// 방 안의 사람 위치는 Broadcast로만 주고받아요(2초마다 "나 여기 있어" 신호 포함). 로비 인원수만 Presence를 써요.
 function makeSupaLobby(url,key){
   var sb=supabase.createClient(url,key);
   var myId='p'+Math.random().toString(36).slice(2,10);
   function mk(name,withPos){
     var ch=sb.channel(name,{config:{presence:{key:myId},broadcast:{self:false}}});
-    var o={ok:false,sent:0,got:0,err:''},cur=null,ready=false,pos={},lastStatic='',lastDyn='',lastSend=0,iv=0,gap=200,limited=0;
+    var o={ok:false,sent:0,got:0,err:''},cur=null,ready=false,pos={},seenAt={},lastStatic='',lastDyn='',lastSend=0,iv=0,gap=200,limited=0;
     ch.on('presence',{event:'sync'},function(){});
-    if(withPos)ch.on('broadcast',{event:'pos'},function(m){var d=m&&m.payload;if(d&&d.id&&d.id!==myId&&d.p){pos[d.id]=d.p;o.got++;}});
+    if(withPos){
+      ch.on('broadcast',{event:'pos'},function(m){var d=m&&m.payload;if(d&&d.id&&d.id!==myId&&d.p){pos[d.id]=d.p;seenAt[d.id]=Date.now();o.got++;}});
+      ch.on('broadcast',{event:'bye'},function(m){var d=m&&m.payload;if(d&&d.id){delete pos[d.id];delete seenAt[d.id];}});
+    }
+    function bye(){if(!ready||!withPos)return;try{var r=ch.send({type:'broadcast',event:'bye',payload:{id:myId}});if(r&&r.catch)r.catch(function(){});}catch(e){}}
     function tick(){
       if(!ready||!cur)return;
-      var now=Date.now(),sObj=withPos?{n:cur.n,h:cur.h}:cur,sKey=JSON.stringify(sObj);
-      if(sKey!==lastStatic){lastStatic=sKey;try{var r=ch.track(sObj);if(r&&r.catch)r.catch(function(){});}catch(e){}}
-      if(withPos){
-        var dObj={x:cur.x,z:cur.z,ry:cur.ry,mv:cur.mv,st:cur.st,y:cur.y},dKey=JSON.stringify(dObj);
-        if((dKey!==lastDyn&&now-lastSend>=gap)||now-lastSend>=2000){
-          lastDyn=dKey;lastSend=now;
-          try{
-            var pr=ch.send({type:'broadcast',event:'pos',payload:{id:myId,p:dObj}});o.sent++;
-            if(pr&&pr.then)pr.then(function(res){if(res==='rate limited'){gap=Math.min(1000,gap*1.5);if(!limited){limited=1;console.warn('[실시간] 메시지가 너무 많아서 보내는 속도를 낮춰요');}}}).catch(function(){});
-          }catch(e){}
-        }
+      var now=Date.now();
+      if(!withPos){
+        var sKey=JSON.stringify(cur);
+        if(sKey!==lastStatic){lastStatic=sKey;try{var r=ch.track(cur);if(r&&r.catch)r.catch(function(){});}catch(e){}}
+        return;
+      }
+      var dObj={x:cur.x,z:cur.z,ry:cur.ry,mv:cur.mv,st:cur.st,y:cur.y,n:cur.n,h:cur.h},dKey=JSON.stringify(dObj);
+      if((dKey!==lastDyn&&now-lastSend>=gap)||now-lastSend>=2000){
+        lastDyn=dKey;lastSend=now;
+        try{
+          var pr=ch.send({type:'broadcast',event:'pos',payload:{id:myId,p:dObj}});o.sent++;
+          if(pr&&pr.then)pr.then(function(res){if(res==='rate limited'){gap=Math.min(1000,gap*1.5);if(!limited){limited=1;console.warn('[실시간] 메시지가 너무 많아서 보내는 속도를 낮춰요');}}}).catch(function(){});
+        }catch(e){}
       }
     }
     o.presence=function(p){cur=p;return Promise.resolve();};
     o.peers=function(){
-      var st=ch.presenceState(),out=[],k,f;
-      for(k in st){
-        var a=st[k];if(!a||!a.length)continue;
-        var pr=Object.assign({},a[a.length-1]);
-        if(withPos){
-          if(k===myId){if(cur)for(f in cur)pr[f]=cur[f];}
-          else if(pos[k]){for(f in pos[k])pr[f]=pos[k][f];}
-          else continue;
-        }
-        out.push({peer:k,isMe:k===myId,kind:'viewer',presence:pr});
+      var now=Date.now(),out=[],k,st;
+      if(!withPos){
+        st=ch.presenceState();
+        for(k in st){var a=st[k];if(!a||!a.length)continue;out.push({peer:k,isMe:k===myId,kind:'viewer',presence:Object.assign({},a[a.length-1])});}
+        return out;
       }
-      for(k in pos)if(!st[k])delete pos[k];
+      for(k in pos){
+        if(now-seenAt[k]>5000){delete pos[k];delete seenAt[k];continue;}
+        out.push({peer:k,isMe:false,kind:'viewer',presence:pos[k]});
+      }
       return out;
     };
     o.on=function(){return function(){};};
-    o.leave=function(){clearInterval(iv);iv=0;ready=false;o.ok=false;pos={};return Promise.resolve(sb.removeChannel(ch));};
-    o.dbg=function(){return (o.ok?'연결':'끊김')+' 명단'+Object.keys(ch.presenceState()).length+' 보냄'+o.sent+' 받음'+o.got;};
+    window.addEventListener('pagehide',bye);
+    o.leave=function(){bye();window.removeEventListener('pagehide',bye);clearInterval(iv);iv=0;ready=false;o.ok=false;pos={};seenAt={};return Promise.resolve(sb.removeChannel(ch));};
+    o.dbg=function(){return (o.ok?'연결':'끊김')+' 이웃'+Object.keys(pos).length+' 보냄'+o.sent+' 받음'+o.got;};
     o.ready=new Promise(function(res,rej){
       var done=false;
       ch.subscribe(function(status,err){
@@ -1568,7 +1583,7 @@ function frame(){
   var fpOn=fpv&&(scene==='beach'||scene==='fire')&&(me.sit===1||me.sit===2);if(fpOn)want.set(me.x,(me.y||0)+(me.sit===1?.95:1.3),me.z);
   if(inn){want.x=Math.max(cx0-2.7,Math.min(cx0+2.7,want.x));want.z=Math.max(cz0-10.95,Math.min(cz0-7.05,want.z));want.y=Math.min(want.y,2.5);}
   if(inTent){var ex=want.x-IX,ez=want.z-IZ,er=Math.sqrt(ex*ex+ez*ez);if(er>3.8){want.x=IX+ex/er*3.8;want.z=IZ+ez/er*3.8;}want.y=Math.min(want.y,3);}
-  var lyg=(inTent&&me.sit===3)||me.sit===4||(me.sit===5&&scene!=='cabin'),lyT=inTent&&me.sit===3;if(lyg)want.set(me.x,lyT?.8:(me.sit===5?.9:1.3),me.z+.3);var sd=lyT?'':'none';if(skyBtn.style.display!==sd)skyBtn.style.display=sd;if(!lyT&&sky){sky=false;skyBtn.textContent='하늘 보기';skyVis(false);}if(sky&&skyStars)skyStars.rotation.y+=.0006;shoot(lyT);spkTick();if(lyg)for(var bk in players)if(players[bk].bub)players[bk].bub.visible=false;capO+=((lyT?1:0)-capO)*.05;iroof.visible=capO<.99&&!sky;cmat.opacity=1-capO;if(inTent){var tp=Math.sin(t*.04);slM[0].color.setRGB(1,.8+.12*tp,.52+.16*tp);slM[1].color.setRGB(1,.8-.12*tp,.52-.16*tp);}
+  var lyg=(inTent&&me.sit===3)||me.sit===4||(me.sit===5&&scene!=='cabin'),lyT=inTent&&me.sit===3;if(lyg)want.set(me.x,lyT?.8:(me.sit===5?.9:1.3),me.z+.3);var sd=lyT?'':'none';if(skyBtn.style.display!==sd)skyBtn.style.display=sd;if(!lyT&&sky){sky=false;skyBtn.textContent='하늘 보기';skyVis(false);setFold(foldPrev,false);}if(sky&&skyStars)skyStars.rotation.y+=.0006;shoot(lyT);spkTick();if(lyg)for(var bk in players)if(players[bk].bub)players[bk].bub.visible=false;capO+=((lyT?1:0)-capO)*.05;iroof.visible=capO<.99&&!sky;cmat.opacity=1-capO;if(inTent){var tp=Math.sin(t*.04);slM[0].color.setRGB(1,.8+.12*tp,.52+.16*tp);slM[1].color.setRGB(1,.8-.12*tp,.52-.16*tp);}
   snow.visible=true;if(scene==='cabin'){if(t%2===0)winDraw();var cbI=cabIn(),cbN=cbI,cbD=1e9;if(cbI<0)for(var cbQ=0;cbQ<CAB.length;cbQ++){var cbd=Math.hypot(me.x-CAB[cbQ][0]+1.6,me.z-CAB[cbQ][1]-3.8);if(cbd<6&&cbd<cbD){cbD=cbd;cbN=cbQ;}}cabT=cbN;for(var cbq=0;cbq<cabQ.length;cbq++)if(cabQ[cbq])cabQ[cbq].visible=(cbI===cbq&&me.sit===5);var cbS=cbN<0?'none':'';if(cabBtn.style.display!==cbS)cabBtn.style.display=cbS;var cbX=cbI>=0?'밖으로 나가기':'오두막 들어가기';if(cabBtn.textContent!==cbX)cabBtn.textContent=cbX;if(throwMode&&(cbI>=0||me.sit)){throwMode=false;snowBtn.textContent='눈 던지기';}var snD=(cbI<0&&!me.sit)?'':'none';if(snowBtn.style.display!==snD)snowBtn.style.display=snD;snowStep();}else{if(cabBtn.style.display!=='none')cabBtn.style.display='none';snowBtn.style.display='none';}var tf=inn?76:55;if(Math.abs(cam.fov-tf)>.05){cam.fov+=(tf-cam.fov)*.1;cam.updateProjectionMatrix();}cpos.lerp(want,fpOn?.4:((inn||inTent)?.2:.12));cam.position.copy(cpos);if(lyT){if(sky)cam.lookAt(me.x-Math.sin(yaw)*.3,12,me.z-Math.cos(yaw)*.3);else cam.lookAt(me.x-Math.sin(yaw)*1.2,7.2,me.z-Math.cos(yaw)*1.2);}else if(lyg)cam.lookAt(me.x,9,me.z-1.5);else if(fpOn){var cp0=Math.cos(fpPit);cam.lookAt(cam.position.x-Math.sin(yaw)*cp0,cam.position.y+Math.sin(fpPit),cam.position.z-Math.cos(yaw)*cp0);}else cam.lookAt(me.x,1.2+(me.y||0),me.z);
   R.render(sc,cam);requestAnimationFrame(frame);
 }
