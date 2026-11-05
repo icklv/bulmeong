@@ -856,7 +856,7 @@ function inZone(x,z){if(scene==='fire')return nearSpot(x,z).d<=GB_R;return z>-10
     gB.add(sg);
   });
 })();
-var stamps=[],demos=[],sandMode=false,sandHint=false,sandBorder=0,sandScale=0.6;
+var SAND_TTL=5*60*1000,stamps=[],demos=[],sandMode=false,sandHint=false,sandBorder=0,sandScale=0.6;
 var sandRowEl=document.getElementById('sandrow'),sandBtn=document.getElementById('sandbtn'),shapesEl=document.getElementById('shapes'),sandInEl=document.getElementById('sandin'),flatBtn=document.querySelector('#shapes [data-k="flat"]'),szWrap=document.getElementById('sandsz').parentNode,bdBtnEl=document.querySelector('#shapes [data-k="border"]'),hangBtn=document.getElementById('hangbtn'),gbDis=false,gbIn=false,sandScn='';
 function sandGetText(){return sandInEl.value.replace(/\s+/g,' ').trim();}
 function sandSoundAt(c,dest,t0,vol){
@@ -885,20 +885,20 @@ function sandStamp(x,z,inside){
     var L2=carveLayout(txt,bd);
     var mt=new THREE.MeshBasicMaterial({map:carveTex(txt,bd,L2,wm),transparent:true,depthWrite:false});
     var gp=new THREE.Group();gp.position.set(x,.035,z);gp.rotation.y=ry;gp.scale.setScalar(sc);gp.userData.sc=sg;
-    var pl=new THREE.Mesh(new THREE.PlaneGeometry(L2.W,L2.H),mt);pl.rotation.x=-Math.PI/2;gp.add(pl);grp.add(gp);stamps.push(gp);
+    var pl=new THREE.Mesh(new THREE.PlaneGeometry(L2.W,L2.H),mt);pl.rotation.x=-Math.PI/2;gp.add(pl);grp.add(gp);gp.userData.born=Date.now();stamps.push(gp);
     var n=0,fi=-1;for(var q=0;q<stamps.length;q++)if(stamps[q].userData.sc===sg){n++;if(fi<0)fi=q;}
     if(n>24){dropStamp(stamps[fi]);stamps.splice(fi,1);}
-    if(sg==='beach')SH.send('sand',{t:txt.slice(0,30),b:bd,s:sc,x:+x.toFixed(2),z:+z.toFixed(2),r:+ry.toFixed(3)},null);
+    if(sg==='beach')SH.send('sand',{t:txt.slice(0,30),b:bd,s:sc,x:+x.toFixed(2),z:+z.toFixed(2),r:+ry.toFixed(3),ts:Date.now()},null);
   }
   if(document.fonts&&document.fonts.load)document.fonts.load('16px "Gowun Batang"',txt).then(go,go);else go();
   sandSound();
   return true;
 }
-function sandPlace(txt,bd,sc,x,z,ry){
+function sandPlace(txt,bd,sc,x,z,ry,ts){
   function go(){
     var L2=carveLayout(txt,bd),mt=new THREE.MeshBasicMaterial({map:carveTex(txt,bd,L2,false),transparent:true,depthWrite:false});
     var gp=new THREE.Group();gp.position.set(x,.035,Math.max(-10.8,Math.min(16,z)));gp.rotation.y=ry;gp.scale.setScalar(sc);gp.userData.sc='beach';
-    var pl=new THREE.Mesh(new THREE.PlaneGeometry(L2.W,L2.H),mt);pl.rotation.x=-Math.PI/2;gp.add(pl);gB.add(gp);stamps.push(gp);
+    var pl=new THREE.Mesh(new THREE.PlaneGeometry(L2.W,L2.H),mt);pl.rotation.x=-Math.PI/2;gp.add(pl);gB.add(gp);gp.userData.born=ts||Date.now();stamps.push(gp);
     var n=0,fi=-1;for(var q=0;q<stamps.length;q++)if(stamps[q].userData.sc==='beach'){n++;if(fi<0)fi=q;}
     if(n>24){dropStamp(stamps[fi]);stamps.splice(fi,1);}
   }
@@ -916,6 +916,7 @@ function goToSand(){
   msg.textContent=scene==='fire'?'방명록 자리로 갈게요. 도착하면 글을 쓰고 걸기를 눌러요':'가까운 모래성 앞으로 갈게요. 도착하면 글을 쓰고 새기고 싶은 모래를 눌러요';msg.classList.add('on');
 }
 function clearStamps(){if(scene==='fire'){clearTags();tagSound();return;}for(var i=stamps.length-1;i>=0;i--)if(stamps[i].userData.sc===scene){dropStamp(stamps[i]);stamps.splice(i,1);}if(scene==='beach')while(demos.length)dropStamp(demos.pop());sandSound();}
+setInterval(function(){var now=Date.now();for(var i=stamps.length-1;i>=0;i--){var g=stamps[i];if(g.userData.sc!=='beach'||!g.userData.born)continue;var age=now-g.userData.born;if(age>=SAND_TTL){dropStamp(g);stamps.splice(i,1);}else if(age>SAND_TTL-40000){var m=g.children[0];if(m&&m.material)m.material.opacity=(SAND_TTL-age)/40000;}}},1000);
 function setSandMode(v){
   var sl=scene==='fire'?'방명록':'모래편지';sandMode=!!v;sandBtn.textContent=sandMode?sl+' 끝내기':sl;sandBtn.setAttribute('aria-pressed',sandMode?'true':'false');shapesEl.style.display=sandMode?'flex':'none';
   if(sandMode&&(!inZone(me.x,me.z)||(me.y||0)>.3))goToSand();
@@ -2475,9 +2476,9 @@ var SH=(function(){
   function cl(){return window.__SB||null;}
   function render(r){
     var b=r.body||{};if(!b.t)return;if(b.u&&b.u===o.me)return;
-    if(r.kind==='tag'&&gbSlots.length)addTag(String(b.t).slice(0,20),gbSlots[r.id%gbSlots.length],true);
-    else if(r.kind==='wish'&&wishSlots.length)wishAdd(String(b.t).slice(0,22),false,false,r.id);
-    else if(r.kind==='sand')sandPlace(String(b.t).slice(0,30),b.b|0,+b.s||.6,+b.x||0,+b.z||0,+b.r||0);
+    if(r.kind==='tag'&&gbSlots.length){var gts=+b.ts||0;if(!gts||Date.now()-gts>GB_TTL)return;addTag(String(b.t).slice(0,20),gbSlots[r.id%gbSlots.length],true,gts);}
+    else if(r.kind==='wish'&&wishSlots.length){var wts=+b.ts||0;if(!wts||Date.now()-wts>WISH_TTL)return;wishAdd(String(b.t).slice(0,22),false,false,r.id,wts);}
+    else if(r.kind==='sand'){var sts=+b.ts||0;if(!sts||Date.now()-sts>SAND_TTL)return;sandPlace(String(b.t).slice(0,30),b.b|0,+b.s||.6,+b.x||0,+b.z||0,+b.r||0,sts);}
   }
   function pull(first){
     var c=cl();if(!c||o.busy)return;o.busy=true;
@@ -2563,7 +2564,7 @@ var scarfC=[0xc94a3a,0x3d6b9a,0x4f8a5a,0xd2a23a,0x8a5a9a];[[-4,-2],[4,1],[0,13],
   gC.add(g);snowmen.push({g:g,x:q[0],z:q[1],w:0});});
 
 // ── 소원 트리: 아무것도 없는 남쪽 눈밭의 커다란 트리. 가까이 가서 소원을 적으면 종이가 걸려요 ──
-var wishF=0,WX=0,WZ=44,wishTags=[],wishSlots=[],wishList=[],wishBulbM=[],wishN=0,wishG=new THREE.Group();wishG.position.set(WX,0,WZ);gC.add(wishG);
+var wishF=0,WISH_TTL=24*60*60*1000,WISH_RES=3,WX=0,WZ=44,wishTags=[],wishSlots=[],wishList=[],wishBulbM=[],wishN=0,wishG=new THREE.Group();wishG.position.set(WX,0,WZ);gC.add(wishG);
 var WR=[7.2,6.1,5.1,4.1,3.0,2.0],WH=[3.0,2.8,2.6,2.4,2.0,1.6],WB=[2.6,4.6,6.6,8.6,10.4,12.0];
 function wishEnv(y){var r=0;for(var i=0;i<6;i++){if(y>=WB[i]&&y<=WB[i]+WH[i])r=Math.max(r,WR[i]*(1-(y-WB[i])/WH[i]));}return r;}
 (function(){
@@ -2693,14 +2694,18 @@ function wishCard(txt,slot,anim){
   return {g:gr,sl:slot,born:anim?t:-999,ph:Math.random()*6,tx:tx};
 }
 function wishDrop(o){wishG.remove(o.g);o.tx.dispose();o.g.traverse(function(m){if(m.geometry)m.geometry.dispose();if(m.material)m.material.dispose();});}
-function wishAdd(txt,anim,save,ix){
-  var idx=(typeof ix==='number'?ix:wishN)%wishSlots.length;wishN++;
-  if(wishTags[idx]){wishDrop(wishTags[idx]);}
-  var go=function(){if(wishTags[idx])wishDrop(wishTags[idx]);wishTags[idx]=wishCard(txt,wishSlots[idx],anim);};
-  wishList.push(txt);if(wishList.length>wishSlots.length)wishList.shift();
+function wishSave(){try{localStorage.setItem('wishTree2',JSON.stringify(wishList.slice(-60)));}catch(e){}}
+// 앞 3칸(WISH_RES)은 예시 소원 자리라 계속 남고, 나머지 칸의 소원은 하루(24시간)가 지나면 사라져요
+function wishAdd(txt,anim,save,ix,ts,demo){
+  var n=wishSlots.length,idx=demo?((ix|0)%WISH_RES):WISH_RES+((typeof ix==='number'?ix:wishN)%Math.max(1,n-WISH_RES));
+  if(!demo)wishN++;
+  ts=demo?0:(ts||Date.now());
+  var go=function(){if(wishTags[idx])wishDrop(wishTags[idx]);var o=wishCard(txt,wishSlots[idx],anim);o.ts=ts;wishTags[idx]=o;};
+  if(!demo){wishList.push({t:txt,ts:ts});if(wishList.length>n)wishList.shift();}
   if(document.fonts&&document.fonts.load)document.fonts.load("bold 40px 'Gowun Batang'",txt).then(go,go);else go();
-  if(save){try{localStorage.setItem('wishTree1',JSON.stringify(wishList.slice(-wishSlots.length)));}catch(e){}}
+  if(save)wishSave();
 }
+setInterval(function(){var now=Date.now(),ch=false;for(var j=0;j<wishTags.length;j++){var o=wishTags[j];if(o&&o.ts&&now-o.ts>=WISH_TTL){wishDrop(o);wishTags[j]=undefined;ch=true;}}if(ch){wishList=wishList.filter(function(x){return now-x.ts<WISH_TTL;});wishSave();}},60000);
 function wishTick(){
   var d=Math.hypot(me.x-WX,me.z-WZ),near=scene==='cabin'&&d<12&&!me.sit&&cabIn()<0;
   var dv=near?'':'none';if(wishBtn.style.display!==dv)wishBtn.style.display=dv;
@@ -2715,11 +2720,16 @@ wishRow.innerHTML='<input type="text" maxlength="22" placeholder="소원을 적�
 (function(){var tr=document.getElementById('tent');tr.parentNode.insertBefore(wishBtn,tr);tr.parentNode.parentNode.insertBefore(wishRow,tr.parentNode);})();
 var wishIn=wishRow.querySelector('input');
 function wishShow(v){wishRow.style.display=v?'':'none';wishBtn.setAttribute('aria-pressed',v?'true':'false');if(v){wishIn.value='';setTimeout(function(){try{wishIn.focus();}catch(e){}},50);}}
-function wishSubmit(){var tx=wishIn.value.trim();if(!tx){msgEl.textContent='소원을 먼저 적어요';msg.classList.add('on');return;}SH.send('wish',{t:tx.slice(0,22)},function(id){wishAdd(tx,true,true,id===null?undefined:id);tagSound();});wishShow(false);msgEl.textContent='✨ 소원을 트리에 걸었어요';msg.classList.add('on');}
+function wishSubmit(){var tx=wishIn.value.trim();if(!tx){msgEl.textContent='소원을 먼저 적어요';msg.classList.add('on');return;}SH.send('wish',{t:tx.slice(0,22),ts:Date.now()},function(id){wishAdd(tx,true,true,id===null?undefined:id);tagSound();});wishShow(false);msgEl.textContent='✨ 소원을 트리에 걸었어요';msg.classList.add('on');}
 wishBtn.addEventListener('click',function(){wishShow(wishRow.style.display==='none');});
 wishRow.addEventListener('click',function(e){var w=e.target.getAttribute&&e.target.getAttribute('data-w');if(w==='ok')wishSubmit();else if(w==='no')wishShow(false);});
 wishIn.addEventListener('keydown',function(e){if(e.key==='Enter')wishSubmit();});
-(function(){var L=[];try{L=JSON.parse(localStorage.getItem('wishTree1')||'[]');}catch(e){}if(!Array.isArray(L)||!L.length)L=['모두 따뜻한 겨울 보내요','푹 쉬고 싶어요','좋은 일만 가득하길'];L.slice(-wishSlots.length).forEach(function(x){wishAdd(String(x).slice(0,22),false,false);});})();
+(function(){
+  ['모두 따뜻한 겨울 보내요','푹 쉬고 싶어요','좋은 일만 가득하길'].forEach(function(x,i){wishAdd(x,false,false,i,0,true);});
+  var L=[];try{L=JSON.parse(localStorage.getItem('wishTree2')||'[]');}catch(e){}
+  if(!Array.isArray(L))L=[];var now=Date.now();
+  L.filter(function(x){return x&&x.t&&+x.ts&&now-x.ts<WISH_TTL;}).slice(-wishSlots.length).forEach(function(x){wishAdd(String(x.t).slice(0,22),false,false,undefined,+x.ts);});
+})();
 var snowBtn=document.createElement('button');snowBtn.type='button';snowBtn.textContent='눈 던지기';snowBtn.style.display='none';(function(){var tr=document.getElementById('tent');tr.parentNode.insertBefore(snowBtn,tr);})();
 snowBtn.addEventListener('click',function(){throwMode=!throwMode;snowBtn.textContent=throwMode?'던지기 끄기':'눈 던지기';if(throwMode){msgEl.textContent='던지고 싶은 곳을 눌러요';msg.classList.add('on');}});
 var throwT=0,thrQ=[],piles=[],pileG=null;
@@ -2728,7 +2738,7 @@ function thrFlush(){if(!thrQ.length)return;var now=Date.now();while(thrQ.length&
 function snowPile(x,z){if(!pileG)pileG=new THREE.SphereGeometry(.3,10,6);var p=null,i;for(i=0;i<piles.length;i++)if(Math.hypot(piles[i].x-x,piles[i].z-z)<.6){p=piles[i];break;}if(p){p.s=Math.min(2.4,p.s+.3);p.m.scale.set(p.s,.38*p.s,p.s);}else{var m=mesh(pileG,snM,x,.02,z);m.scale.set(1,.38,1);gC.add(m);piles.push({m:m,x:x,z:z,s:1});if(piles.length>45){var o=piles.shift();gC.remove(o.m);}}}
 function snowStep(){thrFlush();for(var i=snowballs.length-1;i>=0;i--){var b=snowballs[i],P=b.m.position,hit=false;b.n++;b.vy-=.011;P.x+=b.vx;P.z+=b.vz;P.y+=b.vy;for(var j=0;j<snowmen.length;j++){var s=snowmen[j];if(Math.hypot(P.x-s.x,P.z-s.z)<.9&&P.y<2.5){s.w=24;hit=true;hitN++;msgEl.textContent='⛄ 눈사람 명중! '+hitN+'번';break;}}for(var c=0;c<CAB.length;c++)if(Math.abs(P.x-CAB[c][0])<3.1&&Math.abs(P.z-CAB[c][1])<2.4&&P.y<4.8)hit=true;if(hit||P.y<.15||b.n>140){if(!hit&&P.y<.15&&b.n<=140)snowPile(P.x,P.z);gC.remove(b.m);snowballs.splice(i,1);}}for(var k=0;k<snowmen.length;k++){var s2=snowmen[k];if(s2.w>0){s2.w--;s2.g.rotation.z=Math.sin(s2.w*.8)*.12*s2.w/24;}}}
 // ── 숲속 방명록 터 (서쪽 들판): 꼬마전구 줄에 나무 팻말을 걸어요 ──
-var gbTags=[],gbSlots=[],gbNext=0;
+var GB_TTL=24*60*60*1000,gbTags=[],gbSlots=[],gbNext=0;
 function tagSound(){
   if(!ac||!on)return;
   var t0=ac.currentTime+.01,o=ac.createOscillator(),g=ac.createGain();
@@ -2740,7 +2750,7 @@ function tagSound(){
   o2.connect(g2);g2.connect(master);o2.start(t0+.07);o2.stop(t0+.45);
 }
 function dropTag(o){gF.remove(o.g);o.g.traverse(function(m){if(m.geometry)m.geometry.dispose();var ms=m.material;if(ms)(Array.isArray(ms)?ms:[ms]).forEach(function(x){if(x.map)x.map.dispose();x.dispose();});});}
-function addTag(txt,sl,quiet){
+function addTag(txt,sl,quiet,ts){
   function go(){
     for(var i2=gbTags.length-1;i2>=0;i2--)if(gbTags[i2].sl===sl){dropTag(gbTags[i2]);gbTags.splice(i2,1);}
     var cv=document.createElement('canvas');cv.width=256;cv.height=112;var g=cv.getContext('2d');
@@ -2758,7 +2768,7 @@ function addTag(txt,sl,quiet){
     bd.position.set(0,-.47,0);tg.add(bd);
     tg.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-.4,-.22,0),new THREE.Vector3(0,0,0),new THREE.Vector3(.4,-.22,0)]),new THREE.LineBasicMaterial({color:0xd8c7a0})));
     tg.position.set(sl.x,sl.y,sl.z);tg.rotation.y=sl.ry;gF.add(tg);
-    gbTags.push({g:tg,sl:sl,born:quiet?-999:t,ph:Math.random()*6});
+    gbTags.push({g:tg,sl:sl,born:quiet?-999:t,ph:Math.random()*6,ts:ts===-1?0:(ts||Date.now())});
   }
   if(document.fonts&&document.fonts.load)document.fonts.load('16px "Gowun Batang"',txt).then(go,go);else go();
 }
@@ -2766,12 +2776,13 @@ function hangTag(){
   var txt=sandGetText();
   if(!txt){msg.textContent='먼저 글자를 만들어요';msg.classList.add('on');return false;}
   if(!gbSlots.length)return false;
-  SH.send('tag',{t:txt.slice(0,20)},function(id){addTag(txt,gbSlots[(id!==null?id:gbNext++)%gbSlots.length]);tagSound();});
+  SH.send('tag',{t:txt.slice(0,20),ts:Date.now()},function(id){addTag(txt,gbSlots[(id!==null?id:gbNext++)%gbSlots.length]);tagSound();});
   msg.textContent='팻말을 걸었어요';msg.classList.add('on');
   return true;
 }
-function addDemoTag(){if(gbSlots.length){addTag('나그네',gbSlots[0]);gbNext=1;}}
+function addDemoTag(){if(gbSlots.length){addTag('나그네',gbSlots[0],false,-1);gbNext=1;}}
 function clearTags(){while(gbTags.length)dropTag(gbTags.pop());gbNext=0;addDemoTag();}
+setInterval(function(){var now=Date.now();for(var i=gbTags.length-1;i>=0;i--){var o=gbTags[i];if(o.ts&&now-o.ts>=GB_TTL){dropTag(o);gbTags.splice(i,1);}}},60000);
 function gbTick(){
   if(scene!=='fire')return;
   for(var i=0;i<gbTags.length;i++){var o=gbTags[i],age=t-o.born;o.g.rotation.z=Math.sin(t*.03+o.ph)*.04+(age<100?Math.sin(age*.3)*.4*Math.pow(1-age/100,2):0);o.g.position.y=o.sl.y+(age<14?(1-age/14)*.9:0);}
