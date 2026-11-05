@@ -2026,22 +2026,42 @@ function stepMe(){
 var logEl=document.getElementById('log'),unsub=null;
 var skySayEl=document.getElementById('skysay'),skySayT=0;
 function showSkyText(txt){skySayEl.textContent=txt;skySayEl.classList.add('on');clearTimeout(skySayT);skySayT=setTimeout(function(){skySayEl.classList.remove('on');},7000);}
-function bubTex(txt){
+function bubTex(txt,chat){
   var c=document.createElement('canvas');c.width=512;c.height=128;var x=c.getContext('2d');
-  x.font='30px "Gowun Batang",serif';x.textAlign='center';x.fillStyle='#fff4e0';
+  x.textAlign='center';
+  if(chat){
+    var l1=txt.slice(0,15),l2=txt.slice(15,30),h=l2?100:62,y0=(128-h)/2;
+    x.fillStyle='rgba(24,14,8,.66)';x.beginPath();if(x.roundRect)x.roundRect(14,y0,484,h,24);else x.rect(14,y0,484,h);x.fill();
+    x.font='28px "Gowun Batang",serif';x.fillStyle='#fff4e0';
+    if(l2){x.fillText(l1,256,y0+40);x.fillText(l2,256,y0+80);}else x.fillText(l1,256,y0+h/2+9);
+    return new THREE.CanvasTexture(c);
+  }
+  x.font='30px "Gowun Batang",serif';x.fillStyle='#fff4e0';
   x.fillText(txt.length>18?txt.slice(0,17)+'…':txt,256,64);return new THREE.CanvasTexture(c);
 }
-function bubble(p,txt){
+function bubble(p,txt,chat){
   if(!p.bub){p.bub=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthTest:false}));p.bub.scale.set(2.6,.65,1);p.bub.position.y=2.7;p.g.add(p.bub);}
   if(p.bub.material.map)p.bub.material.map.dispose();
-  p.bub.material.map=bubTex(txt);p.bub.material.needsUpdate=true;p.bub.visible=true;p.bubT=t+420;
+  p.bub.material.map=bubTex(txt,chat);p.bub.material.needsUpdate=true;p.bub.visible=true;p.bubT=t+(chat?600:420);
 }
 function addLog(n,txt){
   var d=document.createElement('div');d.textContent=n+': '+txt;logEl.appendChild(d);
   while(logEl.children.length>5)logEl.removeChild(logEl.firstChild);
   setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},30000);
 }
-function onChat(){}
+var CHAT_BAD=['시발','씨발','씨팔','시팔','ㅅㅂ','ㅆㅂ','병신','ㅂㅅ','지랄','ㅈㄹ','좆','존나','개새끼','미친놈','미친년','꺼져','닥쳐','섹스','야동','씹','썅','엿먹','느금','패드립','fuck','shit','bitch','porn','sex'];
+function chatCheck(raw){
+  var tx=String(raw||'').replace(/\s+/g,' ').trim().slice(0,30);if(!tx)return {ok:false,why:''};
+  var k=tx.toLowerCase().replace(/[^0-9a-z가-힣ㄱ-ㅎ]/g,'');
+  for(var i=0;i<CHAT_BAD.length;i++)if(k.indexOf(CHAT_BAD[i])>=0)return {ok:false,why:'고운 말로 이야기해요 🌿'};
+  if(/https?:|www\.|\.com|\.kr|\.net|@/i.test(tx)||tx.replace(/\D/g,'').length>=7)return {ok:false,why:'링크나 연락처는 남길 수 없어요'};
+  return {ok:true,t:tx};
+}
+function onChat(d){
+  var c=chatCheck(d&&d.t);if(!c.ok)return;
+  var p=players[d.id];if(p)bubble(p,c.t,true);
+  addLog(String(d.n||'나그네').slice(0,8),c.t);
+}
 var inTent=null,tentBtn=document.getElementById('tent'),sitBtn=document.getElementById('sit'),lieBtn=document.getElementById('lie');
 function enterTent(){
   var best=null,bd=1e9;
@@ -2406,6 +2426,7 @@ function makeSupaLobby(url,key){
     if(withPos){
       ch.on('broadcast',{event:'pos'},function(m){var d=m&&m.payload;if(d&&d.id&&d.id!==myId&&d.p){pos[d.id]=d.p;seenAt[d.id]=Date.now();o.got++;}});
       ch.on('broadcast',{event:'bye'},function(m){var d=m&&m.payload;if(d&&d.id){delete pos[d.id];delete seenAt[d.id];}});
+      ch.on('broadcast',{event:'chat'},function(m){var d=m&&m.payload;if(d&&d.id&&d.id!==myId&&typeof d.t==='string'&&o.chatCb){try{o.chatCb(d);}catch(e){}}});
     }
     function bye(){if(!ready||!withPos)return;try{var r=ch.send({type:'broadcast',event:'bye',payload:{id:myId}});if(r&&r.catch)r.catch(function(){});}catch(e){}}
     function tick(){
@@ -2439,7 +2460,8 @@ function makeSupaLobby(url,key){
       }
       return out;
     };
-    o.on=function(){return function(){};};
+    o.on=function(ev,fn){if(ev==='chat')o.chatCb=fn;return function(){if(o.chatCb===fn)o.chatCb=null;};};
+    o.sendChat=function(txt,nm){if(!ready||!withPos)return false;try{var r=ch.send({type:'broadcast',event:'chat',payload:{id:myId,t:txt,n:nm}});if(r&&r.catch)r.catch(function(){});return true;}catch(e){return false;}};
     window.addEventListener('pagehide',bye);
     o.leave=function(){bye();window.removeEventListener('pagehide',bye);clearInterval(iv);iv=0;ready=false;o.ok=false;pos={};seenAt={};return Promise.resolve(sb.removeChannel(ch));};
     o.dbg=function(){return (o.ok?'연결':'끊김')+' 이웃'+Object.keys(pos).length+' 보냄'+o.sent+' 받음'+o.got;};
@@ -2714,6 +2736,28 @@ function wishTick(){
   wishFx();var st=wishG.userData.star;if(st)st.rotation.y+=.01;
   for(var j=0;j<wishTags.length;j++){var o=wishTags[j];if(!o)continue;var age=t-o.born;o.g.rotation.y=Math.atan2(cam.position.x-WX-o.sl.x,cam.position.z-WZ-o.sl.z);o.g.rotation.z=Math.sin(t*.03+o.ph)*.07+(age>=0&&age<90?Math.sin(age*.35)*.3*Math.pow(1-age/90,2):0);o.g.position.y=o.sl.y+(age>=0&&age<26?Math.pow(1-age/26,2)*3:0);}
 }
+var chatBtn=document.createElement('button');chatBtn.type='button';chatBtn.textContent='말하기';
+var chatRow=document.createElement('div');chatRow.className='chatrow';chatRow.style.display='none';
+chatRow.innerHTML='<input type="text" maxlength="30" placeholder="한마디 남겨요" aria-label="채팅" autocomplete="off"><button type="button" data-c="ok">보내기</button><button type="button" data-c="no">닫기</button>';
+(function(){var tr=document.getElementById('tent');tr.parentNode.insertBefore(chatBtn,tr);tr.parentNode.parentNode.insertBefore(chatRow,tr.parentNode);})();
+var chatIn=chatRow.querySelector('input'),chatLast=0,chatPrev='',chatPrevAt=0,chatSolo=false;
+function chatShow(v){chatRow.style.display=v?'':'none';chatBtn.setAttribute('aria-pressed',v?'true':'false');if(v){chatIn.value='';setTimeout(function(){try{chatIn.focus();}catch(e){}},50);}else{try{chatIn.blur();}catch(e){}}}
+function chatSend(){
+  var c=chatCheck(chatIn.value);
+  if(!c.ok){if(c.why){msgEl.textContent=c.why;msg.classList.add('on');}return;}
+  var now=Date.now();
+  if(now-chatLast<1500){msgEl.textContent='조금만 천천히 말해요';msg.classList.add('on');return;}
+  if(c.t===chatPrev&&now-chatPrevAt<10000)return;
+  chatLast=now;chatPrev=c.t;chatPrevAt=now;
+  var pm=players.me;if(pm)bubble(pm,c.t,true);
+  addLog(me.name||'나',c.t);
+  var sent=!!(room&&room.sendChat&&room.sendChat(c.t,(me.name||'나그네').slice(0,8)));
+  if(!sent&&!chatSolo){chatSolo=true;msgEl.textContent='지금은 혼자 있거나 연결 중이라 나한테만 보여요';msg.classList.add('on');}
+  chatIn.value='';
+}
+chatBtn.addEventListener('click',function(){chatShow(chatRow.style.display==='none');});
+chatRow.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.c==='ok')chatSend();else if(b.dataset.c==='no')chatShow(false);});
+chatIn.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();chatSend();}else if(e.key==='Escape')chatShow(false);});
 var wishBtn=document.createElement('button');wishBtn.type='button';wishBtn.textContent='소원 걸기';wishBtn.style.display='none';
 var wishRow=document.createElement('div');wishRow.className='chatrow';wishRow.style.display='none';
 wishRow.innerHTML='<input type="text" maxlength="22" placeholder="소원을 적어요" aria-label="소원"><button type="button" data-w="ok">걸기</button><button type="button" data-w="no">닫기</button>';
