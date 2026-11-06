@@ -90,6 +90,10 @@ body.folded .helpbtn,body.folded #guide{display:none!important}
 #guide{position:fixed;top:calc(128px + env(safe-area-inset-top,0px));right:10px;z-index:7;display:none;flex-direction:column;gap:10px;box-sizing:border-box;width:min(310px,calc(100vw - 20px));max-height:calc(100vh - 150px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding:12px;border-radius:18px;background:rgba(20,14,10,.9);backdrop-filter:blur(6px);box-shadow:0 8px 28px rgba(0,0,0,.5);pointer-events:auto;text-shadow:0 1px 3px #000}
 #guide.on{display:flex}
 #guide.fbmode .gfb{display:flex}
+#guide #fblist{display:flex;flex-direction:column;gap:6px;max-height:42vh;overflow-y:auto;overscroll-behavior:contain;font-size:.82rem;line-height:1.4;text-align:left}
+#guide #fblist:empty{display:none}
+#guide #fblist div{padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.07)}
+#guide #fblist small{display:block;opacity:.55;font-size:.72rem}
 #guide.fbmode .gbody{display:none}
 #guide h2{margin:0;font-size:1rem;font-weight:400;letter-spacing:.06em;text-align:center}
 #guide .gtabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -151,7 +155,7 @@ body.folded .ui #actrow button[data-ic]::before{font-size:1.3rem}
 <div id="vig"></div><div id="flash"></div><div id="polaroid" role="dialog" aria-label="폴라로이드 사진"><img class="pol" id="polimg" alt="찍은 사진"><input id="polcap" maxlength="16" placeholder="사진에 쓸 글 (최대 16자)" aria-label="사진에 쓸 글" autocomplete="off"><div class="row"><button type="button" id="polsave">저장</button><button type="button" id="polclose">닫기</button></div></div>
 <div id="start" role="dialog" aria-label="입장할 곳 고르기"><h1>나그네</h1><p>잠깐, 어디서 쉬어갈래요?</p><div class="picks"><button type="button" data-s="fire"><b>🔥 숲속 캠핑 불멍</b><span>타닥타닥 모닥불 앞에서<br>조용히 불을 바라봐요</span></button><button type="button" data-s="beach"><b>🌊 바닷가 물멍</b><span>파도 소리를 듣고<br>모래에 편지를 써요</span></button><button type="button" data-s="cabin"><b>❄️ 눈 오는 오두막</b><span>눈 내리는 밤,<br>따뜻한 오두막에서 쉬어요</span></button></div><button type="button" id="startsnd" aria-pressed="true">🔊 소리 켜고 입장</button></div>
 <p class="top" id="top">나그네</p>
-<button id="fold" class="fold" type="button">접기</button><button id="cam" class="cambtn" type="button" aria-label="사진 찍기" title="사진 찍기" style="display:none">📷</button><button id="helpbtn" class="helpbtn" type="button" aria-label="조작 안내" title="조작 안내" aria-expanded="false" aria-controls="guide" style="display:none">❔</button><div id="guide" role="dialog" aria-label="조작 안내"><h2>이렇게 쉬어가요</h2><div class="gtabs" id="gtabs"><button type="button" data-g="fire">🔥 불멍</button><button type="button" data-g="beach">🌊 물멍</button><button type="button" data-g="cabin">❄️ 오두막</button><button type="button" data-g="fb">💬 한마디</button></div><div class="gbody" id="gbody"></div><div class="gfb"><div class="gfbrow"><input id="fbin" maxlength="200" placeholder="💬 하고 싶은 말 한마디" aria-label="한마디 남기기" autocomplete="off"><button id="fbsend" type="button">보내기</button></div><p class="gnote" id="fbmsg"></p></div></div>
+<button id="fold" class="fold" type="button">접기</button><button id="cam" class="cambtn" type="button" aria-label="사진 찍기" title="사진 찍기" style="display:none">📷</button><button id="helpbtn" class="helpbtn" type="button" aria-label="조작 안내" title="조작 안내" aria-expanded="false" aria-controls="guide" style="display:none">❔</button><div id="guide" role="dialog" aria-label="조작 안내"><h2>이렇게 쉬어가요</h2><div class="gtabs" id="gtabs"><button type="button" data-g="fire">🔥 불멍</button><button type="button" data-g="beach">🌊 물멍</button><button type="button" data-g="cabin">❄️ 오두막</button><button type="button" data-g="fb">💬 한마디</button></div><div class="gbody" id="gbody"></div><div class="gfb"><div class="gfbrow"><input id="fbin" maxlength="200" placeholder="💬 하고 싶은 말 한마디" aria-label="한마디 남기기" autocomplete="off"><button id="fbsend" type="button">보내기</button></div><p class="gnote" id="fbmsg"></p><div id="fblist"></div></div></div>
 <button id="tabtog" class="tabtog" type="button" aria-expanded="false" aria-controls="tabs" aria-label="장소 바꾸기" title="장소 바꾸기">🔥 ▾</button>
 <p class="skysay" id="skysay"></p><div class="tabs" id="tabs"><button data-s="fire" type="button">🔥 숲속 캠핑 불멍</button><button data-s="beach" type="button">🌊 바닷가 물멍</button><button data-s="cabin" type="button">❄️ 눈 오는 오두막</button></div>
 <div class="log" id="log"></div>
@@ -4220,7 +4224,7 @@ btn.addEventListener('click',function(){
   function rows(a){var h='<ul>',i,r;for(i=0;i<a.length;i++){r=a[i];h+='<li><i>'+r[0]+'</i><div><b>'+r[1]+'</b><br><span>'+r[2]+'</span></div></li>';}return h+'</ul>';}
   function render(k){
     cur=k;var bs=gt.querySelectorAll('button'),i;for(i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',bs[i].getAttribute('data-g')===k?'true':'false');
-    gd.classList.toggle('fbmode',k==='fb');if(k==='fb'){gbd.innerHTML='';return;}
+    gd.classList.toggle('fbmode',k==='fb');if(k==='fb'){gbd.innerHTML='';if(window.__fbLoad)window.__fbLoad();return;}
     gbd.innerHTML='<div><h3>'+G[k].t+'</h3>'+rows(G[k].r)+'</div><div><h3>어디서나</h3>'+rows(C)+'</div><p class="gnote">버튼이 안 보이면 그 자리에 가까이 가거나 앉기·눕기를 해보세요</p>';
     gbd.scrollTop=0;
   }
@@ -4243,11 +4247,24 @@ btn.addEventListener('click',function(){
     fs.disabled=true;
     SH.send('feedback',{t:t.slice(0,200),n:(typeof me!=='undefined'&&me.name)||'',sc:sceneKey(),ts:Date.now()},function(id){
       fs.disabled=false;
-      if(id){fi.value='';fbSay('고마워요! 잘 전달됐어요 🙏');}
+      if(id){fi.value='';fbSay('고마워요! 잘 전달됐어요 🙏');if(window.__fbLoad)window.__fbLoad();}
       else fbSay('못 보냈어요 · '+((SH.err||'').slice(0,80)||'잠시 후 다시 눌러줘요'));
     });
   }
   fs.addEventListener('click',fbSend);
+  // 한마디 탭을 열면 모두가 남긴 글이 최근 순으로 보여요
+  var ADM='';
+  window.__fbLoad=function(){
+    var c=window.__SB,fl=document.getElementById('fblist');if(!c||!fl)return;
+    c.from('posts').select('id,body').eq('kind','feedback').order('id',{ascending:false}).limit(40).then(function(r){
+      fl.innerHTML='';if(r.error||!r.data)return;
+      r.data.forEach(function(x){var b=x.body||{},d=document.createElement('div'),sm=document.createElement('small'),t=b.ts?new Date(+b.ts):null;
+        d.textContent=b.t||'';if(ADM){var dl=document.createElement('button');dl.type='button';dl.textContent='🗑';dl.style.cssText='float:right;padding:2px 8px;font-size:.8rem;margin-left:8px';dl.addEventListener('click',function(){if(!confirm('이 글을 지울까요?'))return;c.rpc('del_feedback',{pid:x.id,pw:ADM}).then(function(r){if(r&&r.data===true){fbSay('지웠어요');window.__fbLoad();}else{ADM='';fbSay('비밀번호가 달라요 · '+((r&&r.error&&r.error.message)||''));window.__fbLoad();}});});d.appendChild(dl);}sm.textContent=((b.n||'이름없음')+(t?' · '+(t.getMonth()+1)+'/'+t.getDate()+' '+t.getHours()+':'+('0'+t.getMinutes()).slice(-2):''));d.appendChild(sm);fl.appendChild(d);});
+    },function(){});
+  };
+  (function(){var fl=document.getElementById('fblist'),ab=document.createElement('button');ab.type='button';ab.textContent='🔑 관리';ab.style.cssText='align-self:flex-end;padding:3px 10px;font-size:.72rem;opacity:.55';
+    fl.parentNode.insertBefore(ab,fl);
+    ab.addEventListener('click',function(){if(ADM){ADM='';ab.textContent='🔑 관리';window.__fbLoad();return;}var p=prompt('관리자 비밀번호');if(!p)return;ADM=p;ab.textContent='🔓 관리 끄기';window.__fbLoad();});})();
   fi.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();fbSend();}});
   gt.addEventListener('click',function(){fbSay('');});
   setInterval(show,400);
