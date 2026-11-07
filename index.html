@@ -397,16 +397,16 @@ stars.material.sizeAttenuation=false;stars.material.size=2;gF.add(stars);
 var CIN_SZ=-24,CIN_W=24,CIN_H=13.5,CIN_Y=9;   // 스크린 위치(z)와 크기. 입장 위치는 아래 ENTRY.cinema
 var cinScr=null,cinFrm=null,cinGlow=null,cinPosts=[],cinBeamG=null,cinTexL=null,cinTexP=null,cinVert=false,cinLastCh=-1,cinLastPl='x';
 // 🚪 별실 3개: 중앙 극장 서쪽 복도(세로 복도)를 따라 문이 3개. c=방 중심 z, v=세로 스크린(숏츠), w·h=스크린 크기
-var SUITES=[{c:-40,v:false,w:15.5,h:8.72},{c:-2,v:true,w:4.95,h:8.8},{c:36,v:false,w:15.5,h:8.72}];
-var SU_X0=-60.4,SU_XR=-37.2,SU_XD0=-37.6,SU_XD1=-36.2,SU_HX0=-36.4,SU_HX1=-33,SU_HZ0=-47,SU_HZ1=44,SU_SX=-60.9,SU_SY=4.9,SU_DOORX=-36.8;
+var SUITES=[{c:-40,v:false,w:19.5,h:10.97},{c:-2,v:true,w:6.19,h:11},{c:36,v:false,w:19.5,h:10.97}];
+var SU_X0=-66.4,SU_XR=-37.2,SU_XD0=-37.6,SU_XD1=-36.2,SU_HX0=-36.4,SU_HX1=-33,SU_HZ0=-48,SU_HZ1=45,SU_SX=-66.9,SU_SY=6.0,SU_DOORX=-36.8;
 var CIN_RECTS=[[SU_HX0,-26,-3.6,-.4],[SU_HX0,SU_HX1,SU_HZ0,SU_HZ1]],CIN_DR=[];   // 입구 복도 · 세로 복도 (걸을 수 있는 곳)
-SUITES.forEach(function(s){CIN_DR.push([SU_XD0,SU_XD1,s.c-1.6,s.c+1.6]);CIN_RECTS.push([SU_X0,SU_XR,s.c-9.5,s.c+9.5]);});   // 문 칸 · 방 안
+SUITES.forEach(function(s){CIN_DR.push([SU_XD0,SU_XD1,s.c-1.6,s.c+1.6]);CIN_RECTS.push([SU_X0,SU_XR,s.c-12.5,s.c+12.5]);});   // 문 칸 · 방 안
 var cinDoors=[],cinWay=[],cinWayT=null,cinWayOpen=false,cinEnterAct=null;
 function cinDoorOpen(i){var d=cinDoors[i];if(!d)return false;if(Date.now()<d.until)return true;return me.x>SU_XD0-.1&&me.x<SU_XD1+.1&&Math.abs(me.z-SUITES[i].c)<1.7;}
-function cinSuiteIdx(){if(scene!=='cinema')return -1;if(me.x<SU_XD0+.2)for(var i=0;i<SUITES.length;i++)if(Math.abs(me.z-SUITES[i].c)<10)return i;return -1;}
+function cinSuiteIdx(){if(scene!=='cinema')return -1;if(me.x<SU_XD0+.2)for(var i=0;i<SUITES.length;i++)if(Math.abs(me.z-SUITES[i].c)<13)return i;return -1;}
 function cinPlace(){var i=cinSuiteIdx();return i<0?'H':String(i);}
 function cinZone(x,z){   // 0~2 별실 안 · 3 세로 복도(문 앞) · 4 중앙 극장/입구 복도
-  var i;if(x<SU_XD0+.2){for(i=0;i<SUITES.length;i++)if(Math.abs(z-SUITES[i].c)<10.2)return i;}
+  var i;if(x<SU_XD0+.2){for(i=0;i<SUITES.length;i++)if(Math.abs(z-SUITES[i].c)<13.2)return i;}
   if(x<SU_HX1+.4&&x>SU_XD0-.4&&z>SU_HZ0-1&&z<SU_HZ1+1)return 3;return 4;
 }
 function cinRoutePt(P){   // 지금 위치 → P 까지 거쳐 갈 지점들 (문 · 복도를 돌아서)
@@ -422,7 +422,7 @@ function cinTapRoute(){   // 바닥을 눌렀는데 다른 구역이면 문 · �
 }
 function cinCamClamp(w){   // 별실 · 복도 안에서는 카메라도 벽 밖으로 못 나가요
   var z=cinZone(me.x,me.z),c;
-  if(z<3){c=SUITES[z].c;w.x=Math.max(-60.6,Math.min(-37.1,w.x));w.z=Math.max(c-9.8,Math.min(c+9.8,w.z));w.y=Math.max(1,Math.min(9.2,w.y));}
+  if(z<3){c=SUITES[z].c;w.x=Math.max(-66.6,Math.min(-37.1,w.x));w.z=Math.max(c-12.8,Math.min(c+12.8,w.z));w.y=Math.max(1,Math.min(11.7,w.y));}
   else if(z===3){w.x=Math.max(SU_HX0-.2,Math.min(-22,w.x));w.z=Math.max(SU_HZ0-7,Math.min(SU_HZ1+7,w.z));}   // 복도 동쪽은 뻥 뚫린 땅이라 카메라가 뒤로 물러날 수 있어요
 }
 function cinOpenFor(x,z){var zz=cinZone(x,z);if(zz<3&&cinDoors[zz])cinDoors[zz].until=Date.now()+7000;}
@@ -532,16 +532,16 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     mSeats.push({m:pk,x:x,z:z,fx:(fx===undefined?x:fx),fz:(fz===undefined?CIN_SZ:fz)});
   }
   var cc=[0x7a4a32,0x38465f,0x6a3040,0x3a5a48];   // 갈색 · 남색 · 와인 · 초록 가죽
-  for(var ci=0;ci<6;ci++)chair(-7.5+ci*3,3.5,cc[ci%4]);
+  for(var ci=0;ci<7;ci++)chair(-9+ci*3,3.5,cc[ci%4]);
 
   // ═══ 🚪 별실 3개 (드라마 · 숏츠 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
   (function(){
-    var WH=9.8,wood=M(0x6a4a30,0x120c06),lampG=new THREE.SphereGeometry(.17,10,8),lampM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false}),poleG=new THREE.CylinderGeometry(.04,.05,1.2,6),poleM=M(0x2a2420);
+    var WH=12,wood=M(0x6a4a30,0x120c06),lampG=new THREE.SphereGeometry(.17,10,8),lampM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false}),poleG=new THREE.CylinderGeometry(.04,.05,1.2,6),poleM=M(0x2a2420);
     var bulbG=new THREE.SphereGeometry(.09,8,6),bulbM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false});
     // 복도 바닥: 입구 복도(동서) + 세로 복도(남북)
     var pm=new THREE.MeshLambertMaterial({color:0x5b4a3a,emissive:0x15100c});
     var p1=mesh(new THREE.PlaneGeometry(10.4,3.2),pm,-31.2,.026,-2);p1.rotation.x=-Math.PI/2;gM.add(p1);
-    var p2=mesh(new THREE.PlaneGeometry(3.4,91),pm,-34.7,.027,-1.5);p2.rotation.x=-Math.PI/2;gM.add(p2);
+    var p2=mesh(new THREE.PlaneGeometry(3.4,93),pm,-34.7,.027,-1.5);p2.rotation.x=-Math.PI/2;gM.add(p2);
     [-43,-38,-33,-28,-23,-18,-13,-8,4,9,14,19,24,29,34,39].forEach(function(lz){gM.add(mesh(poleG,poleM,-33.2,.6,lz));gM.add(mesh(lampG,lampM,-33.2,1.3,lz));});
     [-30.6,-27.8].forEach(function(lx){[-3.9,-.1].forEach(function(lz){gM.add(mesh(poleG,poleM,lx,.6,lz));gM.add(mesh(lampG,lampM,lx,1.3,lz));});});
     (function(){   // 복도 입구 안내판
@@ -553,14 +553,14 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     var icons=['🎬','📱','🎨'],tints=[[0x2a3150,0x0d1122,0x5a2f3a],[0x1f3a40,0x0a1618,0x2f5a5a],[0x3a2f55,0x120d22,0x4a3a6a]];
     SUITES.forEach(function(S,i){
       var c=S.c,cs=(window.CIN_SUITES&&window.CIN_SUITES[i])||{},nm=String(cs.name||'별실').slice(0,10),T=tints[i%3];
-      var fl=mesh(new THREE.PlaneGeometry(24.2,20),new THREE.MeshLambertMaterial({color:0x3b2a20,emissive:0x1c130d}),-48.9,.03,c);fl.rotation.x=-Math.PI/2;gM.add(fl);
-      var rug=mesh(new THREE.PlaneGeometry(14,13),new THREE.MeshLambertMaterial({color:T[2],emissive:0x120a0c}),-53.8,.045,c);rug.rotation.x=-Math.PI/2;gM.add(rug);
+      var fl=mesh(new THREE.PlaneGeometry(30.2,26),new THREE.MeshLambertMaterial({color:0x3b2a20,emissive:0x1c130d}),-51.9,.03,c);fl.rotation.x=-Math.PI/2;gM.add(fl);
+      var rug=mesh(new THREE.PlaneGeometry(17,16),new THREE.MeshLambertMaterial({color:T[2],emissive:0x120a0c}),-58.4,.045,c);rug.rotation.x=-Math.PI/2;gM.add(rug);
       // 벽 (안쪽 면만 그려서 카메라가 벽 밖으로 나가도 시야를 안 가려요)
       var wM=new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide});
       function wall(w,h,x,y,z,ry){var p=mesh(new THREE.PlaneGeometry(w,h),wM,x,y,z);p.rotation.y=ry;gM.add(p);}
-      wall(24.2,WH,-48.9,WH/2,c-10,0);wall(24.2,WH,-48.9,WH/2,c+10,Math.PI);wall(20,WH,-61,WH/2,c,Math.PI/2);
-      wall(8.4,WH,SU_DOORX,WH/2,c-5.8,-Math.PI/2);wall(8.4,WH,SU_DOORX,WH/2,c+5.8,-Math.PI/2);wall(3.2,WH-3.4,SU_DOORX,3.4+(WH-3.4)/2,c,-Math.PI/2);
-      var rf=mesh(new THREE.PlaneGeometry(24.6,20.4),new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide}),-48.9,WH+.02,c);rf.rotation.x=-Math.PI/2;gM.add(rf);   // 지붕(안에서 보면 천장)
+      wall(30.2,WH,-51.9,WH/2,c-13,0);wall(30.2,WH,-51.9,WH/2,c+13,Math.PI);wall(26,WH,-67,WH/2,c,Math.PI/2);
+      wall(11.4,WH,SU_DOORX,WH/2,c-7.3,-Math.PI/2);wall(11.4,WH,SU_DOORX,WH/2,c+7.3,-Math.PI/2);wall(3.2,WH-3.4,SU_DOORX,3.4+(WH-3.4)/2,c,-Math.PI/2);
+      var rf=mesh(new THREE.PlaneGeometry(30.6,26.4),new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide}),-51.9,WH+.02,c);rf.rotation.x=-Math.PI/2;gM.add(rf);   // 지붕(안에서 보면 천장)
       // 문틀 · 문짝 (가까이 가면 안쪽으로 열려요)
       [-1.6,1.6].forEach(function(dz){gM.add(mesh(new THREE.CylinderGeometry(.16,.18,3.5,8),wood,SU_DOORX,1.75,c+dz));});
       var dg=new THREE.Group();dg.position.set(SU_DOORX,0,c+1.6);gM.add(dg);
@@ -575,16 +575,16 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
       sx.font='bold 46px "Gowun Batang","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';sx.fillText(icons[i%3]+' '+nm,256,66);
       var sgn=mesh(new THREE.PlaneGeometry(4.2,1.05),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc2),side:THREE.DoubleSide,fog:false}),SU_DOORX+.12,4.6,c);sgn.rotation.y=Math.PI/2;gM.add(sgn);
       // 꼬마전구 줄 (지붕 대신)
-      for(var bx=-60.4;bx<=-37;bx+=1.3){gM.add(mesh(bulbG,bulbM,bx,WH-.3,c-9.8));gM.add(mesh(bulbG,bulbM,bx,WH-.3,c+9.8));}
-      for(var bz=-9.4;bz<=9.4;bz+=1.3)gM.add(mesh(bulbG,bulbM,-60.8,WH-.3,c+bz));
+      for(var bx=-66.4;bx<=-37;bx+=1.3){gM.add(mesh(bulbG,bulbM,bx,WH-.3,c-12.8));gM.add(mesh(bulbG,bulbM,bx,WH-.3,c+12.8));}
+      for(var bz=-12.4;bz<=12.4;bz+=1.3)gM.add(mesh(bulbG,bulbM,-66.8,WH-.3,c+bz));
       // 스크린 (서쪽 벽, 동쪽을 바라봐요)
       var s2=mesh(new THREE.PlaneGeometry(S.w,S.h),new THREE.MeshBasicMaterial({map:S.v?cinTexP:cinTexL,fog:false,toneMapped:false}),SU_SX,SU_SY,c);s2.rotation.y=Math.PI/2;gM.add(s2);
       var f2=mesh(new THREE.BoxGeometry(.2,S.h+.5,S.w+.6),M(0x0d0f16),SU_SX-.13,SU_SY,c);gM.add(f2);
       var g2=mesh(new THREE.PlaneGeometry(S.w*1.6,S.h*1.6),new THREE.MeshBasicMaterial({map:glowTex,color:0x9fb4e8,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}),SU_SX+.4,SU_SY,c);g2.rotation.y=Math.PI/2;gM.add(g2);
       // 자리: 리클라이너 2줄 + 앞쪽 방석 (스크린을 봐요)
       var cc2=[0x7a4a32,0x38465f,0x6a3040,0x3a5a48];
-      [-6,-3,0,3,6].forEach(function(dz,k){chair(-52,c+dz,cc2[(k+i)%4],Math.PI/2,SU_SX,c);chair(-47.5,c+dz,cc2[(k+i+2)%4],Math.PI/2,SU_SX,c);});
-      mat(-57,c-8.2,'#8c3b3b','#d9b8a0',SU_SX,c,true);mat(-57,c+8.2,'#3b5f8c','#b8c8d9',SU_SX,c,true);
+      [-9,-6,-3,0,3,6,9].forEach(function(dz,k){chair(-58,c+dz,cc2[(k+i)%4],Math.PI/2,SU_SX,c);chair(-53.5,c+dz,cc2[(k+i+2)%4],Math.PI/2,SU_SX,c);chair(-49,c+dz,cc2[(k+i)%4],Math.PI/2,SU_SX,c);});
+      mat(-63,c-11.3,'#8c3b3b','#d9b8a0',SU_SX,c,true);mat(-63,c+11.3,'#3b5f8c','#b8c8d9',SU_SX,c,true);
     });
   })();
   // 빔프로젝터 (삼각대 위, 스크린을 향해요)
@@ -654,13 +654,14 @@ function cinTick(){
   var urlEl=document.getElementById('cinurl'),playB=document.getElementById('cinplay'),pauseB=document.getElementById('cinpause'),stopB=document.getElementById('cinstop'),joinB=document.getElementById('cinjoin'),seekRow=document.getElementById('cinseekrow'),ctlRow=document.getElementById('cinctl'),seekEl=document.getElementById('cinseek'),backB=document.getElementById('cinback'),fwdB=document.getElementById('cinfwd'),timeEl=document.getElementById('cintime'),vdur=0,dragSeek=false;
   if(!urlEl)return;
   var st=null,pend=null;   // st: 내가 보는 영상 상태 / pend: 다른 사람이 튼 영상 (같이 보기 버튼을 누르면 시작)
-  function nowT(){if(!st)return 0;return st.paused?st.t0:st.t0+(Date.now()-st.ref)/1000;}
+  function nowT(){if(!st)return 0;var tt=st.paused?st.t0:st.t0+(Date.now()-st.ref)/1000;return vdur>0?Math.min(tt,vdur):tt;}
   function send(s){s=String(s).replace('CIN|','CIN|@'+cinPlace()+'|');try{if(room&&room.sendChat)room.sendChat('\u0001'+s,(me.name||'나그네').slice(0,8));}catch(e){}}
   function cmd(fn,args){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:args||[]}),'*');}catch(e){}}
   var linkB=document.getElementById('cinlink'),urlRow=document.getElementById('cinurlrow');
   function showUrl(v){if(urlRow)urlRow.style.display=v?'flex':'none';if(linkB)linkB.setAttribute('aria-expanded',v?'true':'false');if(v)setTimeout(function(){try{urlEl.focus();}catch(e){}},30);}
   if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
-  function updPause(){if(pauseB)pauseB.textContent=(st&&st.paused)?'▶':'⏸';}
+  function markEnd(){if(!st||st.ended)return;st.ended=true;st.paused=true;st.t0=vdur>0?vdur:nowT();updPause();toast('영상이 끝났어요 · ↻ 를 누르면 다시 봐요');}
+  function updPause(){if(pauseB)pauseB.textContent=(st&&st.ended)?'↻':((st&&st.paused)?'▶':'⏸');}
   function showJoin(){
     if(!joinB)return;
     if(pend&&!(st&&st.id===pend.id)){joinB.textContent='📽 '+pend.n+'님 영상 같이 보기';joinB.style.display='';}
@@ -703,7 +704,9 @@ function cinTick(){
   playB.addEventListener('click',function(){play(null,0,false);});
   urlEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();play(null,0,false);}});
   pauseB.addEventListener('click',function(){
-    if(!cinFr||!st)return;var t=nowT();
+    if(!cinFr||!st)return;
+    if(st.ended){st.ended=false;st.t0=0;st.ref=Date.now();st.paused=false;cmd('seekTo',[0,true]);cmd('playVideo');send('CIN|r|0');updPause();return;}
+    var t=nowT();
     if(!st.paused){st.t0=t;st.paused=true;cmd('pauseVideo');send('CIN|z|'+Math.floor(t));}
     else{st.t0=t;st.ref=Date.now();st.paused=false;cmd('playVideo');send('CIN|r|'+Math.floor(t));}
     updPause();
@@ -713,6 +716,7 @@ function cinTick(){
   function fmt(s){s=Math.max(0,Math.floor(s));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r;}
   function seekTo(t){
     if(!cinFr||!st)return;t=Math.max(0,Math.min(vdur>0?vdur-1:86400,t));
+    if(st.ended){st.ended=false;st.paused=false;updPause();}
     st.t0=t;st.ref=Date.now();cmd('seekTo',[t,true]);cmd(st.paused?'pauseVideo':'playVideo');
     send('CIN|'+(st.paused?'z':'r')+'|'+Math.floor(t));
   }
@@ -723,6 +727,7 @@ function cinTick(){
     seekEl.addEventListener('change',function(){dragSeek=false;seekTo(+seekEl.value);});
   }
   setInterval(function(){
+    if(st&&!st.paused&&!st.ended&&vdur>0&&st.t0+(Date.now()-st.ref)/1000>=vdur+1.5)markEnd();
     if(!st||!seekEl||dragSeek)return;var t=nowT();
     if(vdur>0&&+seekEl.max!==Math.floor(vdur))seekEl.max=Math.floor(vdur);
     seekEl.value=Math.min(t,+seekEl.max);
@@ -816,7 +821,7 @@ function cinTick(){
     if(!panel)buildPanel();
     if(panel.style.display!=='none'){hideList();return;}
     var cur=ytId(urlEl.value)||(st?st.id:null);   // 입력칸에 붙여넣은 링크, 없으면 지금 보는 영상을 자동으로 채워줘요
-    pUrl.value=(cur&&!loadL().some(function(x){return x.id===cur;}))?('https://youtu.be/'+cur):'';
+    pUrl.value='';
     pName.value='';renderList();panel.style.display='';
   });
   // 같은 방 사람이 보낸 영상 신호 받기
@@ -834,7 +839,7 @@ function cinTick(){
       if(fresh)toast(nm+'님이 영상을 틀었어요 · [같이 보기]를 눌러요');
     }else if(k==='z'||k==='r'){
       var tt=Math.max(0,Math.min(86400,+a[2]||0));
-      if(st&&cinFr){st.t0=tt;st.ref=Date.now();st.paused=(k==='z');cmd('seekTo',[tt,true]);cmd(k==='z'?'pauseVideo':'playVideo');updPause();}
+      if(st&&cinFr){st.ended=false;st.t0=tt;st.ref=Date.now();st.paused=(k==='z');cmd('seekTo',[tt,true]);cmd(k==='z'?'pauseVideo':'playVideo');updPause();}
       else if(pend){pend.t=tt;pend.ref=Date.now();pend.paused=(k==='z');}
     }
   };
@@ -842,7 +847,8 @@ function cinTick(){
   window.addEventListener('message',function(e){
     if(!cinFr||e.source!==cinFr.contentWindow)return;
     var d=e.data;if(typeof d==='string'){try{d=JSON.parse(d);}catch(err){return;}}
-    if(d&&d.event==='infoDelivery'&&d.info&&+d.info.duration>0){vdur=+d.info.duration;return;}
+    if(d&&d.event==='onStateChange'&&d.info===0){markEnd();return;}
+    if(d&&d.event==='infoDelivery'&&d.info){if(+d.info.duration>0)vdur=+d.info.duration;if(d.info.playerState===0)markEnd();return;}
     if(!d||d.event!=='onError')return;
     var c=d.info;
     if(location.protocol.indexOf('http')!==0)toast('파일로 열어서 막혔어요 · https:// 웹 주소에서 열어주세요');
