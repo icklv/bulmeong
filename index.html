@@ -135,15 +135,19 @@ body.folded .helpbtn,body.folded #guide{display:none!important}
 #polcap{width:min(78vw,320px);text-align:center}
 /* 활동 메뉴: 버튼들을 한 곳에 모아 글자와 함께 보여줘요 */
 #actrow{display:none}
-#cinrow{flex-direction:column;align-items:stretch;gap:8px;padding:10px;border-radius:20px;background:rgba(20,14,10,.72);backdrop-filter:blur(6px);width:min(92vw,400px);box-sizing:border-box;pointer-events:none}
-#cinrow .cinln{display:flex;align-items:center;justify-content:center;gap:6px;pointer-events:none}
-#cinrow #cinurl{flex:1;min-width:0;width:auto;padding:9px 14px}
-#cinrow .cinln button{padding:8px 13px;white-space:nowrap}
-#cinrow #cinlink,#cinrow #cinlistbtn{flex:1}
-#cinrow #cinjoin{padding:9px 14px;border-color:rgba(255,190,120,.9);background:rgba(70,40,15,.75)}
-#cinrow #cinctl button{flex:1;padding:8px 6px}
-#cinrow #cinseek{flex:1;min-width:0;width:auto;padding:0;height:22px;border:0;background:none;accent-color:#ff9a3c}
-#cinrow #cintime{font-size:.8rem;min-width:6.2em;text-align:right;text-shadow:0 1px 4px #000;white-space:nowrap}
+#cinrow{display:contents}
+#cinside{position:fixed;right:10px;top:calc(132px + env(safe-area-inset-top,0px));z-index:5;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}
+#cinctl{flex-direction:column;align-items:center;gap:7px;pointer-events:none}
+#cinside button{width:38px;height:38px;min-width:0;padding:0;border-radius:50%;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;opacity:.92}
+#cinside #cinlink[aria-expanded=true]{border-color:rgba(255,190,120,.9);background:rgba(70,40,15,.75)}
+#cinbar{position:fixed;left:50%;transform:translateX(-50%);top:calc(60px + env(safe-area-inset-top,0px));z-index:5;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(56vw,300px);pointer-events:none}
+#cinbar #cinjoin{padding:8px 14px;font-size:.85rem;white-space:nowrap;border-color:rgba(255,190,120,.9);background:rgba(70,40,15,.85)}
+#cinseekrow{align-items:center;gap:6px;width:100%;box-sizing:border-box;padding:3px 10px;border-radius:14px;background:rgba(20,14,10,.6);pointer-events:none}
+#cinseekrow #cinseek{flex:1;min-width:0;width:auto;padding:0;height:22px;border:0;background:none;accent-color:#ff9a3c}
+#cinseekrow #cintime{font-size:.75rem;white-space:nowrap;text-shadow:0 1px 4px #000}
+#cinurlrow{position:fixed;left:50%;transform:translateX(-50%);top:calc(104px + env(safe-area-inset-top,0px));z-index:7;width:min(92vw,380px);box-sizing:border-box;padding:8px;border-radius:16px;background:rgba(20,14,10,.88);backdrop-filter:blur(6px);align-items:center;gap:6px;pointer-events:none}
+#cinurlrow #cinurl{flex:1;min-width:0;width:auto;padding:9px 14px}
+#cinurlrow button{padding:8px 14px;white-space:nowrap}
 .ui.actopen #actrow{display:flex;flex-direction:column;align-items:stretch;gap:6px;pointer-events:auto;max-height:42vh;overflow-y:auto;padding:8px;border-radius:18px;background:rgba(20,14,10,.8);backdrop-filter:blur(6px);min-width:190px;max-width:88vw}
 .ui #actrow button{text-align:left;white-space:nowrap}
 .ui #actrow button[data-ic]{font-size:.95rem!important;padding:9px 16px;min-width:0;align-items:center;gap:10px}
@@ -179,7 +183,7 @@ body.folded .ui #actrow button[data-ic]::before{font-size:1.3rem}
 <button id="tabtog" class="tabtog" type="button" aria-expanded="false" aria-controls="tabs" aria-label="장소 바꾸기" title="장소 바꾸기">🔥 ▾</button>
 <p class="skysay" id="skysay"></p><div class="tabs" id="tabs"><button data-s="fire" type="button">🔥 숲속 캠핑 불멍</button><button data-s="beach" type="button">🌊 바닷가 물멍</button><button data-s="cabin" type="button">❄️ 눈 오는 오두막</button><button data-s="cinema" type="button">🎬 별빛 영화관</button></div>
 <div class="log" id="log"></div>
-<div class="ui"><p class="msg" id="msg"></p><div class="chatrow" id="sitrow" style="display:none"><button type="button" data-s="chair">의자에 앉기</button><button type="button" data-s="floor">바닥에 앉기</button></div><div class="chatrow" id="actrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="gob" type="button" aria-pressed="false" style="display:none">이동</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">1인칭</button><button id="lie" type="button" style="display:none">눕기</button><button id="lv" type="button" style="display:none">3인칭</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button><button id="zone" type="button" style="display:none">멍때리기</button><button id="cinenter" type="button" style="display:none"></button></div><div class="chatrow" id="gorow" style="display:none"><button type="button" data-g="fire">모닥불</button><button type="button" data-g="gb">방명록 자리</button><button type="button" data-g="rain">비 오는 캠핑장</button><button type="button" data-g="cat">고양이 놀이터</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래편지</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"><button type="button" data-k="hang" id="hangbtn" style="display:none">걸기</button></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow" id="cinrow" style="display:none"><button id="cinjoin" type="button" style="display:none">📽 같이 보기</button><div class="cinln"><button id="cinlink" type="button" aria-expanded="false">🔗 링크로 틀기</button><button id="cinlistbtn" type="button" aria-label="영상 목록">📋 목록</button></div><div class="cinln" id="cinurlrow" style="display:none"><input id="cinurl" placeholder="유튜브 링크 붙여넣기" aria-label="유튜브 링크" autocomplete="off"><button id="cinplay" type="button">틀기</button></div><div class="cinln" id="cinctl" style="display:none"><button id="cinpause" type="button" aria-label="멈춤">⏸</button><button id="cinback" type="button" aria-label="10초 뒤로">⏪ 10</button><button id="cinfwd" type="button" aria-label="10초 앞으로">10 ⏩</button><button id="cinstop" type="button" aria-label="끄기">✕ 끄기</button></div><div class="cinln" id="cinseekrow" style="display:none"><input id="cinseek" type="range" min="0" max="3600" step="1" value="0" aria-label="영상 위치"><span id="cintime"></span></div></div><div class="chatrow" id="mainrow"></div><div id="setrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div><div class="chatrow"><button id="acttog" type="button" aria-expanded="false" aria-controls="actrow">활동</button><button id="settog" type="button" aria-expanded="false" aria-controls="setrow">설정</button></div></div>
+<div class="ui"><p class="msg" id="msg"></p><div class="chatrow" id="sitrow" style="display:none"><button type="button" data-s="chair">의자에 앉기</button><button type="button" data-s="floor">바닥에 앉기</button></div><div class="chatrow" id="actrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="gob" type="button" aria-pressed="false" style="display:none">이동</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">1인칭</button><button id="lie" type="button" style="display:none">눕기</button><button id="lv" type="button" style="display:none">3인칭</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button><button id="zone" type="button" style="display:none">멍때리기</button><button id="cinenter" type="button" style="display:none"></button></div><div class="chatrow" id="gorow" style="display:none"><button type="button" data-g="fire">모닥불</button><button type="button" data-g="gb">방명록 자리</button><button type="button" data-g="rain">비 오는 캠핑장</button><button type="button" data-g="cat">고양이 놀이터</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래편지</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"><button type="button" data-k="hang" id="hangbtn" style="display:none">걸기</button></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow" id="cinrow" style="display:none"><div id="cinside"><button id="cinlink" type="button" title="링크로 틀기" aria-label="링크로 틀기" aria-expanded="false">🔗</button><button id="cinlistbtn" type="button" title="영상 목록" aria-label="영상 목록">📋</button><div id="cinctl" style="display:none"><button id="cinpause" type="button" title="멈춤" aria-label="멈춤">⏸</button><button id="cinback" type="button" title="10초 뒤로" aria-label="10초 뒤로">⏪</button><button id="cinfwd" type="button" title="10초 앞으로" aria-label="10초 앞으로">⏩</button><button id="cinstop" type="button" title="끄기" aria-label="끄기">✕</button></div></div><div id="cinbar"><button id="cinjoin" type="button" style="display:none">📽 같이 보기</button><div id="cinseekrow" style="display:none"><input id="cinseek" type="range" min="0" max="3600" step="1" value="0" aria-label="영상 위치"><span id="cintime"></span></div></div><div id="cinurlrow" style="display:none"><input id="cinurl" placeholder="유튜브 링크 붙여넣기" aria-label="유튜브 링크" autocomplete="off"><button id="cinplay" type="button">틀기</button></div></div><div class="chatrow" id="mainrow"></div><div id="setrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div><div class="chatrow"><button id="acttog" type="button" aria-expanded="false" aria-controls="actrow">활동</button><button id="settog" type="button" aria-expanded="false" aria-controls="setrow">설정</button></div></div>
 <script>
 /* ▼▼▼ 여기 두 줄만 네 Supabase 값으로 바꿔줘 (Supabase 대시보드 → Project Settings → API) ▼▼▼ */
 window.SUPA_URL='https://mcbauedrqldfhjulvhoi.supabase.co';   /* 예: https://abcdxyz.supabase.co */
@@ -250,6 +254,7 @@ function mesh(g,m,x,y,z){var o=new THREE.Mesh(g,m);o.position.set(x,y,z);return 
 var glowTex=(function(){var c=document.createElement('canvas');c.width=c.height=64;var x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);
   g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
 var gF=new THREE.Group(),gC=new THREE.Group(),gB=new THREE.Group(),gP=new THREE.Group(),gM=new THREE.Group();sc.add(gF,gC,gB,gP,gM);
+var CFX=14,CFZ=5,cinFire=null;   // 별빛 영화관 중앙 극장 모닥불 자리
 var cone=new THREE.ConeGeometry(1.6,4.2,7),trunk=new THREE.CylinderGeometry(.2,.28,1.2,6);
 function ring(p,n,snow){for(var i=0;i<n;i++){var a=Math.random()*6.283,r=15+Math.random()*20;tree(p,Math.cos(a)*r,Math.sin(a)*r,.9+Math.random()*.8,snow);}}
 // ════════════════════════════════════════
@@ -392,16 +397,16 @@ stars.material.sizeAttenuation=false;stars.material.size=2;gF.add(stars);
 var CIN_SZ=-24,CIN_W=24,CIN_H=13.5,CIN_Y=9;   // 스크린 위치(z)와 크기. 입장 위치는 아래 ENTRY.cinema
 var cinScr=null,cinFrm=null,cinGlow=null,cinPosts=[],cinBeamG=null,cinTexL=null,cinTexP=null,cinVert=false,cinLastCh=-1,cinLastPl='x';
 // 🚪 별실 3개: 중앙 극장 서쪽 복도(세로 복도)를 따라 문이 3개. c=방 중심 z, v=세로 스크린(숏츠), w·h=스크린 크기
-var SUITES=[{c:-40,v:false,w:8,h:4.5},{c:-2,v:true,w:2.81,h:5},{c:36,v:false,w:8,h:4.5}];
-var SU_X0=-49.4,SU_XR=-37.2,SU_XD0=-37.6,SU_XD1=-36.2,SU_HX0=-36.4,SU_HX1=-33,SU_HZ0=-45,SU_HZ1=41,SU_SX=-49.9,SU_SY=3.1,SU_DOORX=-36.8;
+var SUITES=[{c:-40,v:false,w:15.5,h:8.72},{c:-2,v:true,w:4.95,h:8.8},{c:36,v:false,w:15.5,h:8.72}];
+var SU_X0=-60.4,SU_XR=-37.2,SU_XD0=-37.6,SU_XD1=-36.2,SU_HX0=-36.4,SU_HX1=-33,SU_HZ0=-47,SU_HZ1=44,SU_SX=-60.9,SU_SY=4.9,SU_DOORX=-36.8;
 var CIN_RECTS=[[SU_HX0,-26,-3.6,-.4],[SU_HX0,SU_HX1,SU_HZ0,SU_HZ1]],CIN_DR=[];   // 입구 복도 · 세로 복도 (걸을 수 있는 곳)
-SUITES.forEach(function(s){CIN_DR.push([SU_XD0,SU_XD1,s.c-1.6,s.c+1.6]);CIN_RECTS.push([SU_X0,SU_XR,s.c-4.5,s.c+4.5]);});   // 문 칸 · 방 안
+SUITES.forEach(function(s){CIN_DR.push([SU_XD0,SU_XD1,s.c-1.6,s.c+1.6]);CIN_RECTS.push([SU_X0,SU_XR,s.c-9.5,s.c+9.5]);});   // 문 칸 · 방 안
 var cinDoors=[],cinWay=[],cinWayT=null,cinWayOpen=false,cinEnterAct=null;
 function cinDoorOpen(i){var d=cinDoors[i];if(!d)return false;if(Date.now()<d.until)return true;return me.x>SU_XD0-.1&&me.x<SU_XD1+.1&&Math.abs(me.z-SUITES[i].c)<1.7;}
-function cinSuiteIdx(){if(scene!=='cinema')return -1;if(me.x<SU_XD0+.2)for(var i=0;i<SUITES.length;i++)if(Math.abs(me.z-SUITES[i].c)<5)return i;return -1;}
+function cinSuiteIdx(){if(scene!=='cinema')return -1;if(me.x<SU_XD0+.2)for(var i=0;i<SUITES.length;i++)if(Math.abs(me.z-SUITES[i].c)<10)return i;return -1;}
 function cinPlace(){var i=cinSuiteIdx();return i<0?'H':String(i);}
 function cinZone(x,z){   // 0~2 별실 안 · 3 세로 복도(문 앞) · 4 중앙 극장/입구 복도
-  var i;if(x<SU_XD0+.2){for(i=0;i<SUITES.length;i++)if(Math.abs(z-SUITES[i].c)<5.2)return i;}
+  var i;if(x<SU_XD0+.2){for(i=0;i<SUITES.length;i++)if(Math.abs(z-SUITES[i].c)<10.2)return i;}
   if(x<SU_HX1+.4&&x>SU_XD0-.4&&z>SU_HZ0-1&&z<SU_HZ1+1)return 3;return 4;
 }
 function cinRoutePt(P){   // 지금 위치 → P 까지 거쳐 갈 지점들 (문 · 복도를 돌아서)
@@ -417,8 +422,8 @@ function cinTapRoute(){   // 바닥을 눌렀는데 다른 구역이면 문 · �
 }
 function cinCamClamp(w){   // 별실 · 복도 안에서는 카메라도 벽 밖으로 못 나가요
   var z=cinZone(me.x,me.z),c;
-  if(z<3){c=SUITES[z].c;w.x=Math.max(-49.6,Math.min(-37.1,w.x));w.z=Math.max(c-4.8,Math.min(c+4.8,w.z));w.y=Math.max(1,Math.min(5.2,w.y));}
-  else if(z===3){w.x=Math.max(SU_HX0-.2,Math.min(SU_HX1+.2,w.x));w.z=Math.max(SU_HZ0,Math.min(SU_HZ1,w.z));}
+  if(z<3){c=SUITES[z].c;w.x=Math.max(-60.6,Math.min(-37.1,w.x));w.z=Math.max(c-9.8,Math.min(c+9.8,w.z));w.y=Math.max(1,Math.min(9.2,w.y));}
+  else if(z===3){w.x=Math.max(SU_HX0-.2,Math.min(-22,w.x));w.z=Math.max(SU_HZ0-7,Math.min(SU_HZ1+7,w.z));}   // 복도 동쪽은 뻥 뚫린 땅이라 카메라가 뒤로 물러날 수 있어요
 }
 function cinOpenFor(x,z){var zz=cinZone(x,z);if(zz<3&&cinDoors[zz])cinDoors[zz].until=Date.now()+7000;}
 function cinGoWay(pts,openIn){cinOpenFor(me.x,me.z);cinWayOpen=!!openIn;var p=pts.shift();if(cinWayOpen)cinOpenFor(p[0],p[1]);cinWay=pts;me.tx=p[0];me.tz=p[1];clampPos(me,'t');cinWayT=[me.tx,me.tz];}
@@ -432,10 +437,10 @@ function cinDoorTick(){
   if(!me.sit){   // 문 앞에서는 [들어가기], 방 안 문 가까이에서는 [나가기]
     z=cinZone(me.x,me.z);
     if(z===3){for(i=0;i<SUITES.length;i++){dd=Math.hypot(me.x-SU_DOORX,me.z-SUITES[i].c);if(dd<3.6&&me.x>SU_XD0+.2){act={i:i,out:false};lab='🚪 '+String((window.CIN_SUITES&&window.CIN_SUITES[i]&&window.CIN_SUITES[i].name)||'별실').slice(0,10)+' 들어가기';break;}}}
-    else if(z<3&&Math.hypot(me.x-SU_DOORX,me.z-SUITES[z].c)<5){act={i:z,out:true};lab='🚪 나가기';}
+    else if(z<3&&Math.hypot(me.x-SU_DOORX,me.z-SUITES[z].c)<4.5){act={i:z,out:true};lab='🚪 나가기';}
   }
   cinEnterAct=act;
-  if(eb){if(act){if(eb.textContent!==lab)eb.textContent=lab;if(eb.style.display==='none')eb.style.display='';}else if(eb.style.display!=='none')eb.style.display='none';}
+  if(eb&&eb.style.display!=='none')eb.style.display='none';   // 기본 버튼 줄에는 두지 않고, 머리 위 말풍선으로만 떠요
 }
 (function(){var eb=document.getElementById('cinenter');if(!eb)return;eb.addEventListener('click',function(){
   var a=cinEnterAct;if(!a||scene!=='cinema')return;var c=SUITES[a.i].c;cinDoors[a.i].until=Date.now()+7000;me.want=null;
@@ -531,12 +536,12 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
 
   // ═══ 🚪 별실 3개 (드라마 · 숏츠 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
   (function(){
-    var WH=6,wood=M(0x6a4a30,0x120c06),lampG=new THREE.SphereGeometry(.17,10,8),lampM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false}),poleG=new THREE.CylinderGeometry(.04,.05,1.2,6),poleM=M(0x2a2420);
+    var WH=9.8,wood=M(0x6a4a30,0x120c06),lampG=new THREE.SphereGeometry(.17,10,8),lampM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false}),poleG=new THREE.CylinderGeometry(.04,.05,1.2,6),poleM=M(0x2a2420);
     var bulbG=new THREE.SphereGeometry(.09,8,6),bulbM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false});
     // 복도 바닥: 입구 복도(동서) + 세로 복도(남북)
     var pm=new THREE.MeshLambertMaterial({color:0x5b4a3a,emissive:0x15100c});
     var p1=mesh(new THREE.PlaneGeometry(10.4,3.2),pm,-31.2,.026,-2);p1.rotation.x=-Math.PI/2;gM.add(p1);
-    var p2=mesh(new THREE.PlaneGeometry(3.4,86),pm,-34.7,.027,-2);p2.rotation.x=-Math.PI/2;gM.add(p2);
+    var p2=mesh(new THREE.PlaneGeometry(3.4,91),pm,-34.7,.027,-1.5);p2.rotation.x=-Math.PI/2;gM.add(p2);
     [-43,-38,-33,-28,-23,-18,-13,-8,4,9,14,19,24,29,34,39].forEach(function(lz){gM.add(mesh(poleG,poleM,-33.2,.6,lz));gM.add(mesh(lampG,lampM,-33.2,1.3,lz));});
     [-30.6,-27.8].forEach(function(lx){[-3.9,-.1].forEach(function(lz){gM.add(mesh(poleG,poleM,lx,.6,lz));gM.add(mesh(lampG,lampM,lx,1.3,lz));});});
     (function(){   // 복도 입구 안내판
@@ -548,14 +553,14 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     var icons=['🎬','📱','🎨'],tints=[[0x2a3150,0x0d1122,0x5a2f3a],[0x1f3a40,0x0a1618,0x2f5a5a],[0x3a2f55,0x120d22,0x4a3a6a]];
     SUITES.forEach(function(S,i){
       var c=S.c,cs=(window.CIN_SUITES&&window.CIN_SUITES[i])||{},nm=String(cs.name||'별실').slice(0,10),T=tints[i%3];
-      var fl=mesh(new THREE.PlaneGeometry(13.2,10),new THREE.MeshLambertMaterial({color:0x3b2a20,emissive:0x1c130d}),-43.4,.03,c);fl.rotation.x=-Math.PI/2;gM.add(fl);
-      var rug=mesh(new THREE.PlaneGeometry(8.5,6.4),new THREE.MeshLambertMaterial({color:T[2],emissive:0x120a0c}),-43.8,.045,c);rug.rotation.x=-Math.PI/2;gM.add(rug);
+      var fl=mesh(new THREE.PlaneGeometry(24.2,20),new THREE.MeshLambertMaterial({color:0x3b2a20,emissive:0x1c130d}),-48.9,.03,c);fl.rotation.x=-Math.PI/2;gM.add(fl);
+      var rug=mesh(new THREE.PlaneGeometry(14,13),new THREE.MeshLambertMaterial({color:T[2],emissive:0x120a0c}),-53.8,.045,c);rug.rotation.x=-Math.PI/2;gM.add(rug);
       // 벽 (안쪽 면만 그려서 카메라가 벽 밖으로 나가도 시야를 안 가려요)
       var wM=new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide});
       function wall(w,h,x,y,z,ry){var p=mesh(new THREE.PlaneGeometry(w,h),wM,x,y,z);p.rotation.y=ry;gM.add(p);}
-      wall(13.2,WH,-43.4,WH/2,c-5,0);wall(13.2,WH,-43.4,WH/2,c+5,Math.PI);wall(10,WH,-50,WH/2,c,Math.PI/2);
-      wall(3.4,WH,SU_DOORX,WH/2,c-3.3,-Math.PI/2);wall(3.4,WH,SU_DOORX,WH/2,c+3.3,-Math.PI/2);wall(3.2,WH-3.4,SU_DOORX,3.4+(WH-3.4)/2,c,-Math.PI/2);
-      var rf=mesh(new THREE.PlaneGeometry(13.6,10.4),new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide}),-43.4,WH+.02,c);rf.rotation.x=-Math.PI/2;gM.add(rf);   // 지붕(안에서 보면 천장)
+      wall(24.2,WH,-48.9,WH/2,c-10,0);wall(24.2,WH,-48.9,WH/2,c+10,Math.PI);wall(20,WH,-61,WH/2,c,Math.PI/2);
+      wall(8.4,WH,SU_DOORX,WH/2,c-5.8,-Math.PI/2);wall(8.4,WH,SU_DOORX,WH/2,c+5.8,-Math.PI/2);wall(3.2,WH-3.4,SU_DOORX,3.4+(WH-3.4)/2,c,-Math.PI/2);
+      var rf=mesh(new THREE.PlaneGeometry(24.6,20.4),new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide}),-48.9,WH+.02,c);rf.rotation.x=-Math.PI/2;gM.add(rf);   // 지붕(안에서 보면 천장)
       // 문틀 · 문짝 (가까이 가면 안쪽으로 열려요)
       [-1.6,1.6].forEach(function(dz){gM.add(mesh(new THREE.CylinderGeometry(.16,.18,3.5,8),wood,SU_DOORX,1.75,c+dz));});
       var dg=new THREE.Group();dg.position.set(SU_DOORX,0,c+1.6);gM.add(dg);
@@ -570,16 +575,16 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
       sx.font='bold 46px "Gowun Batang","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';sx.fillText(icons[i%3]+' '+nm,256,66);
       var sgn=mesh(new THREE.PlaneGeometry(4.2,1.05),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc2),side:THREE.DoubleSide,fog:false}),SU_DOORX+.12,4.6,c);sgn.rotation.y=Math.PI/2;gM.add(sgn);
       // 꼬마전구 줄 (지붕 대신)
-      for(var bx=-49.4;bx<=-37;bx+=1.3){gM.add(mesh(bulbG,bulbM,bx,5.7,c-4.8));gM.add(mesh(bulbG,bulbM,bx,5.7,c+4.8));}
-      for(var bz=-4.4;bz<=4.4;bz+=1.3)gM.add(mesh(bulbG,bulbM,-49.8,5.7,c+bz));
+      for(var bx=-60.4;bx<=-37;bx+=1.3){gM.add(mesh(bulbG,bulbM,bx,WH-.3,c-9.8));gM.add(mesh(bulbG,bulbM,bx,WH-.3,c+9.8));}
+      for(var bz=-9.4;bz<=9.4;bz+=1.3)gM.add(mesh(bulbG,bulbM,-60.8,WH-.3,c+bz));
       // 스크린 (서쪽 벽, 동쪽을 바라봐요)
       var s2=mesh(new THREE.PlaneGeometry(S.w,S.h),new THREE.MeshBasicMaterial({map:S.v?cinTexP:cinTexL,fog:false,toneMapped:false}),SU_SX,SU_SY,c);s2.rotation.y=Math.PI/2;gM.add(s2);
       var f2=mesh(new THREE.BoxGeometry(.2,S.h+.5,S.w+.6),M(0x0d0f16),SU_SX-.13,SU_SY,c);gM.add(f2);
       var g2=mesh(new THREE.PlaneGeometry(S.w*1.6,S.h*1.6),new THREE.MeshBasicMaterial({map:glowTex,color:0x9fb4e8,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}),SU_SX+.4,SU_SY,c);g2.rotation.y=Math.PI/2;gM.add(g2);
       // 자리: 리클라이너 2줄 + 앞쪽 방석 (스크린을 봐요)
       var cc2=[0x7a4a32,0x38465f,0x6a3040,0x3a5a48];
-      [-2.5,0,2.5].forEach(function(dz,k){chair(-45,c+dz,cc2[(k+i)%4],Math.PI/2,SU_SX,c);chair(-41.5,c+dz,cc2[(k+i+2)%4],Math.PI/2,SU_SX,c);});
-      mat(-47.8,c-3.2,'#8c3b3b','#d9b8a0',SU_SX,c,true);mat(-47.8,c+3.2,'#3b5f8c','#b8c8d9',SU_SX,c,true);
+      [-6,-3,0,3,6].forEach(function(dz,k){chair(-52,c+dz,cc2[(k+i)%4],Math.PI/2,SU_SX,c);chair(-47.5,c+dz,cc2[(k+i+2)%4],Math.PI/2,SU_SX,c);});
+      mat(-57,c-8.2,'#8c3b3b','#d9b8a0',SU_SX,c,true);mat(-57,c+8.2,'#3b5f8c','#b8c8d9',SU_SX,c,true);
     });
   })();
   // 빔프로젝터 (삼각대 위, 스크린을 향해요)
@@ -605,6 +610,12 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
 
 // ── 3단계: 스크린에 유튜브 영상 틀기 ──
 // 3D 스크린의 네 모서리를 화면 좌표로 바꿔서, 그 자리에 유튜브 창을 딱 맞춰 얹어요.
+(function(){   // 🔥 중앙 극장 모닥불 + 통나무 그루터기 (영상을 틀면 타닥 소리만 꺼져요)
+  cinFire=makeFire(gM,CFX,CFZ,.7);cinFire.light.distance=14;
+  var sm=M(0x6a4a30,0x140c06),tp=M(0x8a6a44,0x1a1008);
+  for(var k=0;k<5;k++){var a=k*1.2566+.3,sx=CFX+Math.cos(a)*2.4,sz=CFZ+Math.sin(a)*2.4;gM.add(mesh(new THREE.CylinderGeometry(.34,.38,.45,10),sm,sx,.23,sz));gM.add(mesh(new THREE.CylinderGeometry(.3,.3,.04,10),tp,sx,.46,sz));}
+})();
+function cinFireOn(){return scene!=='cinema'||(!cinOn&&cinSuiteIdx()<0);}
 var cinOn=false,cinWrap=null,cinFr=null,cinPaused=false,CIN_C=[[-CIN_W/2,CIN_Y+CIN_H/2],[CIN_W/2,CIN_Y+CIN_H/2],[CIN_W/2,CIN_Y-CIN_H/2],[-CIN_W/2,CIN_Y-CIN_H/2]];
 function ytId(u){u=(u||'').trim();var m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([A-Za-z0-9_-]{11})/);if(m)return m[1];if(/^[A-Za-z0-9_-]{11}$/.test(u))return u;return null;}
 function cinHomog(d,sw,sh){   // (sw x sh) 사각형 → 화면 위 네 점(d)으로 보내는 변환
@@ -3315,6 +3326,7 @@ function clampPos(o,k){
     var bd0=Math.hypot(bx0-px0,bz0-pz0),ri,R,qx0,qz0,qd0;
     for(ri=0;ri<CIN_RECTS.length;ri++){R=CIN_RECTS[ri];qx0=Math.max(R[0],Math.min(R[1],px0));qz0=Math.max(R[2],Math.min(R[3],pz0));qd0=Math.hypot(qx0-px0,qz0-pz0);if(qd0<bd0-1e-6){bd0=qd0;bx0=qx0;bz0=qz0;}}
     for(ri=0;ri<CIN_DR.length;ri++){if(!cinDoorOpen(ri))continue;R=CIN_DR[ri];qx0=Math.max(R[0],Math.min(R[1],px0));qz0=Math.max(R[2],Math.min(R[3],pz0));qd0=Math.hypot(qx0-px0,qz0-pz0);if(qd0<bd0-1e-6){bd0=qd0;bx0=qx0;bz0=qz0;}}
+    {var fdx=bx0-CFX,fdz=bz0-CFZ,fdl=Math.hypot(fdx,fdz);if(fdl<1.4){if(fdl<.01){fdx=1;fdz=0;fdl=1;}bx0=CFX+fdx/fdl*1.4;bz0=CFZ+fdz/fdl*1.4;}}
     o[k+'x']=bx0;o[k+'z']=bz0;inSuite=true;}
   var RM=scene==='fire'?(o[k+'z']<-18&&Math.abs(o[k+'x'])<20?52:(o[k+'z']>18&&Math.abs(o[k+'x']-CPX)<CPR+6?CPZ+CPR+4:34)):(scene==='beach'?(o[k+'z']>BWALL-.2?70:((Math.abs(o[k+'x'])<END_X1+1&&o[k+'z']>-11.5)?1e9:60)):(scene==='cabin'?58:(scene==='cinema'?30:11)));if(scene==='beach'&&o[k+'z']<-8&&Math.abs(o[k+'x']-PIER_X)<=3.6)RM=60;
   if(scene==='fire'&&typeof lumOff!=='undefined'&&lumOff){var LW=lumWC(),lzx=o[k+'x']-LW[0],lzz=o[k+'z']-LW[1],lzin=Math.hypot(lzx,lzz)<14;for(var lzi=0;!lzin&&lzi<LUM_SM.length;lzi++)lzin=Math.hypot(lzx-(LUM_SM[lzi][0]-LUM_C[0]),lzz-(LUM_SM[lzi][1]-LUM_C[1]))<9;if(lzin&&RM<58)RM=58;}if(!inSuite&&r>RM){o[k+'x']*=RM/r;o[k+'z']*=RM/r;r=RM;}
@@ -3478,7 +3490,7 @@ function stepMe(){
       var w=me.want;me.want=null;
       if(w.ham){var th=w.ry+Math.PI/2;me.ry=th;me.x=w.x+.9*Math.sin(th);me.z=w.z+.9*Math.cos(th);me.tx=me.x;me.tz=me.z;me.sit=4;yaw=w.ry;pit=.38;fpv=false;lieBtn.textContent='일어나기';msg.textContent='달과 별을 올려다봐요 · 화면을 끌면 하늘을 둘러볼 수 있어요';msg.classList.add('on');}
       else if(w.bed){var bch5=scene==='beach'||!!w.flip;me.x=w.x;me.z=bch5?w.z-.8:w.z+.8;me.tx=me.x;me.tz=me.z;me.ry=bch5?Math.PI:0;me.sit=5;lieBtn.textContent='일어나기';if(scene==='beach'||scene==='cinema'){yaw=0;pit=.38;fpv=false;msg.textContent='하늘을 올려다봐요 · 화면을 끌면 하늘을 둘러볼 수 있어요';msg.classList.add('on');}if(scene==='cabin'){yaw=Math.PI;msg.textContent='천장의 야광 별을 올려다봐요 · 화면을 끌면 둘러볼 수 있어요';msg.classList.add('on');}}
-      else{me.x=w.x;me.z=w.z;me.ry=Math.atan2((w.fx||0)-me.x,(w.fz||0)-me.z);me.sit=w.ground?1:2;sitBtn.textContent='일어나기';}
+      else{me.x=w.x;me.z=w.z;me.ry=Math.atan2((w.fx||0)-me.x,(w.fz||0)-me.z);me.sit=w.ground?1:2;if(scene==='cinema'&&!w.ground){me.x+=Math.sin(me.ry)*.3;me.z+=Math.cos(me.ry)*.3;me.tx=me.x;me.tz=me.z;}sitBtn.textContent='일어나기';}
     }
   }
   var sph=Math.floor(t*.3/Math.PI);if(me.mv&&scene==='cabin'&&!inTent&&!me.sit&&cabIn()<0&&!onIce(me.x,me.z)){if(sph!==stepPh){stepPh=sph;snowCrunch();}}else stepPh=sph;
@@ -3674,25 +3686,27 @@ tentBtn.addEventListener('click',function(){if(inTent)leaveTent();else enterTent
 // ════════════════════════════════════════
 // 텐트 가까이 가면 머리 위에 '⛺ 들어가기', 텐트 안에서는 '🚪 나가기' 말풍선이 떠요
 (function(){var st=document.createElement('style');st.textContent='#tentpill{position:fixed;left:0;top:0;z-index:6;display:none;align-items:center;gap:7px;padding:4px 13px 4px 4px;border:1.5px solid rgba(255,190,120,.9);border-radius:13px;background:rgba(24,16,10,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff4e0;font:inherit;font-weight:700;font-size:.86rem;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.45);cursor:pointer;touch-action:manipulation}#tentpill .ic{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(255,190,120,.24);font-size:1rem}#tentpill::after{content:"";position:absolute;left:50%;bottom:-6px;width:9px;height:9px;background:rgba(24,16,10,.96);border-right:1.5px solid rgba(255,190,120,.9);border-bottom:1.5px solid rgba(255,190,120,.9);transform:translateX(-50%) rotate(45deg)}';document.head.appendChild(st);})();
-var tentPill=document.createElement('button'),tpV=new THREE.Vector3(),tpMode=0,tpIc=document.createElement('span'),tpTx=document.createElement('span');
+var tentPill=document.createElement('button'),tpV=new THREE.Vector3(),tpMode=0,tpIc=document.createElement('span'),tpTx=document.createElement('span'),tpLab='';
 tentPill.type='button';tentPill.id='tentpill';tpIc.className='ic';tentPill.appendChild(tpIc);tentPill.appendChild(tpTx);
 document.body.appendChild(tentPill);
 tentPill.addEventListener('pointerdown',function(e){e.stopPropagation();});
-tentPill.addEventListener('click',function(e){e.stopPropagation();if(tpMode===1&&!inTent)enterTent();else if(tpMode===2&&inTent)leaveTent();});
+tentPill.addEventListener('click',function(e){e.stopPropagation();if(tpMode===1&&!inTent)enterTent();else if(tpMode===2&&inTent)leaveTent();else if(tpMode>=3){var ceb=document.getElementById('cinenter');if(ceb)ceb.click();}});
 function tentPillTick(){
   var mode=0,st=document.getElementById('start');
   if(scene==='fire'&&!(st&&!st.classList.contains('off'))&&!document.body.classList.contains('lying')){
     if(inTent){if(!(me.sit>=3)&&Math.hypot(me.x-IX,me.z-(IZ+2.9))<=1.8)mode=2;}
     else if(!me.sit&&!me.lh){for(var ti=0;ti<tents.length;ti++)if(Math.hypot(tents[ti].x-me.x,tents[ti].z-me.z)<=3.8){mode=1;break;}}
   }
+  if(!mode&&scene==='cinema'&&!(st&&!st.classList.contains('off'))&&!document.body.classList.contains('lying')&&!me.sit&&typeof cinEnterAct!=='undefined'&&cinEnterAct)mode=cinEnterAct.out?4:3;
   if(mode){
     cam.updateMatrixWorld();tpV.set(me.x,(me.y||0)+(mode===2?2.1:2.9),me.z).project(cam);
     if(tpV.z>=1)mode=0;
     else tentPill.style.transform='translate('+Math.round((tpV.x*.5+.5)*innerWidth)+'px,'+Math.round((-tpV.y*.5+.5)*innerHeight-12)+'px) translate(-50%,-100%)';
   }
-  if(mode!==tpMode){
-    tpMode=mode;
-    if(mode){tpIc.textContent=mode===1?'⛺':'🚪';tpTx.textContent=mode===1?'들어가기':'나가기';}
+  var lab=mode===1?'들어가기':mode===2?'나가기':mode===3?(String((window.CIN_SUITES&&window.CIN_SUITES[cinEnterAct.i]&&window.CIN_SUITES[cinEnterAct.i].name)||'별실').slice(0,10)+' 들어가기'):mode===4?'나가기':'';
+  if(mode!==tpMode||lab!==tpLab){
+    tpMode=mode;tpLab=lab;
+    if(mode){tpIc.textContent=mode===1?'⛺':'🚪';tpTx.textContent=lab;}
     tentPill.style.display=mode?'flex':'none';
   }
 }
@@ -5144,7 +5158,7 @@ var __lt=0;
 function frame(){var __n=performance.now();if(__n-__lt<12){requestAnimationFrame(frame);return;}__lt=__n;skyFollow();
   t++;stepMe();fpTick();
   campTick();lumTick();eatFrame();trkFrame();catStep();gbTick();angTick();
-  if(scene==='fire'){rainAnim();rainMood();animFire(fireA);animFire(fireH);for(var xf=0;xf<extraFires.length;xf++)animFire(extraFires[xf]);}else if(scene==='beach'){wave();lhAnim();}else if(scene==='camp')animFire(fireP);else{
+  if(scene==='fire'){rainAnim();rainMood();animFire(fireA);animFire(fireH);for(var xf=0;xf<extraFires.length;xf++)animFire(extraFires[xf]);}else if(scene==='beach'){wave();lhAnim();}else if(scene==='camp')animFire(fireP);else{if(scene==='cinema'&&cinFire)animFire(cinFire);
     for(var qp=0;qp<pits.length;qp++)animFire(pits[qp].f);for(var qc=0;qc<cabFires.length;qc++)animFire(cabFires[qc]);cabSmoke();wishTick();iceTick();foxTick();var a=snow.userData.a,sp=calm?.4:1;
     for(var i=0,NS=a.length/3;i<NS;i++){a[i*3+1]-=(.03+(i%7)*.006)*sp;a[i*3]+=Math.sin(t*.02+i)*.006;if(a[i*3+1]<0)a[i*3+1]=18;
       if(a[i*3+1]<3.3)for(var ck=0;ck<CAB.length;ck++){var ddx=a[i*3]-CAB[ck][0],ddz=a[i*3+2]-CAB[ck][1];if(ddx>-3.1&&ddx<3.1&&ddz>-2.4&&ddz<2.4){a[i*3+1]=18;break;}}if(a[i*3+1]<19&&Math.hypot(a[i*3]-WX,a[i*3+2]-WZ)<wishEnv(Math.max(3.3,a[i*3+1]))){a[i*3+1]=18;}if(a[i*3+1]<4.9)for(var pk2=0;pk2<pits.length;pk2++)if(Math.abs(a[i*3]-pits[pk2].x)<3.1&&Math.abs(a[i*3+2]-pits[pk2].z)<3.1){a[i*3+1]=18;break;}}
@@ -5416,8 +5430,9 @@ function startAudio(){
   var rs2=ac.createBufferSource();rs2.buffer=wb;rs2.loop=true;var rhp=ac.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=1800;var rg2=ac.createGain();rg2.gain.value=0;rs2.connect(rhp);rhp.connect(rg2);rg2.connect(master);rs2.start();
   setInterval(function(){if(ac)rg2.gain.setTargetAtTime(scene==='fire'?.5*rainK:0,ac.currentTime,.3);},150);
   setInterval(function(){if(!ac)return;var tw2=Date.now()/1000,v=.5*(.5+.5*Math.sin(tw2*.55))+.5*(.5+.5*Math.sin(tw2*.31+1.7));wg.gain.setTargetAtTime(scene==='beach'?.08+.6*v*v:0,ac.currentTime,.25);wlp.frequency.setTargetAtTime(400+1600*v,ac.currentTime,.25);},120);
+  setInterval(function(){if(ac&&baseG&&scene==='cinema')baseG.gain.setTargetAtTime(cinFireOn()?.7:0,ac.currentTime,.5);},250);
   (function pop(){
-    if(ac&&scene!=='cabin'&&scene!=='beach'){
+    if(ac&&scene!=='cabin'&&scene!=='beach'&&cinFireOn()){
       var o=ac.createBufferSource(),bb=ac.createBuffer(1,ac.sampleRate*.05,ac.sampleRate),dd=bb.getChannelData(0);
       for(var j=0;j<dd.length;j++)dd[j]=(Math.random()*2-1)*Math.pow(1-j/dd.length,3);
       o.buffer=bb;var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=1200+Math.random()*2500;
