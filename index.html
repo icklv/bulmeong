@@ -135,6 +135,15 @@ body.folded .helpbtn,body.folded #guide{display:none!important}
 #polcap{width:min(78vw,320px);text-align:center}
 /* 활동 메뉴: 버튼들을 한 곳에 모아 글자와 함께 보여줘요 */
 #actrow{display:none}
+#cinrow{flex-direction:column;align-items:stretch;gap:8px;padding:10px;border-radius:20px;background:rgba(20,14,10,.72);backdrop-filter:blur(6px);width:min(92vw,400px);box-sizing:border-box;pointer-events:none}
+#cinrow .cinln{display:flex;align-items:center;justify-content:center;gap:6px;pointer-events:none}
+#cinrow #cinurl{flex:1;min-width:0;width:auto;padding:9px 14px}
+#cinrow .cinln button{padding:8px 13px;white-space:nowrap}
+#cinrow #cinlink,#cinrow #cinlistbtn{flex:1}
+#cinrow #cinjoin{padding:9px 14px;border-color:rgba(255,190,120,.9);background:rgba(70,40,15,.75)}
+#cinrow #cinctl button{flex:1;padding:8px 6px}
+#cinrow #cinseek{flex:1;min-width:0;width:auto;padding:0;height:22px;border:0;background:none;accent-color:#ff9a3c}
+#cinrow #cintime{font-size:.8rem;min-width:6.2em;text-align:right;text-shadow:0 1px 4px #000;white-space:nowrap}
 .ui.actopen #actrow{display:flex;flex-direction:column;align-items:stretch;gap:6px;pointer-events:auto;max-height:42vh;overflow-y:auto;padding:8px;border-radius:18px;background:rgba(20,14,10,.8);backdrop-filter:blur(6px);min-width:190px;max-width:88vw}
 .ui #actrow button{text-align:left;white-space:nowrap}
 .ui #actrow button[data-ic]{font-size:.95rem!important;padding:9px 16px;min-width:0;align-items:center;gap:10px}
@@ -170,11 +179,56 @@ body.folded .ui #actrow button[data-ic]::before{font-size:1.3rem}
 <button id="tabtog" class="tabtog" type="button" aria-expanded="false" aria-controls="tabs" aria-label="장소 바꾸기" title="장소 바꾸기">🔥 ▾</button>
 <p class="skysay" id="skysay"></p><div class="tabs" id="tabs"><button data-s="fire" type="button">🔥 숲속 캠핑 불멍</button><button data-s="beach" type="button">🌊 바닷가 물멍</button><button data-s="cabin" type="button">❄️ 눈 오는 오두막</button><button data-s="cinema" type="button">🎬 별빛 영화관</button></div>
 <div class="log" id="log"></div>
-<div class="ui"><p class="msg" id="msg"></p><div class="chatrow" id="sitrow" style="display:none"><button type="button" data-s="chair">의자에 앉기</button><button type="button" data-s="floor">바닥에 앉기</button></div><div class="chatrow" id="actrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="gob" type="button" aria-pressed="false" style="display:none">이동</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">1인칭</button><button id="lie" type="button" style="display:none">눕기</button><button id="lv" type="button" style="display:none">3인칭</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button><button id="zone" type="button" style="display:none">멍때리기</button></div><div class="chatrow" id="gorow" style="display:none"><button type="button" data-g="fire">모닥불</button><button type="button" data-g="gb">방명록 자리</button><button type="button" data-g="rain">비 오는 캠핑장</button><button type="button" data-g="cat">고양이 놀이터</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래편지</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"><button type="button" data-k="hang" id="hangbtn" style="display:none">걸기</button></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow" id="cinrow" style="display:none"><input id="cinurl" placeholder="유튜브 링크 붙여넣기" aria-label="유튜브 링크" autocomplete="off" style="width:min(15em,50vw)"><button id="cinplay" type="button">틀기</button><button id="cinlistbtn" type="button">📋 목록</button><button id="cinjoin" type="button" style="display:none">📽 같이 보기</button><button id="cinpause" type="button" style="display:none">⏸ 멈춤</button><button id="cinstop" type="button" style="display:none">끄기</button></div><div class="chatrow" id="mainrow"></div><div id="setrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div><div class="chatrow"><button id="acttog" type="button" aria-expanded="false" aria-controls="actrow">활동</button><button id="settog" type="button" aria-expanded="false" aria-controls="setrow">설정</button></div></div>
+<div class="ui"><p class="msg" id="msg"></p><div class="chatrow" id="sitrow" style="display:none"><button type="button" data-s="chair">의자에 앉기</button><button type="button" data-s="floor">바닥에 앉기</button></div><div class="chatrow" id="actrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="gob" type="button" aria-pressed="false" style="display:none">이동</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">1인칭</button><button id="lie" type="button" style="display:none">눕기</button><button id="lv" type="button" style="display:none">3인칭</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button><button id="zone" type="button" style="display:none">멍때리기</button><button id="cinenter" type="button" style="display:none"></button></div><div class="chatrow" id="gorow" style="display:none"><button type="button" data-g="fire">모닥불</button><button type="button" data-g="gb">방명록 자리</button><button type="button" data-g="rain">비 오는 캠핑장</button><button type="button" data-g="cat">고양이 놀이터</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래편지</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"><button type="button" data-k="hang" id="hangbtn" style="display:none">걸기</button></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow" id="cinrow" style="display:none"><button id="cinjoin" type="button" style="display:none">📽 같이 보기</button><div class="cinln"><button id="cinlink" type="button" aria-expanded="false">🔗 링크로 틀기</button><button id="cinlistbtn" type="button" aria-label="영상 목록">📋 목록</button></div><div class="cinln" id="cinurlrow" style="display:none"><input id="cinurl" placeholder="유튜브 링크 붙여넣기" aria-label="유튜브 링크" autocomplete="off"><button id="cinplay" type="button">틀기</button></div><div class="cinln" id="cinctl" style="display:none"><button id="cinpause" type="button" aria-label="멈춤">⏸</button><button id="cinback" type="button" aria-label="10초 뒤로">⏪ 10</button><button id="cinfwd" type="button" aria-label="10초 앞으로">10 ⏩</button><button id="cinstop" type="button" aria-label="끄기">✕ 끄기</button></div><div class="cinln" id="cinseekrow" style="display:none"><input id="cinseek" type="range" min="0" max="3600" step="1" value="0" aria-label="영상 위치"><span id="cintime"></span></div></div><div class="chatrow" id="mainrow"></div><div id="setrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div><div class="chatrow"><button id="acttog" type="button" aria-expanded="false" aria-controls="actrow">활동</button><button id="settog" type="button" aria-expanded="false" aria-controls="setrow">설정</button></div></div>
 <script>
 /* ▼▼▼ 여기 두 줄만 네 Supabase 값으로 바꿔줘 (Supabase 대시보드 → Project Settings → API) ▼▼▼ */
 window.SUPA_URL='https://mcbauedrqldfhjulvhoi.supabase.co';   /* 예: https://abcdxyz.supabase.co */
 window.SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jYmF1ZWRycWxkZmhqdWx2aG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzI5MDMsImV4cCI6MjEwOTM0ODkwM30.fCiGDMw7aqzJZT2cu3yWjRMhtHAjLtlcYyJNvBscTlI'; /* anon(public) 키만! service_role 키는 절대 넣지 마 */
+/* ▲▲▲ 여기까지 ▲▲▲ */
+
+/* ▼▼▼ 별빛 영화관 · 방마다 이름과 추천 영상을 정해두는 곳 ▼▼▼
+   - 1~5는 방 번호야. name은 방 이름(안 적어도 돼), list에는 ['유튜브 링크','이름'] 을 한 줄씩 넣어.
+   - 줄 끝 쉼표(,)와 따옴표('')만 지켜주면 돼. 비워두면 그 방엔 추천 목록이 안 나와.
+   - 숏츠(세로 영상) 방은 name 뒤에 vertical:true, 를 붙이면 스크린이 세로로 바뀌어.  예) 3:{name:'동물 숏츠',vertical:true,list:[
+   - 바꾸고 나서 GitHub에 index.html을 다시 올리면 모두에게 적용돼.
+   예)
+   2:{name:'잠 안 올 때',list:[
+     ['https://youtu.be/영상번호11자리','빗소리 1시간'],
+     ['https://youtu.be/영상번호11자리','잔잔한 피아노'],
+   ]},
+*/
+window.CIN_ROOMS={
+  1:{name:'',list:[
+  ]},
+  2:{name:'',list:[
+  ]},
+  3:{name:'',list:[
+  ]},
+  4:{name:'',list:[
+  ]},
+  5:{name:'',list:[
+  ]}
+};
+/* ▼▼▼ 별빛 영화관 · 별실 3개(복도 끝 따로 떨어진 방)의 이름과 추천 영상 ▼▼▼
+   - 순서대로 1번 드라마 / 2번 숏츠 / 3번 애니 웹툰 별실이야. 형식은 위 CIN_ROOMS 랑 똑같아.
+   - 별실 영상은 같은 별실 안에 있는 사람들끼리만 같이 봐요. (숏츠 별실은 스크린이 세로예요) */
+window.CIN_SUITES=[
+  {name:'드라마 별실',list:[
+    ['https://youtu.be/g-RnruuBlDA','너의 목소리가 들려'],
+    ['https://youtu.be/MlJnHIj9Axg','그해 우리는'],
+    ['https://youtu.be/9SEEhaS-IkA','김삼순'],
+  ]},
+  {name:'숏츠 별실',list:[
+    ['https://youtube.com/shorts/_A35I-ZzNG8','동물 영상 1'],
+    ['https://youtube.com/shorts/7DVE4fDOHDI','동물 영상 2'],
+    ['https://youtube.com/shorts/kmKB4OOp3ak','동물 영상 3'],
+  ]},
+  {name:'애니 웹툰 별실',list:[
+    ['https://youtu.be/FICdw5HH8dI','애니 웹툰 1'],
+    ['https://youtu.be/4bs21Qkd7ys','애니 웹툰 2'],
+  ]}
+];
+/* ▲▲▲ 여기까지 ▲▲▲ */
 /* ▲▲▲ 여기까지 ▲▲▲ */
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
@@ -335,10 +389,83 @@ stars.material.sizeAttenuation=false;stars.material.size=2;gF.add(stars);
 // ════════════════════════════════════════
 // 🎬 장면 만들기 ④ 별빛 영화관 (1단계: 밤하늘 · 빈 땅 · 큰 스크린)
 // ════════════════════════════════════════
-var CIN_SZ=-24,CIN_W=24,CIN_H=13.5,CIN_Y=9;   // 스크린 위치(z). 입장 위치는 아래 ENTRY.cinema
+var CIN_SZ=-24,CIN_W=24,CIN_H=13.5,CIN_Y=9;   // 스크린 위치(z)와 크기. 입장 위치는 아래 ENTRY.cinema
+var cinScr=null,cinFrm=null,cinGlow=null,cinPosts=[],cinBeamG=null,cinTexL=null,cinTexP=null,cinVert=false,cinLastCh=-1,cinLastPl='x';
+// 🚪 별실 3개: 중앙 극장 서쪽 복도(세로 복도)를 따라 문이 3개. c=방 중심 z, v=세로 스크린(숏츠), w·h=스크린 크기
+var SUITES=[{c:-40,v:false,w:8,h:4.5},{c:-2,v:true,w:2.81,h:5},{c:36,v:false,w:8,h:4.5}];
+var SU_X0=-49.4,SU_XR=-37.2,SU_XD0=-37.6,SU_XD1=-36.2,SU_HX0=-36.4,SU_HX1=-33,SU_HZ0=-45,SU_HZ1=41,SU_SX=-49.9,SU_SY=3.1,SU_DOORX=-36.8;
+var CIN_RECTS=[[SU_HX0,-26,-3.6,-.4],[SU_HX0,SU_HX1,SU_HZ0,SU_HZ1]],CIN_DR=[];   // 입구 복도 · 세로 복도 (걸을 수 있는 곳)
+SUITES.forEach(function(s){CIN_DR.push([SU_XD0,SU_XD1,s.c-1.6,s.c+1.6]);CIN_RECTS.push([SU_X0,SU_XR,s.c-4.5,s.c+4.5]);});   // 문 칸 · 방 안
+var cinDoors=[],cinWay=[],cinWayT=null,cinWayOpen=false,cinEnterAct=null;
+function cinDoorOpen(i){var d=cinDoors[i];if(!d)return false;if(Date.now()<d.until)return true;return me.x>SU_XD0-.1&&me.x<SU_XD1+.1&&Math.abs(me.z-SUITES[i].c)<1.7;}
+function cinSuiteIdx(){if(scene!=='cinema')return -1;if(me.x<SU_XD0+.2)for(var i=0;i<SUITES.length;i++)if(Math.abs(me.z-SUITES[i].c)<5)return i;return -1;}
+function cinPlace(){var i=cinSuiteIdx();return i<0?'H':String(i);}
+function cinZone(x,z){   // 0~2 별실 안 · 3 세로 복도(문 앞) · 4 중앙 극장/입구 복도
+  var i;if(x<SU_XD0+.2){for(i=0;i<SUITES.length;i++)if(Math.abs(z-SUITES[i].c)<5.2)return i;}
+  if(x<SU_HX1+.4&&x>SU_XD0-.4&&z>SU_HZ0-1&&z<SU_HZ1+1)return 3;return 4;
+}
+function cinRoutePt(P){   // 지금 위치 → P 까지 거쳐 갈 지점들 (문 · 복도를 돌아서)
+  var a=cinZone(me.x,me.z),b=cinZone(P[0],P[1]),p=[];
+  if(a<3){p.push([-34.7,SUITES[a].c]);a=3;}
+  if(a===4){if(b!==4){p.push([-29,-2]);p.push([-34.7,-2]);a=3;}}
+  if(a===3){if(b===4){p.push([-34.7,-2]);p.push([-29,-2]);}else if(b<3)p.push([-34.7,SUITES[b].c]);}
+  p.push(P);return p;
+}
+function cinTapRoute(){   // 바닥을 눌렀는데 다른 구역이면 문 · 복도를 거쳐서 걸어가요
+  var tp=[me.tx,me.tz];
+  if(cinZone(me.x,me.z)!==cinZone(tp[0],tp[1]))cinGoWay(cinRoutePt(tp));else cinWay=[];
+}
+function cinCamClamp(w){   // 별실 · 복도 안에서는 카메라도 벽 밖으로 못 나가요
+  var z=cinZone(me.x,me.z),c;
+  if(z<3){c=SUITES[z].c;w.x=Math.max(-49.6,Math.min(-37.1,w.x));w.z=Math.max(c-4.8,Math.min(c+4.8,w.z));w.y=Math.max(1,Math.min(5.2,w.y));}
+  else if(z===3){w.x=Math.max(SU_HX0-.2,Math.min(SU_HX1+.2,w.x));w.z=Math.max(SU_HZ0,Math.min(SU_HZ1,w.z));}
+}
+function cinOpenFor(x,z){var zz=cinZone(x,z);if(zz<3&&cinDoors[zz])cinDoors[zz].until=Date.now()+7000;}
+function cinGoWay(pts,openIn){cinOpenFor(me.x,me.z);cinWayOpen=!!openIn;var p=pts.shift();if(cinWayOpen)cinOpenFor(p[0],p[1]);cinWay=pts;me.tx=p[0];me.tz=p[1];clampPos(me,'t');cinWayT=[me.tx,me.tz];}
+function cinDoorTick(){
+  var i,d,a,eb=document.getElementById('cinenter'),lab='',act=null,dd,z;
+  for(i=0;i<cinDoors.length;i++){d=cinDoors[i];a=cinDoorOpen(i)?1.6:0;d.a+=(a-d.a)*.12;if(Math.abs(a-d.a)<.002)d.a=a;d.g.rotation.y=d.a;}
+  if(cinWay.length){
+    if(!cinWayT||Math.abs(me.tx-cinWayT[0])>.05||Math.abs(me.tz-cinWayT[1])>.05)cinWay=[];
+    else if(Math.hypot(me.tx-me.x,me.tz-me.z)<.9){var w=cinWay.shift();if(cinWayOpen)cinOpenFor(w[0],w[1]);me.tx=w[0];me.tz=w[1];clampPos(me,'t');cinWayT=[me.tx,me.tz];}
+  }
+  if(!me.sit){   // 문 앞에서는 [들어가기], 방 안 문 가까이에서는 [나가기]
+    z=cinZone(me.x,me.z);
+    if(z===3){for(i=0;i<SUITES.length;i++){dd=Math.hypot(me.x-SU_DOORX,me.z-SUITES[i].c);if(dd<3.6&&me.x>SU_XD0+.2){act={i:i,out:false};lab='🚪 '+String((window.CIN_SUITES&&window.CIN_SUITES[i]&&window.CIN_SUITES[i].name)||'별실').slice(0,10)+' 들어가기';break;}}}
+    else if(z<3&&Math.hypot(me.x-SU_DOORX,me.z-SUITES[z].c)<5){act={i:z,out:true};lab='🚪 나가기';}
+  }
+  cinEnterAct=act;
+  if(eb){if(act){if(eb.textContent!==lab)eb.textContent=lab;if(eb.style.display==='none')eb.style.display='';}else if(eb.style.display!=='none')eb.style.display='none';}
+}
+(function(){var eb=document.getElementById('cinenter');if(!eb)return;eb.addEventListener('click',function(){
+  var a=cinEnterAct;if(!a||scene!=='cinema')return;var c=SUITES[a.i].c;cinDoors[a.i].until=Date.now()+7000;me.want=null;
+  if(a.out){cinGoWay([[-34.7,c]]);toast('문을 열고 나가요');}else{cinGoWay([[-43.4,c]]);toast('문을 열고 들어가요');}
+});})();
+
+function cinSetShape(v){   // v=true 면 세로(숏츠용, 9:16), false 면 가로
+  cinVert=v;var w=v?CIN_H*9/16:CIN_W,k=w/CIN_W,hh=w/2;
+  if(cinScr){cinScr.scale.x=k;cinScr.material.map=v?cinTexP:cinTexL;cinScr.material.needsUpdate=true;}
+  if(cinFrm)cinFrm.scale.x=(w+.8)/(CIN_W+.8);
+  if(cinGlow)cinGlow.scale.x=k;
+  cinPosts.forEach(function(p,i){p.position.x=(i?1:-1)*(hh-1.2);});
+  if(cinBeamG){var a=cinBeamG.attributes.position;a.setX(1,-hh);a.setX(2,hh);a.setX(3,hh);a.setX(4,-hh);a.needsUpdate=true;}
+  CIN_C=[[-hh,CIN_Y+CIN_H/2],[hh,CIN_Y+CIN_H/2],[hh,CIN_Y-CIN_H/2],[-hh,CIN_Y-CIN_H/2]];
+  if(cinWrap){cinWrap.style.width=(v?540:960)+'px';cinWrap.style.height=(v?960:540)+'px';}
+}
+function cinShapeTick(){   // 방(번호)이나 별실을 옮기면 영상을 끄고, 그곳 스크린 모양(가로/세로)으로 맞춰요
+  if(scene!=='cinema'){var eb0=document.getElementById('cinenter');if(eb0&&eb0.style.display!=='none')eb0.style.display='none';return;}
+  var si=cinSuiteIdx(),pl=si<0?'H':String(si);
+  if(cinLastCh!==ch){cinLastCh=ch;cinLastPl=pl;if(typeof cinStop==='function')cinStop(true);}
+  else if(cinLastPl!==pl){cinLastPl=pl;if(typeof cinStop==='function')cinStop(true);if(window.cinAsk)window.cinAsk();}
+  var r=window.CIN_ROOMS&&window.CIN_ROOMS[ch],v=si>=0?!!SUITES[si].v:!!(r&&r.vertical);
+  if(v!==cinVert)cinSetShape(v);
+  cinDoorTick();
+}
+function cinEsc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function cinRoomTag(c){var r=window.CIN_ROOMS&&window.CIN_ROOMS[c];return (scene==='cinema'&&r&&r.name)?' · '+cinEsc(String(r.name).slice(0,12)):'';}
 var starsM=pts(520,function(a,i){var th=Math.random()*6.283,ph=Math.random()*1.5+.02,r=90;a[i]=Math.cos(th)*Math.sin(ph)*r;a[i+1]=Math.cos(ph)*r;a[i+2]=Math.sin(th)*Math.sin(ph)*r;},.9,0xdfe8ff,.85);
 starsM.material.sizeAttenuation=false;starsM.material.size=2;gM.add(starsM);
-var gndM=mesh(new THREE.CircleGeometry(60,48),new THREE.MeshLambertMaterial({color:0x1f2e26}),0,0,0);gndM.rotation.x=-Math.PI/2;gM.add(gndM);
+var gndM=mesh(new THREE.CircleGeometry(90,64),new THREE.MeshLambertMaterial({color:0x1f2e26}),0,0,0);gndM.rotation.x=-Math.PI/2;gM.add(gndM);
 (function(){
   var c=cnv(512,288),x=c.getContext('2d');
   var gr=x.createLinearGradient(0,0,0,288);gr.addColorStop(0,'#e6eeff');gr.addColorStop(1,'#a9bcea');
@@ -347,10 +474,16 @@ var gndM=mesh(new THREE.CircleGeometry(60,48),new THREE.MeshLambertMaterial({col
   x.font='bold 46px "Gowun Batang","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';x.fillText('🎬 별빛 영화관',256,120);
   x.font='26px "Gowun Batang",sans-serif';x.globalAlpha=.75;x.fillText('곧 상영을 시작해요',256,184);
   var tex=new THREE.CanvasTexture(c);
-  var scr=mesh(new THREE.PlaneGeometry(CIN_W,CIN_H),new THREE.MeshBasicMaterial({map:tex,fog:false,toneMapped:false}),0,CIN_Y,CIN_SZ);gM.add(scr);
-  var fr=mesh(new THREE.BoxGeometry(CIN_W+.8,CIN_H+.65,.2),M(0x0d0f16),0,CIN_Y,CIN_SZ-.13);gM.add(fr);
-  [-10.8,10.8].forEach(function(px){gM.add(mesh(new THREE.CylinderGeometry(.2,.24,2.4,8),M(0x1a1c26),px,1.2,CIN_SZ-.13));});
-  var gl=mesh(new THREE.PlaneGeometry(CIN_W*1.8,CIN_H*1.8),new THREE.MeshBasicMaterial({map:glowTex,color:0x9fb4e8,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}),0,CIN_Y,CIN_SZ+.4);gM.add(gl);
+  var scr=mesh(new THREE.PlaneGeometry(CIN_W,CIN_H),new THREE.MeshBasicMaterial({map:tex,fog:false,toneMapped:false}),0,CIN_Y,CIN_SZ);gM.add(scr);cinScr=scr;cinTexL=tex;
+  // 세로 스크린(숏츠 방)용 문구판
+  var c2=cnv(288,512),x2=c2.getContext('2d'),gr2=x2.createLinearGradient(0,0,0,512);gr2.addColorStop(0,'#e6eeff');gr2.addColorStop(1,'#a9bcea');
+  x2.fillStyle=gr2;x2.fillRect(0,0,288,512);x2.fillStyle='#2a3558';x2.textAlign='center';x2.textBaseline='middle';
+  x2.font='bold 34px "Gowun Batang","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';x2.fillText('🎬 별빛 영화관',144,220);
+  x2.font='22px "Gowun Batang",sans-serif';x2.globalAlpha=.75;x2.fillText('곧 상영을 시작해요',144,276);
+  cinTexP=new THREE.CanvasTexture(c2);
+  var fr=mesh(new THREE.BoxGeometry(CIN_W+.8,CIN_H+.65,.2),M(0x0d0f16),0,CIN_Y,CIN_SZ-.13);gM.add(fr);cinFrm=fr;
+  [-10.8,10.8].forEach(function(px){var pp=mesh(new THREE.CylinderGeometry(.2,.24,2.4,8),M(0x1a1c26),px,1.2,CIN_SZ-.13);gM.add(pp);cinPosts.push(pp);});
+  var gl=mesh(new THREE.PlaneGeometry(CIN_W*1.8,CIN_H*1.8),new THREE.MeshBasicMaterial({map:glowTex,color:0x9fb4e8,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}),0,CIN_Y,CIN_SZ+.4);gM.add(gl);cinGlow=gl;
 })();
 
 // ── 2단계: 빔프로젝터 · 돗자리 · 캠핑 의자 ──
@@ -358,18 +491,18 @@ var mSeats=[],mBeds=[],mpadM=new THREE.MeshBasicMaterial({transparent:true,opaci
 function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-me.x,mBeds[nb].z-me.z)<7)return true;return false;}
 (function(){
   // 돗자리 (앉기 · 눕기 둘 다 돼요)
-  function mat(x,z,c1,c2){
+  function mat(x,z,c1,c2,fx,fz,nobed){
     var cv=cnv(128,96),g=cv.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,128,96);g.fillStyle=c2;g.globalAlpha=.55;
     for(var k=0;k<128;k+=16)g.fillRect(k,0,8,96);for(var k2=0;k2<96;k2+=16)g.fillRect(0,k2,128,8);
     var m=mesh(new THREE.PlaneGeometry(3,2.2),new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(cv),emissive:0x181410}),x,.03,z);m.rotation.x=-Math.PI/2;gM.add(m);
     var pd=mesh(new THREE.BoxGeometry(3,.1,2.2),mpadM,x,.08,z);gM.add(pd);
-    mSeats.push({m:pd,x:x,z:z+.3,fx:x,fz:CIN_SZ,ground:true});
-    mBeds.push({m:pd,x:x,z:z,fx:x,fz:CIN_SZ,bed:true,flip:true});
+    mSeats.push({m:pd,x:x,z:z+.3,fx:(fx===undefined?x:fx),fz:(fz===undefined?CIN_SZ:fz),ground:true});
+    if(!nobed)mBeds.push({m:pd,x:x,z:z,fx:x,fz:CIN_SZ,bed:true,flip:true});
   }
   mat(-5.5,-3,'#8c3b3b','#d9b8a0');mat(0,-3,'#3b5f8c','#b8c8d9');mat(5.5,-3,'#4a7a52','#c8d9b8');
   // 리클라이너 (스크린을 보고 있어요)
-  function chair(x,z,col){
-    var g=new THREE.Group();g.position.set(x,0,z);gM.add(g);
+  function chair(x,z,col,ry,fx,fz){
+    var g=new THREE.Group();g.position.set(x,0,z);if(ry)g.rotation.y=ry;gM.add(g);
     var lt=new THREE.Color(col).multiplyScalar(1.22).getHex(),dk=new THREE.Color(col).multiplyScalar(.7).getHex();
     var body=M(col,0x0c0806),soft=M(lt,0x100a08),base=M(0x1b1713),metal=M(0x2a2a30);
     // 밑받침과 발
@@ -391,10 +524,64 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     g.add(mesh(new THREE.BoxGeometry(.7,.1,.18),metal,0,.3,-.62));
     // 누르는 영역
     var pk=mesh(new THREE.BoxGeometry(1.3,.1,1.0),mpadM,0,.55,0);g.add(pk);
-    mSeats.push({m:pk,x:x,z:z,fx:x,fz:CIN_SZ});
+    mSeats.push({m:pk,x:x,z:z,fx:(fx===undefined?x:fx),fz:(fz===undefined?CIN_SZ:fz)});
   }
   var cc=[0x7a4a32,0x38465f,0x6a3040,0x3a5a48];   // 갈색 · 남색 · 와인 · 초록 가죽
   for(var ci=0;ci<6;ci++)chair(-7.5+ci*3,3.5,cc[ci%4]);
+
+  // ═══ 🚪 별실 3개 (드라마 · 숏츠 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
+  (function(){
+    var WH=6,wood=M(0x6a4a30,0x120c06),lampG=new THREE.SphereGeometry(.17,10,8),lampM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false}),poleG=new THREE.CylinderGeometry(.04,.05,1.2,6),poleM=M(0x2a2420);
+    var bulbG=new THREE.SphereGeometry(.09,8,6),bulbM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false});
+    // 복도 바닥: 입구 복도(동서) + 세로 복도(남북)
+    var pm=new THREE.MeshLambertMaterial({color:0x5b4a3a,emissive:0x15100c});
+    var p1=mesh(new THREE.PlaneGeometry(10.4,3.2),pm,-31.2,.026,-2);p1.rotation.x=-Math.PI/2;gM.add(p1);
+    var p2=mesh(new THREE.PlaneGeometry(3.4,86),pm,-34.7,.027,-2);p2.rotation.x=-Math.PI/2;gM.add(p2);
+    [-43,-38,-33,-28,-23,-18,-13,-8,4,9,14,19,24,29,34,39].forEach(function(lz){gM.add(mesh(poleG,poleM,-33.2,.6,lz));gM.add(mesh(lampG,lampM,-33.2,1.3,lz));});
+    [-30.6,-27.8].forEach(function(lx){[-3.9,-.1].forEach(function(lz){gM.add(mesh(poleG,poleM,lx,.6,lz));gM.add(mesh(lampG,lampM,lx,1.3,lz));});});
+    (function(){   // 복도 입구 안내판
+      var bc=cnv(384,128),bx=bc.getContext('2d');bx.fillStyle='#2b1d14';bx.fillRect(0,0,384,128);bx.strokeStyle='#e8c98a';bx.lineWidth=5;bx.strokeRect(8,8,368,112);
+      bx.fillStyle='#ffe3a8';bx.textAlign='center';bx.textBaseline='middle';bx.font='bold 44px "Gowun Batang","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';bx.fillText('← 별실 입구',192,66);
+      gM.add(mesh(new THREE.CylinderGeometry(.06,.07,2.2,6),poleM,-27,1.1,-4.8));
+      var bp=mesh(new THREE.PlaneGeometry(2.4,.8),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(bc),side:THREE.DoubleSide,fog:false}),-27,2.3,-4.8);bp.rotation.y=Math.PI/2;gM.add(bp);
+    })();
+    var icons=['🎬','📱','🎨'],tints=[[0x2a3150,0x0d1122,0x5a2f3a],[0x1f3a40,0x0a1618,0x2f5a5a],[0x3a2f55,0x120d22,0x4a3a6a]];
+    SUITES.forEach(function(S,i){
+      var c=S.c,cs=(window.CIN_SUITES&&window.CIN_SUITES[i])||{},nm=String(cs.name||'별실').slice(0,10),T=tints[i%3];
+      var fl=mesh(new THREE.PlaneGeometry(13.2,10),new THREE.MeshLambertMaterial({color:0x3b2a20,emissive:0x1c130d}),-43.4,.03,c);fl.rotation.x=-Math.PI/2;gM.add(fl);
+      var rug=mesh(new THREE.PlaneGeometry(8.5,6.4),new THREE.MeshLambertMaterial({color:T[2],emissive:0x120a0c}),-43.8,.045,c);rug.rotation.x=-Math.PI/2;gM.add(rug);
+      // 벽 (안쪽 면만 그려서 카메라가 벽 밖으로 나가도 시야를 안 가려요)
+      var wM=new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide});
+      function wall(w,h,x,y,z,ry){var p=mesh(new THREE.PlaneGeometry(w,h),wM,x,y,z);p.rotation.y=ry;gM.add(p);}
+      wall(13.2,WH,-43.4,WH/2,c-5,0);wall(13.2,WH,-43.4,WH/2,c+5,Math.PI);wall(10,WH,-50,WH/2,c,Math.PI/2);
+      wall(3.4,WH,SU_DOORX,WH/2,c-3.3,-Math.PI/2);wall(3.4,WH,SU_DOORX,WH/2,c+3.3,-Math.PI/2);wall(3.2,WH-3.4,SU_DOORX,3.4+(WH-3.4)/2,c,-Math.PI/2);
+      var rf=mesh(new THREE.PlaneGeometry(13.6,10.4),new THREE.MeshLambertMaterial({color:T[0],emissive:T[1],side:THREE.DoubleSide}),-43.4,WH+.02,c);rf.rotation.x=-Math.PI/2;gM.add(rf);   // 지붕(안에서 보면 천장)
+      // 문틀 · 문짝 (가까이 가면 안쪽으로 열려요)
+      [-1.6,1.6].forEach(function(dz){gM.add(mesh(new THREE.CylinderGeometry(.16,.18,3.5,8),wood,SU_DOORX,1.75,c+dz));});
+      var dg=new THREE.Group();dg.position.set(SU_DOORX,0,c+1.6);gM.add(dg);
+      dg.add(mesh(new THREE.BoxGeometry(.12,3.4,3.2),M(0x8a5a36,0x1a0e06),0,1.7,-1.6));
+      dg.add(mesh(new THREE.BoxGeometry(.14,3.0,2.8),M(0x9c6a42,0x1c1008),0,1.7,-1.6));
+      dg.add(mesh(new THREE.SphereGeometry(.11,8,6),new THREE.MeshBasicMaterial({color:0xf0d28a,fog:false}),.14,1.6,-2.8));
+      cinDoors[i]={g:dg,a:0,until:0};
+      // 문 위 간판 (복도 쪽에서 보여요)
+      var sc2=cnv(512,128),sx=sc2.getContext('2d');
+      sx.fillStyle='#2b1d14';sx.fillRect(0,0,512,128);sx.strokeStyle='#e8c98a';sx.lineWidth=5;sx.strokeRect(8,8,496,112);
+      sx.fillStyle='#ffe3a8';sx.textAlign='center';sx.textBaseline='middle';
+      sx.font='bold 46px "Gowun Batang","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';sx.fillText(icons[i%3]+' '+nm,256,66);
+      var sgn=mesh(new THREE.PlaneGeometry(4.2,1.05),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc2),side:THREE.DoubleSide,fog:false}),SU_DOORX+.12,4.6,c);sgn.rotation.y=Math.PI/2;gM.add(sgn);
+      // 꼬마전구 줄 (지붕 대신)
+      for(var bx=-49.4;bx<=-37;bx+=1.3){gM.add(mesh(bulbG,bulbM,bx,5.7,c-4.8));gM.add(mesh(bulbG,bulbM,bx,5.7,c+4.8));}
+      for(var bz=-4.4;bz<=4.4;bz+=1.3)gM.add(mesh(bulbG,bulbM,-49.8,5.7,c+bz));
+      // 스크린 (서쪽 벽, 동쪽을 바라봐요)
+      var s2=mesh(new THREE.PlaneGeometry(S.w,S.h),new THREE.MeshBasicMaterial({map:S.v?cinTexP:cinTexL,fog:false,toneMapped:false}),SU_SX,SU_SY,c);s2.rotation.y=Math.PI/2;gM.add(s2);
+      var f2=mesh(new THREE.BoxGeometry(.2,S.h+.5,S.w+.6),M(0x0d0f16),SU_SX-.13,SU_SY,c);gM.add(f2);
+      var g2=mesh(new THREE.PlaneGeometry(S.w*1.6,S.h*1.6),new THREE.MeshBasicMaterial({map:glowTex,color:0x9fb4e8,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}),SU_SX+.4,SU_SY,c);g2.rotation.y=Math.PI/2;gM.add(g2);
+      // 자리: 리클라이너 2줄 + 앞쪽 방석 (스크린을 봐요)
+      var cc2=[0x7a4a32,0x38465f,0x6a3040,0x3a5a48];
+      [-2.5,0,2.5].forEach(function(dz,k){chair(-45,c+dz,cc2[(k+i)%4],Math.PI/2,SU_SX,c);chair(-41.5,c+dz,cc2[(k+i+2)%4],Math.PI/2,SU_SX,c);});
+      mat(-47.8,c-3.2,'#8c3b3b','#d9b8a0',SU_SX,c,true);mat(-47.8,c+3.2,'#3b5f8c','#b8c8d9',SU_SX,c,true);
+    });
+  })();
   // 빔프로젝터 (삼각대 위, 스크린을 향해요)
   var PX=0,PY=3.2,PZ=22,dark=M(0x22242c);   // 시점 뒤쪽 멀리 (걸어서 못 가는 곳)
   gM.add(mesh(new THREE.CylinderGeometry(.035,.035,PY-.2,6),dark,PX,(PY-.2)/2,PZ));
@@ -413,15 +600,15 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
   bgm.setAttribute('position',new THREE.Float32BufferAttribute([PX,PY+.12,PZ-.4, -hw,y0,z0, hw,y0,z0, hw,y1,z0, -hw,y1,z0],3));
   bgm.setIndex([0,1,2, 0,2,3, 0,3,4, 0,4,1]);
   var beam=new THREE.Mesh(bgm,new THREE.MeshBasicMaterial({color:0xbcd2ff,transparent:true,opacity:.05,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}));
-  beam.frustumCulled=false;gM.add(beam);
+  beam.frustumCulled=false;gM.add(beam);cinBeamG=bgm;
 })();
 
 // ── 3단계: 스크린에 유튜브 영상 틀기 ──
 // 3D 스크린의 네 모서리를 화면 좌표로 바꿔서, 그 자리에 유튜브 창을 딱 맞춰 얹어요.
 var cinOn=false,cinWrap=null,cinFr=null,cinPaused=false,CIN_C=[[-CIN_W/2,CIN_Y+CIN_H/2],[CIN_W/2,CIN_Y+CIN_H/2],[CIN_W/2,CIN_Y-CIN_H/2],[-CIN_W/2,CIN_Y-CIN_H/2]];
 function ytId(u){u=(u||'').trim();var m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([A-Za-z0-9_-]{11})/);if(m)return m[1];if(/^[A-Za-z0-9_-]{11}$/.test(u))return u;return null;}
-function cinHomog(d){   // 960x540 사각형 → 화면 위 네 점(d)으로 보내는 변환
-  var s=[[0,0],[960,0],[960,540],[0,540]],A=[],b=[],i,j,k;
+function cinHomog(d,sw,sh){   // (sw x sh) 사각형 → 화면 위 네 점(d)으로 보내는 변환
+  sw=sw||960;sh=sh||540;var s=[[0,0],[sw,0],[sw,sh],[0,sh]],A=[],b=[],i,j,k;
   for(i=0;i<4;i++){var x=s[i][0],y=s[i][1],X=d[i][0],Y=d[i][1];
     A.push([x,y,1,0,0,0,-x*X,-y*X]);b.push(X);
     A.push([0,0,0,x,y,1,-x*Y,-y*Y]);b.push(Y);}
@@ -432,29 +619,37 @@ function cinHomog(d){   // 960x540 사각형 → 화면 위 네 점(d)으로 보
   var h=[];for(i=7;i>=0;i--){var sum=b[i];for(j=i+1;j<8;j++)sum-=A[i][j]*h[j];h[i]=sum/A[i][i];}
   return h;
 }
+function cinCorner(i){   // 지금 내가 있는 곳의 스크린 모서리 (별실 안이면 그 방 스크린)
+  var si=cinSuiteIdx();
+  if(si>=0){var S=SUITES[si],hw2=S.w/2;return new THREE.Vector3(SU_SX,SU_SY+((i<2)?S.h/2:-S.h/2),S.c+((i===0||i===3)?hw2:-hw2));}
+  return new THREE.Vector3(CIN_C[i][0],CIN_C[i][1],CIN_SZ);
+}
 function cinTick(){
   if(!cinOn||!cinWrap)return;
   if(scene!=='cinema'){cinWrap.style.visibility='hidden';return;}
   cam.updateMatrixWorld();
   var W=cv.clientWidth,H=cv.clientHeight,pts=[],i,v,vz;
   for(i=0;i<4;i++){
-    v=new THREE.Vector3(CIN_C[i][0],CIN_C[i][1],CIN_SZ);
+    v=cinCorner(i);
     vz=v.clone().applyMatrix4(cam.matrixWorldInverse);
     if(vz.z>-.3){cinWrap.style.visibility='hidden';return;}   // 스크린이 등 뒤에 있으면 숨겨요
     v.project(cam);pts.push([(v.x*.5+.5)*W,(-v.y*.5+.5)*H]);
   }
-  var h=cinHomog(pts);if(!h){cinWrap.style.visibility='hidden';return;}
+  var h=cinHomog(pts,cinVert?540:960,cinVert?960:540);if(!h){cinWrap.style.visibility='hidden';return;}
   cinWrap.style.transform='matrix3d('+[h[0],h[3],0,h[6],h[1],h[4],0,h[7],0,0,1,0,h[2],h[5],0,1].join(',')+')';
   cinWrap.style.visibility='visible';
 }
 (function(){
-  var urlEl=document.getElementById('cinurl'),playB=document.getElementById('cinplay'),pauseB=document.getElementById('cinpause'),stopB=document.getElementById('cinstop'),joinB=document.getElementById('cinjoin');
+  var urlEl=document.getElementById('cinurl'),playB=document.getElementById('cinplay'),pauseB=document.getElementById('cinpause'),stopB=document.getElementById('cinstop'),joinB=document.getElementById('cinjoin'),seekRow=document.getElementById('cinseekrow'),ctlRow=document.getElementById('cinctl'),seekEl=document.getElementById('cinseek'),backB=document.getElementById('cinback'),fwdB=document.getElementById('cinfwd'),timeEl=document.getElementById('cintime'),vdur=0,dragSeek=false;
   if(!urlEl)return;
   var st=null,pend=null;   // st: 내가 보는 영상 상태 / pend: 다른 사람이 튼 영상 (같이 보기 버튼을 누르면 시작)
   function nowT(){if(!st)return 0;return st.paused?st.t0:st.t0+(Date.now()-st.ref)/1000;}
-  function send(s){try{if(room&&room.sendChat)room.sendChat('\u0001'+s,(me.name||'나그네').slice(0,8));}catch(e){}}
+  function send(s){s=String(s).replace('CIN|','CIN|@'+cinPlace()+'|');try{if(room&&room.sendChat)room.sendChat('\u0001'+s,(me.name||'나그네').slice(0,8));}catch(e){}}
   function cmd(fn,args){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:args||[]}),'*');}catch(e){}}
-  function updPause(){if(pauseB)pauseB.textContent=(st&&st.paused)?'▶ 이어보기':'⏸ 멈춤';}
+  var linkB=document.getElementById('cinlink'),urlRow=document.getElementById('cinurlrow');
+  function showUrl(v){if(urlRow)urlRow.style.display=v?'flex':'none';if(linkB)linkB.setAttribute('aria-expanded',v?'true':'false');if(v)setTimeout(function(){try{urlEl.focus();}catch(e){}},30);}
+  if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
+  function updPause(){if(pauseB)pauseB.textContent=(st&&st.paused)?'▶':'⏸';}
   function showJoin(){
     if(!joinB)return;
     if(pend&&!(st&&st.id===pend.id)){joinB.textContent='📽 '+pend.n+'님 영상 같이 보기';joinB.style.display='';}
@@ -463,18 +658,18 @@ function cinTick(){
   window.cinStop=function(all){
     if(cinFr){try{cinFr.src='about:blank';}catch(e){}if(cinFr.parentNode)cinFr.parentNode.removeChild(cinFr);cinFr=null;}
     if(cinWrap)cinWrap.style.visibility='hidden';
-    cinOn=false;cinPaused=false;st=null;
-    if(all===true){pend=null;hideList();}
-    if(playB)playB.textContent='틀기';if(pauseB)pauseB.style.display='none';if(stopB)stopB.style.display='none';
+    cinOn=false;cinPaused=false;st=null;urlEl.placeholder='유튜브 링크 붙여넣기';
+    if(all===true){pend=null;hideList();showUrl(false);}
+    if(playB)playB.textContent='틀기';if(pauseB)pauseB.style.display='none';if(stopB)stopB.style.display='none';if(seekRow)seekRow.style.display='none';if(ctlRow)ctlRow.style.display='none';vdur=0;
     showJoin();
   };
   function play(id,start,quiet){
-    if(!id)id=ytId(urlEl.value);
+    if(!id){var raw=(urlEl.value||'').trim();id=raw?ytId(raw):(st?st.id:null);}   // 칸이 비어 있으면 지금 보는 영상을 다시 틀어요
     if(!id){toast('유튜브 링크를 붙여넣어 주세요');return;}
     start=Math.max(0,Math.min(86400,Math.floor(+start||0)));
     if(!cinWrap){
       cinWrap=document.createElement('div');cinWrap.id='cinwrap';
-      cinWrap.style.cssText='position:fixed;left:0;top:0;width:960px;height:540px;transform-origin:0 0;pointer-events:none;background:#000;visibility:hidden;will-change:transform';
+      cinWrap.style.cssText='position:fixed;left:0;top:0;width:'+(cinVert?540:960)+'px;height:'+(cinVert?960:540)+'px;transform-origin:0 0;pointer-events:none;background:#000;visibility:hidden;will-change:transform';
       cv.insertAdjacentElement('afterend',cinWrap);   // 캔버스 바로 위, 버튼들 아래에 놓여요
     }
     if(cinFr&&cinFr.parentNode)cinFr.parentNode.removeChild(cinFr);
@@ -488,10 +683,10 @@ function cinTick(){
     if(location.protocol.indexOf('http')!==0)toast('지금 파일로 열려 있어요 · 유튜브는 https:// 웹 주소에서만 나와요');
     cinOn=true;cinPaused=false;
     st={id:id,t0:start,ref:Date.now(),paused:false};
-    if(quiet)urlEl.value='https://youtu.be/'+id;
+    urlEl.value='';urlEl.placeholder='다른 영상 링크 붙여넣기';   // 다음 링크를 바로 붙여넣을 수 있게 비워요
     if(pend&&pend.id===id)pend=null;
-    playB.textContent='다시 틀기';pauseB.style.display='';stopB.style.display='';updPause();showJoin();
-    urlEl.blur();
+    playB.textContent='다시 틀기';pauseB.style.display='';stopB.style.display='';if(seekRow)seekRow.style.display='flex';if(ctlRow)ctlRow.style.display='flex';vdur=0;updPause();showJoin();
+    urlEl.blur();showUrl(false);
     if(!quiet)send('CIN|p|'+id+'|'+start+'|0');   // 같은 방 사람들에게 알려요
   }
   playB.addEventListener('click',function(){play(null,0,false);});
@@ -503,33 +698,68 @@ function cinTick(){
     updPause();
   });
   stopB.addEventListener('click',function(){window.cinStop(false);});   // 끄기는 내 화면만 꺼요
+  // ── 건너뛰기: 10초 앞/뒤 · 막대로 원하는 곳 · 같은 방 사람들 화면도 같이 따라가요 ──
+  function fmt(s){s=Math.max(0,Math.floor(s));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r;}
+  function seekTo(t){
+    if(!cinFr||!st)return;t=Math.max(0,Math.min(vdur>0?vdur-1:86400,t));
+    st.t0=t;st.ref=Date.now();cmd('seekTo',[t,true]);cmd(st.paused?'pauseVideo':'playVideo');
+    send('CIN|'+(st.paused?'z':'r')+'|'+Math.floor(t));
+  }
+  if(backB)backB.addEventListener('click',function(){if(st)seekTo(nowT()-10);});
+  if(fwdB)fwdB.addEventListener('click',function(){if(st)seekTo(nowT()+10);});
+  if(seekEl){
+    seekEl.addEventListener('input',function(){dragSeek=true;if(timeEl)timeEl.textContent=fmt(+seekEl.value)+(vdur?' / '+fmt(vdur):'');});
+    seekEl.addEventListener('change',function(){dragSeek=false;seekTo(+seekEl.value);});
+  }
+  setInterval(function(){
+    if(!st||!seekEl||dragSeek)return;var t=nowT();
+    if(vdur>0&&+seekEl.max!==Math.floor(vdur))seekEl.max=Math.floor(vdur);
+    seekEl.value=Math.min(t,+seekEl.max);
+    if(timeEl)timeEl.textContent=fmt(t)+(vdur?' / '+fmt(vdur):'');
+  },500);
   if(joinB)joinB.addEventListener('click',function(){
     if(!pend)return;
     var t=pend.t+(pend.paused?0:(Date.now()-pend.ref)/1000),id=pend.id;
     play(id,t,true);
   });
   // ── 내 영상 목록 (이 기기의 이 브라우저에만 저장돼요) ──
-  var LKEY='hy-cin-list-v1',mem=[],panel=null,listBox=null,pUrl=null,pName=null,lbtn=document.getElementById('cinlistbtn');
+  var LKEY='hy-cin-list-v1',mem=[],panel=null,listBox=null,preBox=null,pUrl=null,pName=null,lbtn=document.getElementById('cinlistbtn');
   function loadL(){
     try{var r=localStorage.getItem(LKEY);if(r){var a=JSON.parse(r);if(Array.isArray(a))return a.filter(function(x){return x&&/^[A-Za-z0-9_-]{11}$/.test(x.id||'');}).slice(0,30);}}catch(e){}
     return mem.slice();
   }
   function saveL(a){mem=a.slice();try{localStorage.setItem(LKEY,JSON.stringify(a));}catch(e){}}
   function hideList(){if(panel)panel.style.display='none';}
-  function renderList(){
-    var a=loadL(),i;
-    listBox.textContent='';
-    if(!a.length){var em=document.createElement('div');em.className='em';em.textContent='아직 없어요 · 위에 링크를 붙여넣고 추가해 봐요';listBox.appendChild(em);return;}
-    a.forEach(function(it,idx){
-      var row=document.createElement('div');row.className='it';
-      var im=document.createElement('img');im.alt='';im.loading='lazy';im.src='https://i.ytimg.com/vi/'+it.id+'/mqdefault.jpg';
-      var nm=document.createElement('span');nm.textContent=String(it.name||'영상').slice(0,40);
-      var pb=document.createElement('button');pb.type='button';pb.textContent='▶';pb.setAttribute('aria-label','틀기');
-      pb.addEventListener('click',function(){urlEl.value='https://youtu.be/'+it.id;hideList();play(it.id,0,false);});
+  function addRow(box,id,name,canDel,idx){
+    var row=document.createElement('div');row.className='it';
+    var im=document.createElement('img');im.alt='';im.loading='lazy';im.src='https://i.ytimg.com/vi/'+id+'/mqdefault.jpg';
+    var nm=document.createElement('span');nm.textContent=String(name||'영상').slice(0,40);
+    var pb=document.createElement('button');pb.type='button';pb.textContent='▶';pb.setAttribute('aria-label','틀기');
+    pb.addEventListener('click',function(){hideList();play(id,0,false);});
+    row.appendChild(im);row.appendChild(nm);row.appendChild(pb);
+    if(canDel){
       var db=document.createElement('button');db.type='button';db.textContent='🗑';db.setAttribute('aria-label','지우기');
       db.addEventListener('click',function(){var b=loadL();b.splice(idx,1);saveL(b);renderList();});
-      row.appendChild(im);row.appendChild(nm);row.appendChild(pb);row.appendChild(db);listBox.appendChild(row);
-    });
+      row.appendChild(db);
+    }
+    box.appendChild(row);
+  }
+  function renderPre(){   // 이 방의 추천 영상 (파일 위쪽 CIN_ROOMS에서 가져와요)
+    preBox.textContent='';
+    var si0=cinSuiteIdx(),r=si0>=0?(window.CIN_SUITES&&window.CIN_SUITES[si0]):(window.CIN_ROOMS&&window.CIN_ROOMS[ch]),n=0;
+    if(!r||!r.list)return;
+    var items=[];
+    r.list.forEach(function(p){var id=ytId(p&&p[0]);if(id)items.push({id:id,name:p[1]});});
+    if(!items.length)return;
+    var t=document.createElement('div');t.className='sec';t.textContent='⭐ 이 방 추천'+(r.name?' · '+String(r.name).slice(0,12):'');preBox.appendChild(t);
+    items.forEach(function(it){addRow(preBox,it.id,it.name||('영상 '+it.id.slice(0,4)),false,0);});
+  }
+  function renderList(){
+    var a=loadL(),i;
+    renderPre();
+    listBox.textContent='';
+    if(!a.length){var em=document.createElement('div');em.className='em';em.textContent='아직 없어요 · 위에 링크를 붙여넣고 추가해 봐요';listBox.appendChild(em);return;}
+    a.forEach(function(it,idx){addRow(listBox,it.id,it.name,true,idx);});
   }
   function addToList(){
     var id=ytId(pUrl.value);
@@ -553,13 +783,16 @@ function cinTick(){
       +'#cinlist .it{display:flex;align-items:center;gap:8px;margin-top:8px}'
       +'#cinlist .it img{width:64px;height:36px;object-fit:cover;border-radius:6px;background:#000;flex:none}'
       +'#cinlist .it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
-      +'#cinlist .em{opacity:.7;margin-top:10px}';
+      +'#cinlist .em{opacity:.7;margin-top:10px}'
+      +'#cinlist .sec{margin:12px 0 2px;font-size:14px;opacity:.85}';
     document.head.appendChild(css);
     panel=document.createElement('div');panel.id='cinlist';panel.style.display='none';
     var h=document.createElement('div');h.className='h';
-    var ht=document.createElement('span');ht.textContent='📋 내 영상 목록';
+    var ht=document.createElement('span');ht.textContent='🎬 영상 목록';
     var hx=document.createElement('button');hx.type='button';hx.textContent='✕';hx.setAttribute('aria-label','닫기');hx.addEventListener('click',hideList);
     h.appendChild(ht);h.appendChild(hx);panel.appendChild(h);
+    preBox=document.createElement('div');panel.appendChild(preBox);
+    var mine=document.createElement('div');mine.className='sec';mine.textContent='📋 내 목록 (이 기기에만 저장돼요)';panel.appendChild(mine);
     pUrl=document.createElement('input');pUrl.placeholder='유튜브 링크 붙여넣기';pUrl.setAttribute('autocomplete','off');
     pName=document.createElement('input');pName.placeholder='이름 (안 적어도 돼)';pName.setAttribute('autocomplete','off');pName.maxLength=40;
     var ab=document.createElement('button');ab.type='button';ab.className='add';ab.textContent='＋ 목록에 추가';ab.addEventListener('click',addToList);
@@ -571,13 +804,14 @@ function cinTick(){
   if(lbtn)lbtn.addEventListener('click',function(){
     if(!panel)buildPanel();
     if(panel.style.display!=='none'){hideList();return;}
-    var cur=ytId(urlEl.value);   // 지금 입력칸에 붙여넣은 링크가 있으면 자동으로 채워줘요
-    pUrl.value=(cur&&!loadL().some(function(x){return x.id===cur;}))?urlEl.value:'';
+    var cur=ytId(urlEl.value)||(st?st.id:null);   // 입력칸에 붙여넣은 링크, 없으면 지금 보는 영상을 자동으로 채워줘요
+    pUrl.value=(cur&&!loadL().some(function(x){return x.id===cur;}))?('https://youtu.be/'+cur):'';
     pName.value='';renderList();panel.style.display='';
   });
   // 같은 방 사람이 보낸 영상 신호 받기
   window.cinNet=function(d){
     var a=String(d.t||'').slice(1).split('|');if(a[0]!=='CIN')return;
+    if(a[1]&&a[1].charAt(0)==='@'){var pl0=a[1].slice(1);a.splice(1,1);if(pl0!==cinPlace())return;}else if(cinPlace()!=='H')return;
     var k=a[1],t=Math.max(0,Math.min(86400,+a[3]||0)),nm=String(d.n||'친구').slice(0,8);
     if(k==='a'){   // 새로 들어온 사람이 "지금 뭐 틀어?" 하고 물어요
       if(cinOn&&cinFr&&st)send('CIN|p|'+st.id+'|'+Math.floor(nowT())+'|'+(st.paused?1:0));
@@ -597,6 +831,7 @@ function cinTick(){
   window.addEventListener('message',function(e){
     if(!cinFr||e.source!==cinFr.contentWindow)return;
     var d=e.data;if(typeof d==='string'){try{d=JSON.parse(d);}catch(err){return;}}
+    if(d&&d.event==='infoDelivery'&&d.info&&+d.info.duration>0){vdur=+d.info.duration;return;}
     if(!d||d.event!=='onError')return;
     var c=d.info;
     if(location.protocol.indexOf('http')!==0)toast('파일로 열어서 막혔어요 · https:// 웹 주소에서 열어주세요');
@@ -3074,9 +3309,15 @@ var yaw=Math.atan2(me.x,me.z),pit=.38,keys={},cpos=new THREE.Vector3(me.x*2,5,me
 function clampPos(o,k){
   if(inTent){var ix=o[k+'x']-IX,iz=o[k+'z']-IZ,ir=Math.sqrt(ix*ix+iz*iz);if(ir>3){o[k+'x']=IX+ix/ir*3;o[k+'z']=IZ+iz/ir*3;}return;}
   if(scene==='beach'&&me.lh){var lx=o[k+'x']-PIER_X,lz=o[k+'z']-LHZ,lr=Math.sqrt(lx*lx+lz*lz)||.01,cr=Math.max(1.05,Math.min(2,lr));o[k+'x']=PIER_X+lx/lr*cr;o[k+'z']=LHZ+lz/lr*cr;return;}
-  var r=Math.sqrt(o[k+'x']*o[k+'x']+o[k+'z']*o[k+'z']);
+  var r=Math.sqrt(o[k+'x']*o[k+'x']+o[k+'z']*o[k+'z']),inSuite=false;
+  if(scene==='cinema'){   // 걸을 수 있는 곳 = 중앙 원 + 복도 + 별실 중 '가장 가까운 곳'으로 맞춰요
+    var px0=o[k+'x'],pz0=o[k+'z'],bx0=px0,bz0=pz0;if(r>30){bx0=px0*30/r;bz0=pz0*30/r;}bz0=Math.max(CIN_SZ+2.5,Math.min(11,bz0));
+    var bd0=Math.hypot(bx0-px0,bz0-pz0),ri,R,qx0,qz0,qd0;
+    for(ri=0;ri<CIN_RECTS.length;ri++){R=CIN_RECTS[ri];qx0=Math.max(R[0],Math.min(R[1],px0));qz0=Math.max(R[2],Math.min(R[3],pz0));qd0=Math.hypot(qx0-px0,qz0-pz0);if(qd0<bd0-1e-6){bd0=qd0;bx0=qx0;bz0=qz0;}}
+    for(ri=0;ri<CIN_DR.length;ri++){if(!cinDoorOpen(ri))continue;R=CIN_DR[ri];qx0=Math.max(R[0],Math.min(R[1],px0));qz0=Math.max(R[2],Math.min(R[3],pz0));qd0=Math.hypot(qx0-px0,qz0-pz0);if(qd0<bd0-1e-6){bd0=qd0;bx0=qx0;bz0=qz0;}}
+    o[k+'x']=bx0;o[k+'z']=bz0;inSuite=true;}
   var RM=scene==='fire'?(o[k+'z']<-18&&Math.abs(o[k+'x'])<20?52:(o[k+'z']>18&&Math.abs(o[k+'x']-CPX)<CPR+6?CPZ+CPR+4:34)):(scene==='beach'?(o[k+'z']>BWALL-.2?70:((Math.abs(o[k+'x'])<END_X1+1&&o[k+'z']>-11.5)?1e9:60)):(scene==='cabin'?58:(scene==='cinema'?30:11)));if(scene==='beach'&&o[k+'z']<-8&&Math.abs(o[k+'x']-PIER_X)<=3.6)RM=60;
-  if(scene==='fire'&&typeof lumOff!=='undefined'&&lumOff){var LW=lumWC(),lzx=o[k+'x']-LW[0],lzz=o[k+'z']-LW[1],lzin=Math.hypot(lzx,lzz)<14;for(var lzi=0;!lzin&&lzi<LUM_SM.length;lzi++)lzin=Math.hypot(lzx-(LUM_SM[lzi][0]-LUM_C[0]),lzz-(LUM_SM[lzi][1]-LUM_C[1]))<9;if(lzin&&RM<58)RM=58;}if(r>RM){o[k+'x']*=RM/r;o[k+'z']*=RM/r;r=RM;}
+  if(scene==='fire'&&typeof lumOff!=='undefined'&&lumOff){var LW=lumWC(),lzx=o[k+'x']-LW[0],lzz=o[k+'z']-LW[1],lzin=Math.hypot(lzx,lzz)<14;for(var lzi=0;!lzin&&lzi<LUM_SM.length;lzi++)lzin=Math.hypot(lzx-(LUM_SM[lzi][0]-LUM_C[0]),lzz-(LUM_SM[lzi][1]-LUM_C[1]))<9;if(lzin&&RM<58)RM=58;}if(!inSuite&&r>RM){o[k+'x']*=RM/r;o[k+'z']*=RM/r;r=RM;}
   if(scene==='beach'&&o[k+'z']<-11.5&&o[k+'x']<0){var lpz=o[k+'z'],lpx=o[k+'x']-SHP_X,lhw=lpz<-21.5?3.15:1.15;
     if(Math.abs(lpx)>lhw){if(lpz>-13||(k==='t'&&me.z>-12))o[k+'z']=-11.5;else o[k+'x']=SHP_X+(lpx>0?lhw:-lhw);}
     if(o[k+'z']<SHP_END)o[k+'z']=SHP_END;
@@ -3091,8 +3332,6 @@ function clampPos(o,k){
     if(cz>=BWALL-.1){if(Math.abs(cx)>27)o[k+'x']=cx>0?27:-27;var X=o[k+'x'];
       if(cz>=28.9){if(cz<32.4){if(Math.abs(X)>2.05)o[k+'z']=28.9;}else{var pc=PZ(X),lo=pc-2.6,hi=pc+2.6,Z=o[k+'z'];if(Math.abs(X)>2.2&&Z<lo)Z=lo;if(Z>hi)Z=hi;o[k+'z']=Z;}}}}
   var mn=1.5;
-  if(scene==='cinema'&&o[k+'z']<CIN_SZ+2.5)o[k+'z']=CIN_SZ+2.5;   // 스크린 안쪽으로는 못 들어가요
-  if(scene==='cinema'&&o[k+'z']>11)o[k+'z']=11;   // 프로젝터 쪽(뒤)으로도 못 가요
   if(scene==='fire'){var sdz=o[k+'z']-RAINZ;if(Math.abs(sdz)<RVW&&Math.abs(o[k+'x'])>1.0)o[k+'z']=RAINZ+(sdz<0?-RVW:RVW);}
   if(scene==='fire')for(var qf=0;qf<efPos.length;qf++){var qx=o[k+'x']-efPos[qf][0],qz=o[k+'z']-efPos[qf][1],qd=Math.sqrt(qx*qx+qz*qz);if(qd<1.4&&qd>0){o[k+'x']=efPos[qf][0]+qx/qd*1.4;o[k+'z']=efPos[qf][1]+qz/qd*1.4;}}
   if(scene==='fire')for(var tq=0;tq<tents.length;tq++){var T=tents[tq],tdx=o[k+'x']-T.x,tdz=o[k+'z']-T.z,tc=Math.cos(T.ry),ts=Math.sin(T.ry),tlx=tdx*tc-tdz*ts,tlz=tdx*ts+tdz*tc,TA=2.2,TB=1.95,tux=tlx/TA,tuz=tlz/TB,tn=Math.sqrt(tux*tux+tuz*tuz);
@@ -3162,7 +3401,7 @@ cv.addEventListener('pointerup',function(e){
     var pk=scene==='fire'?beds.concat(seats,hams):(scene==='beach'?bBeds.concat(bSeats):(scene==='cabin'?cabPick():(scene==='cinema'?mBeds.concat(mSeats):[])));var sh=(pk.length&&!inTent)?rc.intersectObjects(pk.map(function(s){return s.m;}),false):[];
     if(sh.length){var st0=null;var all=pk;for(var i=0;i<all.length;i++)if(all[i].m===sh[0].object)st0=all[i];if(st0){me.tx=st0.x;me.tz=st0.z;me.want=st0;}}
     else if(scene==='beach'&&!inTent&&!me.lh&&walkHit()){var wpt=walkHit();me.tx=wpt.x;me.tz=wpt.z;me.want=null;clampPos(me,'t');tapRing(me.tx,me.tz);}
-    else if(rc.ray.intersectPlane(plane,hit)){var tdx0=hit.x-me.x,tdz0=hit.z-me.z,td0=Math.hypot(tdx0,tdz0);if(scene==='cabin'&&td0>14){hit.x=me.x+tdx0/td0*14;hit.z=me.z+tdz0/td0*14;}me.tx=hit.x;me.tz=hit.z;me.want=null;clampPos(me,'t');tapRing(me.tx,me.tz);}
+    else if(rc.ray.intersectPlane(plane,hit)){var tdx0=hit.x-me.x,tdz0=hit.z-me.z,td0=Math.hypot(tdx0,tdz0);if(scene==='cabin'&&td0>14){hit.x=me.x+tdx0/td0*14;hit.z=me.z+tdz0/td0*14;}me.tx=hit.x;me.tz=hit.z;me.want=null;clampPos(me,'t');tapRing(me.tx,me.tz);if(scene==='cinema')cinTapRoute();}
   }
   drag=null;
 });
@@ -3701,15 +3940,16 @@ lhBtn.addEventListener('click',function(){
 });
 var gobBtn=document.getElementById('gob'),goRow=document.getElementById('gorow');
 function goShow(v){goRow.style.display=v?'flex':'none';gobBtn.setAttribute('aria-pressed',v?'true':'false');}
-var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
+var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],cinema:[['hall','중앙 극장'],['su0','🎬 드라마 별실'],['su1','📱 숏츠 별실'],['su2','🎨 애니 웹툰 별실']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
 function goBuild(sn){if(goBuilt===sn)return;goBuilt=sn;goShow(false);goRow.innerHTML='';(GO_SETS[sn]||[]).forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});}
 gobBtn.addEventListener('click',function(){goShow(goRow.style.display==='none');});
 goRow.addEventListener('click',function(e){
-  var b=e.target.closest('button');if(!b||inTent||me.lh||(scene!=='fire'&&scene!=='beach'&&scene!=='cabin'))return;
+  var b=e.target.closest('button');if(!b||inTent||me.lh||(scene!=='fire'&&scene!=='beach'&&scene!=='cabin'&&scene!=='cinema'))return;
   var k=b.getAttribute('data-g');
   if(k==='ends'){goRow.innerHTML='';[['endL','왼쪽 끝'],['endR','오른쪽 끝'],['back','뒤로']].forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});return;}
   if(k==='cast'){goRow.innerHTML='';[['castL','왼쪽'],['castR','오른쪽'],['back','뒤로']].forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});return;}
   if(k==='back'){goBuilt='';goBuild(scene);goShow(true);return;}
+  if(scene==='cinema'){if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}me.want=null;var di=(k==='hall')?-1:parseInt(String(k).slice(2),10);cinGoWay(cinRoutePt(di<0?[0,5]:[-43.4,SUITES[di].c]),true);toast(di<0?'중앙 극장으로 걸어가요':'별실로 걸어가요');goBuilt='';goBuild(scene);return;}
   var T=(scene==='beach'?{shore:[0,-8.8,'물가로 걸어가요'],shr:[SHP_X,-24,'새우깡 부두로 걸어가요'],walk:[0,37,'모래 산책길로 걸어가요'],umb:[-4.8,11.4,'파라솔 쉼터로 걸어가요'],castL:[SAND_SPOTS[0].x,SAND_SPOTS[0].z,'왼쪽 모래성으로 걸어가요'],castR:[SAND_SPOTS[1].x,SAND_SPOTS[1].z,'오른쪽 모래성으로 걸어가요'],top:[0,BWALL+.6,'계단 위로 걸어가요'],pier:[PIER_X,-36.8,'등대로 걸어가요'],endL:[-57,END_Z,'왼쪽 끝 난간 길로 걸어가요'],endR:[57,END_Z,'오른쪽 끝 난간 길로 걸어가요']}:(scene==='cabin'?{wish:[WX,WZ-10,'소원 트리로 걸어가요'],yard:[0,-5,'마당으로 걸어가요'],ice:[ICE.x,ICE.z+5,'빙어 낚시터로 걸어가요'],cab:(function(){var bi=0,bd=1e9;for(var ci=0;ci<CAB.length;ci++){var dd=Math.hypot(me.x-CAB[ci][0],me.z-CAB[ci][1]);if(dd<bd){bd=dd;bi=ci;}}return [CAB[bi][0]-1.6,CAB[bi][1]+3.8,'오두막 앞으로 걸어가요'];})()}:{fire:[0,5.5,'모닥불 쪽으로 걸어가요'],gb:[GB_SPOTS[0].x,GB_SPOTS[0].z,'방명록 자리로 걸어가요'],rain:[0,-37,'다리 건너 비 오는 캠핑장으로 걸어가요'],cat:[CPX,CPZ-CPR+2,'고양이 놀이터로 걸어가요'],stone:lumGo()}))[k];
   if(!T)return;
   if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}
@@ -3725,7 +3965,7 @@ function sync(){
   if(!fpv){var fpT=fpLab();if(fpBtn.textContent!==fpT)fpBtn.textContent=fpT;}
   fpBtn.style.display=fpCan?'':'none';
   if(scene==='beach'){var sdv=(!inTent&&(sandMode||inZone(me.x,me.z)))?'':'none';if(sandRowEl.style.display!==sdv)sandRowEl.style.display=sdv;}
-  var gbS=((scene==='fire'||scene==='beach'||(scene==='cabin'&&cabIn()<0))&&!inTent)?'':'none';if(gbS==='')goBuild(scene);if(gobBtn.style.display!==gbS){gobBtn.style.display=gbS;if(gbS==='none')goShow(false);}
+  var gbS=((scene==='fire'||scene==='beach'||scene==='cinema'||(scene==='cabin'&&cabIn()<0))&&!inTent)?'':'none';if(gbS==='')goBuild(scene);if(gobBtn.style.display!==gbS){gobBtn.style.display=gbS;if(gbS==='none')goShow(false);}
   if(room){
     var ps=room.peers();
     for(i=0;i<ps.length;i++){
@@ -3751,7 +3991,7 @@ function sync(){
     if(p.me&&sp===1&&scene==='beach'){var dgA=window.__spDig,nwA=performance.now();if(dgA&&nwA-dgA<2600){var phA=nwA*.012;p.g.rotation.x=.16+Math.sin(phA*2)*.04;p.g.arms[0].rotation.x=-1.2+Math.sin(phA)*.7;p.g.arms[1].rotation.x=-1.2-Math.sin(phA)*.7;}else if(window.__spTouching){var phB=nwA*.015;p.g.arms[1].rotation.x=-1.1+Math.sin(phB)*.35;p.g.arms[1].rotation.z=.15+Math.sin(phB*.5)*.2;}}
     p.lab.position.set(0,ly?.9:2.5,ly?1.4:0);p.lab.visible=!(p.me&&ly);if(p.bub)p.bub.position.set(0,ly?.9:3.0,ly?2.1:0);if(p.bub&&(t>p.bubT||(chatHidden&&p.bubChat)))p.bub.visible=false;
   }
-  var tt=(scene==='fire'&&rainK>.5?'비 오는 불멍':NAMES[scene])+' '+ch+'번방 · 지금 '+list.length+'명'+(lobby?(lobby.ok===false?(soloOn?' · 혼자 보는 중 (접속자가 많아요)':' · 연결 중…'):''):' · 혼자 보는 중')+(location.search.indexOf('debug')>=0&&room&&room.dbg?' ['+room.dbg()+']':'');
+  var tt=(scene==='fire'&&rainK>.5?'비 오는 불멍':NAMES[scene])+' '+ch+'번방'+cinRoomTag(ch)+' · 지금 '+list.length+'명'+(lobby?(lobby.ok===false?(soloOn?' · 혼자 보는 중 (접속자가 많아요)':' · 연결 중…'):''):' · 혼자 보는 중')+(location.search.indexOf('debug')>=0&&room&&room.dbg?' ['+room.dbg()+']':'');
   if(tt!==topTxt){topTxt=tt;topEl.textContent=tt;}
 }
 // ════════════════════════════════════════
@@ -3774,7 +4014,7 @@ function chCount(s,c){
 function autoCh(s){for(var c=1;c<=NCH;c++)if(chCount(s,c)<CAP)return c;return 1;}
 function fillCh(){
   var html='';
-  for(var c=1;c<=NCH;c++){var n=chCount(scene,c)+(c===ch?1:0);html+='<option value="'+c+'"'+(c===ch?' selected':'')+'>'+c+'번방 ('+n+'/'+CAP+')</option>';}
+  for(var c=1;c<=NCH;c++){var n=chCount(scene,c)+(c===ch?1:0);html+='<option value="'+c+'"'+(c===ch?' selected':'')+'>'+c+'번방'+cinRoomTag(c)+' ('+n+'/'+CAP+')</option>';}
   chSel.innerHTML=html;
 }
 chSel.addEventListener('change',function(){
@@ -4916,10 +5156,11 @@ function frame(){var __n=performance.now();if(__n-__lt<12){requestAnimationFrame
   if(scene==='beach'&&(me.y||0)<.9&&me.z<BWALL&&want.z>BWALL-.7)want.z=BWALL-.7;if(scene==='beach'&&me.z>29.5&&want.z<29.8)want.z=29.8;
   var fpOn=fpv&&!inTent&&(scene==='beach'||scene==='fire'||scene==='cabin')&&(!me.sit||me.sit===1||me.sit===2);if(fpOn)want.set(me.x,(me.y||0)+(me.sit===1?.95:(me.sit===2?1.3:1.6))*(inn?.55:1)+((scene==='beach'&&!me.lh&&(me.y||0)>2)?1.1:0),me.z);if(fpOn&&scene==='cabin'&&!inn){var fc2=cabFireNear();if(fc2&&fc2.d>.3){var fdx=me.x-fc2.x,fdz=me.z-fc2.z,fl=fc2.d,pb=Math.max(0,4.4-fl);want.x+=fdx/fl*pb;want.z+=fdz/fl*pb;}}for(var lg2=0;lg2<cabOut.length;lg2++){var lo=cabOut[lg2];if(lo.m){var hv=!(fpOn&&scene==='cabin'&&!inn&&me.sit&&Math.hypot(lo.x-me.x,lo.z-me.z)<.7);if(lo.m.visible!==hv)lo.m.visible=hv;}}
   if(inn){want.x=Math.max(cx0-2.7,Math.min(cx0+2.7,want.x));want.z=Math.max(cz0-10.95,Math.min(cz0-7.05,want.z));want.y=Math.min(want.y,2.5);}
+  if(scene==='cinema')cinCamClamp(want);
   if(inTent){var ex=want.x-IX,ez=want.z-IZ,er=Math.sqrt(ex*ex+ez*ez);if(er>3.8){want.x=IX+ex/er*3.8;want.z=IZ+ez/er*3.8;}want.y=Math.min(want.y,3);}
   var lyg=!lv3&&((inTent&&me.sit===3)||me.sit===4||(me.sit===5&&scene!=='cabin')),lyT=inTent&&me.sit===3,hamV=!lv3&&me.sit===4&&scene==='fire'&&!inTent;if(lyg)want.set(me.x,lyT?.8:(me.sit===5?(scene==='beach'?1.3:.9):1.3),me.z+(me.sit===5&&scene==='beach'?1.1:.3));if(hamV)want.set(me.x+Math.sin(t*.011)*.04,1.3+Math.sin(t*.017)*.025,me.z+Math.cos(t*.013)*.04);var lyC=!lv3&&inn&&me.sit===5;if(lyC)want.set(me.x,1.02,me.z-1.55);var sd=lyT?'':'none';if(skyBtn.style.display!==sd)skyBtn.style.display=sd;if(!lyT&&sky){sky=false;skyBtn.textContent='하늘 보기';skyVis(false);setFold(foldPrev,false);}if(sky&&skyStars)skyStars.rotation.y+=.0006;shoot(lyT);spkTick();if(lyg)for(var bk in players)if(players[bk].bub)players[bk].bub.visible=false;capO+=((lyT?1:0)-capO)*.05;iroof.visible=capO<.99&&!sky;cmat.opacity=1-capO;if(inTent){var tp=Math.sin(t*.04);slM[0].color.setRGB(1,.8+.12*tp,.52+.16*tp);slM[1].color.setRGB(1,.8-.12*tp,.52-.16*tp);}
-  snow.visible=true;if(scene==='cabin'){if(t%2===0)winDraw();var cbI=cabIn(),cbN=cbI,cbD=1e9;if(cbI<0)for(var cbQ=0;cbQ<CAB.length;cbQ++){var cbd=Math.hypot(me.x-CAB[cbQ][0]+1.6,me.z-CAB[cbQ][1]-3.8);if(cbd<6&&cbd<cbD){cbD=cbd;cbN=cbQ;}}cabT=cbN;for(var cbq=0;cbq<cabQ.length;cbq++)if(cabQ[cbq])cabGlow(cabQ[cbq],cbI===cbq&&me.sit===5);var cbS=cbN<0?'none':'';if(cabBtn.style.display!==cbS)cabBtn.style.display=cbS;var cbX=cbI>=0?'밖으로 나가기':'오두막 들어가기';if(cabBtn.textContent!==cbX)cabBtn.textContent=cbX;if(throwMode&&(cbI>=0||me.sit)){throwMode=false;snowBtn.textContent='눈 던지기';}var snD=(cbI<0&&!me.sit)?'':'none';if(snowBtn.style.display!==snD)snowBtn.style.display=snD;if(bubBtn.style.display!==snD)bubBtn.style.display=snD;snowStep();}else{if(cabBtn.style.display!=='none')cabBtn.style.display='none';snowBtn.style.display='none';bubBtn.style.display='none';if(wishBtn.style.display!=='none')wishBtn.style.display='none';if(wishRow.style.display!=='none')wishShow(false);}var tf=inn?76:(scene==='cinema'?68:(me.sit===4&&scene==='fire'&&!inTent?68:55+8*trkCamF));if(Math.abs(cam.fov-tf)>.05){cam.fov+=(tf-cam.fov)*.1;cam.updateProjectionMatrix();}if(trkCamF>.002&&!fpOn)trkCamApply(want);cpos.lerp(want,fpOn?.4:((inn||inTent)?.2:.07));cam.position.copy(cpos);if(lyT&&!lv3){if(sky)cam.lookAt(me.x-Math.sin(yaw)*.3,12,me.z-Math.cos(yaw)*.3);else cam.lookAt(me.x-Math.sin(yaw)*1.2,7.2,me.z-Math.cos(yaw)*1.2);}else if(hamV){var hy=yaw+Math.sin(t*.006)*.02,he=1.2-pit*.65+Math.sin(t*.009)*.012,hc=Math.cos(he);cam.lookAt(cam.position.x-Math.sin(hy)*hc*10,cam.position.y+Math.sin(he)*10,cam.position.z-Math.cos(hy)*hc*10);}else if(lyC)cam.lookAt(cam.position.x-Math.sin(yaw)*1.3,3.0,cam.position.z-Math.cos(yaw)*1.3);else if(lyg&&me.sit===5&&scene==='beach'){var by=yaw,be=Math.max(.5,Math.min(1.5,1.34-(pit-.38)*.9)),bc=Math.cos(be);cam.lookAt(cam.position.x-Math.sin(by)*bc*10,cam.position.y+Math.sin(be)*10,cam.position.z-Math.cos(by)*bc*10);}else if(lyg)cam.lookAt(me.x,9,me.z-(me.sit===5&&scene==='beach'?.7:1.5));else if(scene==='cinema'&&!fpOn){cam.lookAt(me.x-Math.sin(yaw)*20,CIN_Y-3.5,me.z-Math.cos(yaw)*20);}else if(fpOn){var cp0=Math.cos(fpPit);cam.lookAt(cam.position.x-Math.sin(yaw)*cp0,cam.position.y+Math.sin(fpPit),cam.position.z-Math.cos(yaw)*cp0);}else if(trkCamF>.002&&TRKS[trkCamI]){var tT=TRKS[trkCamI],tk=trkCamF*trkCamF*(3-2*trkCamF);cam.lookAt(me.x+(tT.x+tT.dir*.9-me.x)*tk,1.2+(me.y||0)+.35*tk,me.z+(tT.z-.45-me.z)*tk);}else{var wly=1.2+(me.y||0)+5.5*wishF;cam.lookAt(me.x+(WX-me.x)*wishVf,wly+(4.9-wly)*wishVf,me.z+(WZ-me.z)*wishVf);}
-  pntTick();window.__spTick&&window.__spTick();hamTick();try{tentPillTick();}catch(e){}R.render(sc,cam);try{cinTick();}catch(e){}if(window.__photoReq){window.__photoReq=false;try{window.__photoShot&&window.__photoShot();}catch(e){}}requestAnimationFrame(frame);
+  snow.visible=true;if(scene==='cabin'){if(t%2===0)winDraw();var cbI=cabIn(),cbN=cbI,cbD=1e9;if(cbI<0)for(var cbQ=0;cbQ<CAB.length;cbQ++){var cbd=Math.hypot(me.x-CAB[cbQ][0]+1.6,me.z-CAB[cbQ][1]-3.8);if(cbd<6&&cbd<cbD){cbD=cbd;cbN=cbQ;}}cabT=cbN;for(var cbq=0;cbq<cabQ.length;cbq++)if(cabQ[cbq])cabGlow(cabQ[cbq],cbI===cbq&&me.sit===5);var cbS=cbN<0?'none':'';if(cabBtn.style.display!==cbS)cabBtn.style.display=cbS;var cbX=cbI>=0?'밖으로 나가기':'오두막 들어가기';if(cabBtn.textContent!==cbX)cabBtn.textContent=cbX;if(throwMode&&(cbI>=0||me.sit)){throwMode=false;snowBtn.textContent='눈 던지기';}var snD=(cbI<0&&!me.sit)?'':'none';if(snowBtn.style.display!==snD)snowBtn.style.display=snD;if(bubBtn.style.display!==snD)bubBtn.style.display=snD;snowStep();}else{if(cabBtn.style.display!=='none')cabBtn.style.display='none';snowBtn.style.display='none';bubBtn.style.display='none';if(wishBtn.style.display!=='none')wishBtn.style.display='none';if(wishRow.style.display!=='none')wishShow(false);}var tf=inn?76:(scene==='cinema'?68:(me.sit===4&&scene==='fire'&&!inTent?68:55+8*trkCamF));if(Math.abs(cam.fov-tf)>.05){cam.fov+=(tf-cam.fov)*.1;cam.updateProjectionMatrix();}if(trkCamF>.002&&!fpOn)trkCamApply(want);cpos.lerp(want,fpOn?.4:((inn||inTent||(scene==='cinema'&&cinZone(me.x,me.z)<4))?.2:.07));cam.position.copy(cpos);if(lyT&&!lv3){if(sky)cam.lookAt(me.x-Math.sin(yaw)*.3,12,me.z-Math.cos(yaw)*.3);else cam.lookAt(me.x-Math.sin(yaw)*1.2,7.2,me.z-Math.cos(yaw)*1.2);}else if(hamV){var hy=yaw+Math.sin(t*.006)*.02,he=1.2-pit*.65+Math.sin(t*.009)*.012,hc=Math.cos(he);cam.lookAt(cam.position.x-Math.sin(hy)*hc*10,cam.position.y+Math.sin(he)*10,cam.position.z-Math.cos(hy)*hc*10);}else if(lyC)cam.lookAt(cam.position.x-Math.sin(yaw)*1.3,3.0,cam.position.z-Math.cos(yaw)*1.3);else if(lyg&&me.sit===5&&scene==='beach'){var by=yaw,be=Math.max(.5,Math.min(1.5,1.34-(pit-.38)*.9)),bc=Math.cos(be);cam.lookAt(cam.position.x-Math.sin(by)*bc*10,cam.position.y+Math.sin(be)*10,cam.position.z-Math.cos(by)*bc*10);}else if(lyg)cam.lookAt(me.x,9,me.z-(me.sit===5&&scene==='beach'?.7:1.5));else if(scene==='cinema'&&!fpOn){cam.lookAt(me.x-Math.sin(yaw)*20,CIN_Y-3.5,me.z-Math.cos(yaw)*20);}else if(fpOn){var cp0=Math.cos(fpPit);cam.lookAt(cam.position.x-Math.sin(yaw)*cp0,cam.position.y+Math.sin(fpPit),cam.position.z-Math.cos(yaw)*cp0);}else if(trkCamF>.002&&TRKS[trkCamI]){var tT=TRKS[trkCamI],tk=trkCamF*trkCamF*(3-2*trkCamF);cam.lookAt(me.x+(tT.x+tT.dir*.9-me.x)*tk,1.2+(me.y||0)+.35*tk,me.z+(tT.z-.45-me.z)*tk);}else{var wly=1.2+(me.y||0)+5.5*wishF;cam.lookAt(me.x+(WX-me.x)*wishVf,wly+(4.9-wly)*wishVf,me.z+(WZ-me.z)*wishVf);}
+  pntTick();window.__spTick&&window.__spTick();hamTick();try{tentPillTick();}catch(e){}R.render(sc,cam);try{cinShapeTick();}catch(e){}try{cinTick();}catch(e){}if(window.__photoReq){window.__photoReq=false;try{window.__photoShot&&window.__photoShot();}catch(e){}}requestAnimationFrame(frame);
 }
 frame();
 // ════════════════════════════════════════
@@ -5215,7 +5456,7 @@ btn.addEventListener('click',function(){
 // 기본 버튼(앉기·눕기·이동·들어가기류)은 밖으로, 닉네임·방·소리는 설정으로
 (function(){
   var mr=document.getElementById('mainrow');
-  ['sit','lie','lv','gob','tent','lhb','fpb','sky','sandbtn'].forEach(function(id){var e=document.getElementById(id);if(e)mr.appendChild(e);});
+  ['sit','lie','lv','gob','cinenter','tent','lhb','fpb','sky','sandbtn'].forEach(function(id){var e=document.getElementById(id);if(e)mr.appendChild(e);});
   if(typeof cabBtn!=='undefined'&&cabBtn)mr.appendChild(cabBtn);
   if(typeof pntBtn!=='undefined'&&pntBtn)pntBtn.id='pntb';
   if(typeof chatBtn!=='undefined'&&chatBtn)mr.appendChild(chatBtn);if(typeof chatHideBtn!=='undefined'&&chatHideBtn)mr.appendChild(chatHideBtn);
@@ -5224,7 +5465,7 @@ btn.addEventListener('click',function(){
   setInterval(function(){var d=(typeof sandRowEl!=='undefined'&&sandRowEl.style.display==='none')?'none':'';if(sb.style.display!==d)sb.style.display=d;},150);
   if(typeof loyB!=='undefined'&&loyB)loyB.id='loyb';
   // 순서: 아이콘 버튼끼리 먼저, 글자 버튼(1인칭/3인칭, 활동)은 끝에 모아요
-  var ord=['sit','lie','gob','tent','lhb',typeof trkBtn!=='undefined'?trkBtn:null,typeof cabBtn!=='undefined'?cabBtn:null,typeof snowBtn!=='undefined'?snowBtn:null,typeof bubBtn!=='undefined'?bubBtn:null,typeof catBs!=='undefined'&&catBs[1]?catBs[1]:null,typeof catBs!=='undefined'&&catBs[2]?catBs[2]:null,typeof catBs!=='undefined'&&catBs[3]?catBs[3]:null,'tea','yam',typeof loyB!=='undefined'?loyB:null,'sandbtn',typeof shrBtn!=='undefined'?shrBtn:null,'sky',typeof chatBtn!=='undefined'?chatBtn:null,typeof chatHideBtn!=='undefined'?chatHideBtn:null,'fpb','lv','acttog','settog'];
+  var ord=['sit','lie','gob','cinenter','tent','lhb',typeof trkBtn!=='undefined'?trkBtn:null,typeof cabBtn!=='undefined'?cabBtn:null,typeof snowBtn!=='undefined'?snowBtn:null,typeof bubBtn!=='undefined'?bubBtn:null,typeof catBs!=='undefined'&&catBs[1]?catBs[1]:null,typeof catBs!=='undefined'&&catBs[2]?catBs[2]:null,typeof catBs!=='undefined'&&catBs[3]?catBs[3]:null,'tea','yam',typeof loyB!=='undefined'?loyB:null,'sandbtn',typeof shrBtn!=='undefined'?shrBtn:null,'sky',typeof chatBtn!=='undefined'?chatBtn:null,typeof chatHideBtn!=='undefined'?chatHideBtn:null,'fpb','lv','acttog','settog'];
   ord.forEach(function(x){var e=typeof x==='string'?document.getElementById(x):x;if(e)mr.appendChild(e);});
   var ui=document.querySelector('.ui'),sp=document.getElementById('setrow'),tg=document.getElementById('settog');
   function set(v){ui.classList.toggle('setopen',v);tg.setAttribute('aria-expanded',v?'true':'false');}
@@ -5292,8 +5533,10 @@ btn.addEventListener('click',function(){
     ]},
     cinema:{t:'🎬 별빛 영화관',r:[
       ['▶️','영상 틀기','아래 칸에 유튜브 링크를 붙여넣고 틀기. 멈춤 · 끄기도 돼요. 같은 방 사람에게 [같이 보기] 버튼이 떠요'],
+      ['⭐','방 추천','방마다 미리 정해둔 영상이 [📋 목록] 맨 위에 떠요'],
       ['📋','내 목록','자주 보는 링크를 저장해 두고 눌러서 틀어요 (이 기기에만 저장돼요)'],
       ['🎬','빔프로젝터','삼각대 위 빔프로젝터가 스크린을 비춰요'],
+      ['🚪','별실 3개','서쪽 복도 끝에 드라마 · 숏츠 · 애니 웹툰 별실이 따로 떨어져 있어요. 문 앞에서 [🚪 들어가기]를 누르면 문이 열려요. 같은 별실 사람끼리만 영상을 같이 봐요'],
       ['🪑','앉기','캠핑 의자 · 돗자리. 앞쪽 돗자리에선 눕기도 돼요'],
       ['🌌','눕기','돗자리에 누워 별을 올려다봐요']
     ]}
