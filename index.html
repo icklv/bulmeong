@@ -375,7 +375,7 @@ function cabSeatTop(x,z){for(var i=0;i<cabSeats.length;i++)if(Math.hypot(cabSeat
 function mkCabin(cx,cz,v){
   var G=new THREE.Group();G.position.set(cx,0,cz);gC.add(G);
   var tint=[0xffffff,0xe6cfb0,0xc99a74,0xf0dcc0][v],rc=[0x8a3a34,0x3d6b55,0x35557f,0x7a5636][v],ac=[0xc94a3a,0x4a8a6a,0x4a78b0,0xc8923a][v];
-  var dk=M(0x3e2412),st=M(0x7b7f86,0x14161a),sn=M(0xf4f7fc,0x38404c),gl=new THREE.MeshBasicMaterial({color:0xffc16a,side:THREE.DoubleSide}),gv=new THREE.MeshBasicMaterial({map:WT,side:THREE.DoubleSide});
+  var dk=M(0x3e2412),st=M(0x7b7f86,0x14161a),sn=M(0xf4f7fc,0x38404c),gl=new THREE.MeshBasicMaterial({color:0xffc16a,side:THREE.DoubleSide}),gv=new THREE.MeshBasicMaterial({map:WT,side:THREE.DoubleSide}),glO=new THREE.MeshBasicMaterial({color:0xffc16a,side:THREE.FrontSide});
   fogM[v]=new THREE.MeshBasicMaterial({map:fogT,color:0xc9d4e2,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide});
   function B(w,h,d,x,y,z,m,P){var o=mesh(new THREE.BoxGeometry(w,h,d),m,x,y,z);(P||G).add(o);return o;}
   function L(w,h,d,x,y,z){return B(w,h,d,x,y,z,wmat(Math.max(w,d)/1.6,h/1.2,tint,null,1));}
@@ -383,7 +383,11 @@ function mkCabin(cx,cz,v){
   // 기초 · 바닥 · 현관 데크
   B(6.5,.1,5,0,.05,0,st);B(5.9,.14,4.4,0,.07,0,M(0x8a6240));B(6,.12,1.1,0,.06,2.85,M(0x7a5a3a));
   // 통나무 벽 (문 자리는 비워 둠)
-  L(6.2,3,.2,0,1.5,-2.25);L(.2,3,4.7,-3,1.5,0);L(.2,3,4.7,3,1.5,0);L(.8,3,.2,-2.7,1.5,2.25);L(4,3,.2,1.1,1.5,2.25);L(1.4,.8,.2,-1.6,2.6,2.25);
+  // 창문 자리는 벽에 구멍을 뚫어서(벽을 창 둘레로 쪼갬) 안에서 진짜 바깥이 보여요
+  var wy0=1.23,wy1=2.17;
+  L(.65,3,.2,-2.775,1.5,-2.25);L(4.45,3,.2,.875,1.5,-2.25);L(1.1,wy0,.2,-1.9,wy0/2,-2.25);L(1.1,3-wy1,.2,-1.9,(wy1+3)/2,-2.25);
+  [-3,3].forEach(function(sx){L(.2,3,1.8,sx,1.5,-1.45);L(.2,3,1.8,sx,1.5,1.45);L(.2,wy0,1.1,sx,wy0/2,0);L(.2,3-wy1,1.1,sx,(wy1+3)/2,0);});
+  L(.8,3,.2,-2.7,1.5,2.25);L(2.05,3,.2,.125,1.5,2.25);L(.85,3,.2,2.675,1.5,2.25);L(1.1,wy0,.2,1.7,wy0/2,2.25);L(1.1,3-wy1,.2,1.7,(wy1+3)/2,2.25);L(1.4,.8,.2,-1.6,2.6,2.25);
   B(6,.1,4.5,0,3.05,0,M(0x4a2c18));
   for(var i=-1;i<=1;i++)B(.22,.22,4.5,i*2,2.92,0,dk);
   for(var sx=-1;sx<=1;sx+=2)for(var sz=-1;sz<=1;sz+=2)G.add(mesh(new THREE.CylinderGeometry(.16,.16,3.15,10),dk,sx*3.02,1.57,sz*2.27));
@@ -422,7 +426,7 @@ function mkCabin(cx,cz,v){
   })();
   // 창문 (덧창 · 창틀 · 눈 쌓인 창턱)
   function win(x,y,z,ry){var w=new THREE.Group();w.position.set(x,y,z);w.rotation.y=ry;G.add(w);
-    w.add(mesh(new THREE.PlaneGeometry(1.1,.95),gl,0,0,0),mesh(new THREE.PlaneGeometry(1.1,.95),gv,0,0,-.22),mesh(new THREE.PlaneGeometry(1.1,.95),fogM[v],0,0,-.24));
+    w.add(mesh(new THREE.PlaneGeometry(1.1,.95),glO,0,0,0),mesh(new THREE.PlaneGeometry(1.1,.95),fogM[v],0,0,-.24));
     B(1.3,.1,.14,0,.52,.04,dk,w);B(1.3,.1,.14,0,-.52,.04,dk,w);B(.1,1.1,.14,-.6,0,.04,dk,w);B(.1,1.1,.14,.6,0,.04,dk,w);B(.06,.95,.1,0,0,.04,dk,w);B(1.1,.06,.1,0,0,.04,dk,w);
     B(.34,1.1,.06,-.95,0,.05,M(rc),w);B(.34,1.1,.06,.95,0,.05,M(rc),w);B(1.5,.1,.3,0,-.62,.12,dk,w);B(1.4,.08,.3,0,-.55,.14,sn,w);B(1.3,.1,.12,0,.52,-.2,dk,w);B(1.3,.1,.12,0,-.52,-.2,dk,w);B(.1,1.1,.12,-.6,0,-.2,dk,w);B(.1,1.1,.12,.6,0,-.2,dk,w);B(.06,.95,.1,0,0,-.2,dk,w);B(1.1,.06,.1,0,0,-.2,dk,w);B(1.5,.08,.3,0,-.57,-.3,M(0x5a3a22),w);glow(0,0,.5,2.6,.4,w);}
   win(1.7,1.7,2.36,0);win(3.11,1.7,0,Math.PI/2);win(-3.11,1.7,0,-Math.PI/2);win(-1.9,1.7,-2.36,Math.PI);
