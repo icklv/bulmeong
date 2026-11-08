@@ -613,8 +613,8 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     mSeats.push({m:pd,x:x,z:z,fx:x,fz:CIN_SZ,ground:true});
   }
   var kc=[0xc2574a,0x4a7fb5,0xd9a441,0x5b9a6a,0x8a62a8];
-  for(var ka=0;ka<6;ka++)cushion(-7.5+ka*3,-17.5,kc[ka%5]);          // 앞줄
-  for(var kb=0;kb<7;kb++)cushion(-9+kb*3,-14,kc[(kb+2)%5]);           // 뒷줄
+  for(var ka=0;ka<6;ka++)cushion(-7.5+ka*3,-4.2,kc[ka%5]);          // 앞줄
+  for(var kb=0;kb<7;kb++)cushion(-9+kb*3,-1.2,kc[(kb+2)%5]);           // 뒷줄
   [[4.25,7.9,.6],[7.9,11.6,1.2],[11.6,13.6,.6]].forEach(function(Tz){var tb=mesh(new THREE.BoxGeometry(21.6,Tz[2],Tz[1]-Tz[0]),new THREE.MeshLambertMaterial({color:0x5a4636,emissive:0x140e0a}),0,Tz[2]/2,(Tz[0]+Tz[1])/2);gM.add(tb);cinTierM.push(tb);});   // 중앙 극장도 뒷줄이 한 단씩 높아요
 
   // ═══ 🚪 별실 4개 (드라마 · 숏츠 · 예능·음악 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
