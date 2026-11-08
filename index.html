@@ -207,6 +207,7 @@ window.SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 */
 window.CIN_ROOMS={
   1:{name:'',list:[
+    ['https://youtu.be/MRgakSWA_Z0','[모동숲 ASMR] 코코블럭'],
   ]},
   2:{name:'',list:[
   ]},
@@ -218,7 +219,7 @@ window.CIN_ROOMS={
   ]}
 };
 /* ▼▼▼ 별빛 영화관 · 별실 3개(복도 끝 따로 떨어진 방)의 이름과 추천 영상 ▼▼▼
-   - 순서대로 1번 드라마 / 2번 숏츠 / 3번 애니 웹툰 별실이야. 형식은 위 CIN_ROOMS 랑 똑같아.
+   - 순서대로 1번 드라마 / 2번 숏츠 / 3번 예능·음악 / 4번 애니 웹툰 별실이야. 형식은 위 CIN_ROOMS 랑 똑같아.
    - 별실 영상은 같은 별실 안에 있는 사람들끼리만 같이 봐요. (숏츠 별실은 스크린이 세로예요) */
 window.CIN_SUITES=[
   {name:'드라마 별실',list:[
@@ -231,15 +232,17 @@ window.CIN_SUITES=[
     ['https://youtube.com/shorts/7DVE4fDOHDI','동물 영상 2'],
     ['https://youtube.com/shorts/kmKB4OOp3ak','동물 영상 3'],
   ]},
-  {name:'애니 웹툰 별실',list:[
-    ['https://youtu.be/FICdw5HH8dI','애니 웹툰 1'],
-    ['https://youtu.be/4bs21Qkd7ys','애니 웹툰 2'],
-  ]},
   {name:'예능·음악 별실',list:[
     ['https://youtu.be/v8wKB8wnMJU','예능·음악 1'],
     ['https://youtu.be/c6It35RoRc0','예능·음악 2'],
     ['https://youtu.be/yp-zkC2aXv0','예능·음악 3'],
     ['https://youtu.be/LJNucllod3I','예능·음악 4'],
+    ['https://youtu.be/to3sjq-CAvA','예능·음악 5'],
+    ['https://youtu.be/74_yqNBhQbA','예능·음악 6'],
+  ]},
+  {name:'애니 웹툰 별실',list:[
+    ['https://youtu.be/FICdw5HH8dI','애니 웹툰 1'],
+    ['https://youtu.be/4bs21Qkd7ys','애니 웹툰 2'],
   ]}
 ];
 /* ▲▲▲ 여기까지 ▲▲▲ */
@@ -480,6 +483,7 @@ function cinGoWay(pts,openIn){if(openIn&&cinZone(me.x,me.z)>=CIN_NS)cinLock=[];c
 function cinDoorTick(){
   var i,d,a,eb=document.getElementById('cinenter'),lab='',act=null,dd,z;
   for(i=0;i<cinDoors.length;i++){d=cinDoors[i];if(!cinLock[i]&&Math.hypot(me.x+36.8,me.z-SUITES[i].c)<4)d.until=Math.max(d.until,Date.now()+1200);a=cinDoorOpen(i)?1.6:0;d.a+=(a-d.a)*.07;if(Math.abs(a-d.a)<.002)d.a=a;d.g.rotation.y=d.a*d.sg;}
+  if(cinWayOpen&&(cinWay.length||Math.hypot(me.tx-me.x,me.tz-me.z)>.3)){var kd=cinSuiteIdx();if(kd>=0&&cinDoors[kd]&&me.x>-48){cinDoors[kd].until=Math.max(cinDoors[kd].until,Date.now()+2500);cinDoors[kd].hold=true;}}   // 나가는 중엔 문이 중간에 닫히지 않게 계속 열어둬요
   if(cinWay.length){
     if(!cinWayT||Math.abs(me.tx-cinWayT[0])>.05||Math.abs(me.tz-cinWayT[1])>.05)cinWay=[];
     else if(Math.hypot(me.tx-me.x,me.tz-me.z)<.9){var w=cinWay.shift();if(cinWayOpen)cinOpenFor(w[0],w[1]);me.tx=w[0];me.tz=w[1];clampPos(me,'t');cinWayT=[me.tx,me.tz];}
@@ -591,7 +595,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
   for(var cj=0;cj<7;cj++)chair(-9+cj*3,6,cc[(cj+2)%4],0,0,CIN_SZ);       // 뒷줄 (앞줄 사이사이에 엇갈려서 앞 의자에 안 가려요)
   [[4.25,7.9,.6],[7.9,11.6,1.2]].forEach(function(Tz){var tb=mesh(new THREE.BoxGeometry(21.6,Tz[2],Tz[1]-Tz[0]),new THREE.MeshLambertMaterial({color:0x5a4636,emissive:0x140e0a}),0,Tz[2]/2,(Tz[0]+Tz[1])/2);gM.add(tb);cinTierM.push(tb);});   // 중앙 극장도 뒷줄이 한 단씩 높아요
 
-  // ═══ 🚪 별실 3개 (드라마 · 숏츠 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
+  // ═══ 🚪 별실 4개 (드라마 · 숏츠 · 예능·음악 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
   (function(){
     var WH=15,wood=M(0x6a4a30,0x120c06),lampG=new THREE.SphereGeometry(.17,10,8),lampM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false}),poleG=new THREE.CylinderGeometry(.04,.05,1.2,6),poleM=M(0x2a2420);
     var bulbG=new THREE.SphereGeometry(.09,8,6),bulbM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false});
@@ -602,7 +606,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
       var hz=pw>pd,n=Math.floor((hz?pw:pd)/4.5);
       for(var q=0;q<=n;q++){var lx=hz?R[0]+1+q*4.5:R[1]+.6,lz=hz?R[2]-.6:R[2]+1+q*4.5;gM.add(mesh(poleG,poleM,lx,.6,lz));gM.add(mesh(lampG,lampM,lx,1.3,lz));}
     });});
-    var icons=['🎬','📱','🎨','🎤'],tints=[[0x2a3150,0x0d1122,0x5a2f3a],[0x1f3a40,0x0a1618,0x2f5a5a],[0x3a2f55,0x120d22,0x4a3a6a],[0x4a2f3a,0x1c0d12,0x6a3a2a]];
+    var icons=['🎬','📱','🎤','🎨'],tints=[[0x2a3150,0x0d1122,0x5a2f3a],[0x1f3a40,0x0a1618,0x2f5a5a],[0x3a2f55,0x120d22,0x4a3a6a],[0x4a2f3a,0x1c0d12,0x6a3a2a]];
     SUITES.forEach(function(S,i){
       var c=S.c,cs=(window.CIN_SUITES&&window.CIN_SUITES[i])||{},nm=String(cs.name||'별실').slice(0,10),T=tints[i%4];
       var fl=mesh(new THREE.PlaneGeometry(30.2,26),new THREE.MeshLambertMaterial({color:0x3b2a20,emissive:0x1c130d}),-51.9,.03,c);fl.rotation.x=-Math.PI/2;gM.add(fl);
@@ -719,6 +723,8 @@ function cinTick(){
   function nowT(){if(lvEl&&st&&st.local)return lvEl.currentTime||0;if(!st)return 0;var tt=st.paused?st.t0:st.t0+(Date.now()-st.ref)/1000;return vdur>0?Math.min(tt,vdur):tt;}
   function send(s){s=String(s).replace('CIN|','CIN|@'+cinPlace()+'|');try{if(room&&room.sendChat)room.sendChat('\u0001'+s,(me.name||'나그네').slice(0,8));}catch(e){}}
   function cmd(fn,args){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:args||[]}),'*');}catch(e){}}
+  function applyMute(){var m=!!window.__muted;try{if(lvEl)lvEl.muted=m;}catch(e){}if(m)cmd('mute');else{cmd('unMute');cmd('setVolume',[100]);}}   // [소리 끄기/켜기] 를 따라 영상 소리도 같이 꺼요
+  window.cinApplyMute=applyMute;
   var linkB=document.getElementById('cinlink'),urlRow=document.getElementById('cinurlrow');
   function showUrl(v){if(urlRow)urlRow.style.display=v?'flex':'none';if(linkB)linkB.setAttribute('aria-expanded',v?'true':'false');if(v)setTimeout(function(){try{urlEl.focus();}catch(e){}},30);}
   if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
@@ -754,9 +760,10 @@ function cinTick(){
     cinFr.style.cssText='width:100%;height:100%;border:0;pointer-events:none';
     cinFr.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');
     cinFr.setAttribute('title','영화관 영상');cinFr.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
-    cinFr.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=0&disablekb=1&iv_load_policy=3&cc_load_policy=0&enablejsapi=1'+(start>0?'&start='+start:'')+(location.protocol.indexOf('http')===0?'&origin='+encodeURIComponent(location.origin):'');
+    cinFr.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=0&disablekb=1&iv_load_policy=3&cc_load_policy=0&enablejsapi=1'+(window.__muted?'&mute=1':'')+(start>0?'&start='+start:'')+(location.protocol.indexOf('http')===0?'&origin='+encodeURIComponent(location.origin):'');
     cinWrap.appendChild(cinFr);
-    cinFr.addEventListener('load',function(){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*');}catch(e){}});
+    var frNow=cinFr;
+    cinFr.addEventListener('load',function(){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*');}catch(e){}if(window.__muted){[0,600,1800,3500].forEach(function(ms){setTimeout(function(){if(window.__muted&&cinFr===frNow)cmd('mute');},ms);});}});
     if(location.protocol.indexOf('http')!==0)toast('지금 파일로 열려 있어요 · 유튜브는 https:// 웹 주소에서만 나와요');
     try{if(!localStorage.getItem('cin-ad-note')){localStorage.setItem('cin-ad-note','1');setTimeout(function(){toast('광고가 나오면 건너뛸 수 없어요 · 유튜브 프리미엄이면 광고 없이 나와요');},1200);}}catch(e){}
     cinOn=true;cinPaused=false;
@@ -778,7 +785,7 @@ function cinTick(){
     }
     lvUrl=URL.createObjectURL(file);
     lvEl=document.createElement('video');lvEl.style.cssText='width:100%;height:100%;object-fit:contain;background:#000;pointer-events:none';
-    lvEl.setAttribute('playsinline','');lvEl.playsInline=true;lvEl.preload='auto';lvEl.src=lvUrl;
+    lvEl.setAttribute('playsinline','');lvEl.playsInline=true;lvEl.muted=!!window.__muted;lvEl.preload='auto';lvEl.src=lvUrl;
     lvEl.addEventListener('loadedmetadata',function(){if(isFinite(lvEl.duration))vdur=lvEl.duration;});
     lvEl.addEventListener('play',function(){if(st){st.paused=false;st.ended=false;updPause();}});
     lvEl.addEventListener('pause',function(){if(st&&!st.ended){st.paused=true;updPause();}});
@@ -3004,13 +3011,27 @@ function snkMkHeld(){var h=new THREE.Group();h.visible=false;
   var pl=new THREE.PointLight(0xffc873,1.4,22);pl.position.set(0,2.4,1.3);g.add(pl);
   // 점장님 (고양이)
   snkCat=new THREE.Group();snkCat.position.set(0,.5,-.3);g.add(snkCat);snkCat.add(mesh(new THREE.BoxGeometry(.55,.5,.55),wood,0,-.25,0));
-  snkCat.add(mesh(new THREE.CylinderGeometry(.28,.34,.9,12),fur,0,.45,0));
-  snkCat.add(mesh(new THREE.SphereGeometry(.3,14,12),fur,0,1.2,0));
+  // 점장님: 주황 줄무늬 고양이 (뾰족 귀 · 큰 눈 · 하얀 주둥이 · 수염 · 빨간 나비넥타이 · 카운터 위 발)
+  var cF=M(0xd2711f,0x24100a),cS=M(0x9c4a14,0x1c0a02),cW=M(0xfff1d9,0x3a3022),cP=M(0xf2a3b3,0x3a1620),cE=M(0x1b1210),cH=new THREE.MeshBasicMaterial({color:0xffffff}),cB=M(0xd62f3a,0x3a0a0e);
+  function cA(geo,mat,x,y,z,rx,ry,rz,sx,sy,sz){var o=mesh(geo,mat,x,y,z);if(rx||ry||rz)o.rotation.set(rx||0,ry||0,rz||0);if(sx)o.scale.set(sx,sy,sz);snkCat.add(o);return o;}
+  cA(new THREE.CylinderGeometry(.28,.34,.9,12),cF,0,.45,0);
+  cA(new THREE.SphereGeometry(.32,18,14),cF,0,1.2,0,0,0,0,1.15,.9,1);   // 둥글납작한 얼굴
   [-1,1].forEach(function(d){
-    snkCat.add(mesh(new THREE.ConeGeometry(.1,.22,4),fur,d*.19,1.5,0));
-    snkCat.add(mesh(new THREE.SphereGeometry(.035,8,6),dk,d*.11,1.23,.27));
-    snkCat.add(mesh(new THREE.SphereGeometry(.08,8,6),fur,d*.3,1.26,.22));});
-  snkCat.add(mesh(new THREE.SphereGeometry(.03,8,6),M(0xe88a9a),0,1.15,.3));
+    cA(new THREE.ConeGeometry(.125,.27,3),cF,d*.22,1.47,-.02,0,0,-d*.38);      // 귀
+    cA(new THREE.ConeGeometry(.07,.17,3),cP,d*.215,1.455,.035,0,0,-d*.38);     // 귀 안쪽
+    cA(new THREE.SphereGeometry(.048,12,10),cE,d*.125,1.25,.275,0,0,0,1,1.2,.7);// 눈
+    cA(new THREE.SphereGeometry(.016,8,6),cH,d*.125+.012,1.275,.31);            // 눈 반짝
+    cA(new THREE.SphereGeometry(.055,10,8),cP,d*.225,1.15,.2,0,0,0,1,.65,.4);   // 볼터치
+    cA(new THREE.SphereGeometry(.075,12,10),cW,d*.055,1.135,.265,0,0,0,1,.85,.8);// 주둥이
+    cA(new THREE.BoxGeometry(.3,.006,.006),cW,d*.33,1.17,.24,0,0,d*.12);        // 수염
+    cA(new THREE.BoxGeometry(.3,.006,.006),cW,d*.33,1.13,.24,0,0,-d*.1);
+    cA(new THREE.SphereGeometry(.07,10,8),cW,d*.17,.77,.52);                    // 카운터 위 앞발
+    cA(new THREE.CylinderGeometry(.05,.05,.4,8),cF,d*.17,.62,.34,.5,0,0);       // 팔
+    cA(new THREE.ConeGeometry(.055,.1,4),cB,d*.065,.94,.3,0,0,-d*Math.PI/2);    // 나비넥타이
+  });
+  cA(new THREE.SphereGeometry(.03,8,6),cB,0,.94,.3);
+  cA(new THREE.SphereGeometry(.028,8,6),cP,0,1.19,.318,0,0,0,1.2,.8,.8);        // 코
+  [-.07,0,.07].forEach(function(x){cA(new THREE.BoxGeometry(.028,.09,.02),cS,x,1.455,.12,-.6,0,0);});  // 이마 줄무늬
   snkHG=snkMkHeld();snkHG2=snkMkHeld();
 })();
 function snkReset(){if(snkSaved){yamHb.material=snkSaved[0];yamHt.material=snkSaved[1];snkSaved=null;}}
@@ -4174,7 +4195,7 @@ lhBtn.addEventListener('click',function(){
 });
 var gobBtn=document.getElementById('gob'),goRow=document.getElementById('gorow');
 function goShow(v){goRow.style.display=v?'flex':'none';gobBtn.setAttribute('aria-pressed',v?'true':'false');}
-var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],cinema:[['hall','중앙 극장'],['su0','🎬 드라마 별실'],['su1','📱 숏츠 별실'],['su2','🎨 애니 웹툰 별실'],['su3','🎤 예능·음악 별실'],['shop','🍿 매점']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
+var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],cinema:[['hall','중앙 극장'],['su0','🎬 드라마 별실'],['su1','📱 숏츠 별실'],['su2','🎤 예능·음악 별실'],['su3','🎨 애니 웹툰 별실'],['shop','🍿 매점']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
 function goBuild(sn){if(goBuilt===sn)return;goBuilt=sn;goShow(false);goRow.innerHTML='';(GO_SETS[sn]||[]).forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});}
 gobBtn.addEventListener('click',function(){goShow(goRow.style.display==='none');});
 goRow.addEventListener('click',function(e){
@@ -4271,7 +4292,7 @@ function setScene(n,c){me.cin=-1;
   for(var i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',bs[i].dataset.s===n?'true':'false');
   var tt=document.getElementById('tabtog');if(tt)tt.textContent=({fire:'🔥',beach:'🌊',cabin:'❄️',cinema:'🎬'}[n]||'🧭')+' ▾';
   clampPos(me,'');me.tx=me.x;me.tz=me.z;
-  if(lp&&ac)lp.frequency.setTargetAtTime(n==='cabin'?450:900,ac.currentTime,.4);if(baseG&&ac)baseG.gain.setTargetAtTime(n==='beach'?.12:.7,ac.currentTime,.4);
+  if(lp&&ac)lp.frequency.setTargetAtTime(n==='cabin'?450:900,ac.currentTime,.4);if(baseG&&ac)baseG.gain.setTargetAtTime(n==='cinema'?0:(n==='beach'?.12:.7),ac.currentTime,.4);
   fillCh();
   if(lobby){var cc=ch;lobby.presence({s:n,c:ch}).catch(function(){});lobby.join(n+ch).then(function(nr){if(scene===n&&ch===cc){room=nr;unsub=nr.on('chat',onChat);if(n==='cinema')setTimeout(function(){if(room===nr&&window.cinAsk)window.cinAsk();},800);}else nr.leave();}).catch(function(){});}
 }
@@ -5645,15 +5666,15 @@ function startAudio(){
   var s=ac.createBufferSource();s.buffer=b;s.loop=true;
   lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=scene==='cabin'?450:900;
   var hpb=ac.createBiquadFilter();hpb.type='highpass';hpb.frequency.value=120;
-  baseG=ac.createGain();baseG.gain.value=scene==='beach'?.12:.7;s.connect(lp);lp.connect(hpb);hpb.connect(baseG);baseG.connect(master);s.start();
+  baseG=ac.createGain();baseG.gain.value=scene==='cinema'?0:(scene==='beach'?.12:.7);s.connect(lp);lp.connect(hpb);hpb.connect(baseG);baseG.connect(master);s.start();
   var wb=ac.createBuffer(1,len,ac.sampleRate),wd=wb.getChannelData(0);for(var i2=0;i2<len;i2++)wd[i2]=(Math.random()*2-1)*.5;
   var s2=ac.createBufferSource();s2.buffer=wb;s2.loop=true;wlp=ac.createBiquadFilter();wlp.type='lowpass';wlp.frequency.value=900;wg=ac.createGain();wg.gain.value=0;s2.connect(wlp);wlp.connect(wg);wg.connect(master);s2.start();
   var rs2=ac.createBufferSource();rs2.buffer=wb;rs2.loop=true;var rhp=ac.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=1800;var rg2=ac.createGain();rg2.gain.value=0;rs2.connect(rhp);rhp.connect(rg2);rg2.connect(master);rs2.start();
   setInterval(function(){if(ac)rg2.gain.setTargetAtTime(scene==='fire'?.5*rainK:0,ac.currentTime,.3);},150);
   setInterval(function(){if(!ac)return;var tw2=Date.now()/1000,v=.5*(.5+.5*Math.sin(tw2*.55))+.5*(.5+.5*Math.sin(tw2*.31+1.7));wg.gain.setTargetAtTime(scene==='beach'?.08+.6*v*v:0,ac.currentTime,.25);wlp.frequency.setTargetAtTime(400+1600*v,ac.currentTime,.25);},120);
-  setInterval(function(){if(ac&&baseG&&scene==='cinema')baseG.gain.setTargetAtTime(cinFireOn()?.7:0,ac.currentTime,.5);},250);
+  setInterval(function(){if(ac&&baseG&&scene==='cinema')baseG.gain.setTargetAtTime(0,ac.currentTime,.5);},250);
   (function pop(){
-    if(ac&&scene!=='cabin'&&scene!=='beach'&&cinFireOn()){
+    if(ac&&scene!=='cabin'&&scene!=='beach'&&scene!=='cinema'&&cinFireOn()){
       var o=ac.createBufferSource(),bb=ac.createBuffer(1,ac.sampleRate*.05,ac.sampleRate),dd=bb.getChannelData(0);
       for(var j=0;j<dd.length;j++)dd[j]=(Math.random()*2-1)*Math.pow(1-j/dd.length,3);
       o.buffer=bb;var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=1200+Math.random()*2500;
@@ -5666,7 +5687,7 @@ btn.addEventListener('click',function(){
   try{
     if(!ac)startAudio();
     if(ac.state==='suspended')ac.resume();
-    on=!on;window.__muted=!on;master.gain.cancelScheduledValues(ac.currentTime);
+    on=!on;window.__muted=!on;try{if(window.cinApplyMute)window.cinApplyMute();}catch(e2){}master.gain.cancelScheduledValues(ac.currentTime);
     master.gain.setTargetAtTime(on&&!musicTarget()&&!window.__zone?.55:0,ac.currentTime,.4);
     btn.textContent=on?'소리 끄기':'소리 켜기';
   }catch(err){btn.textContent='소리를 쓸 수 없어요';}
