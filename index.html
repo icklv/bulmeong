@@ -857,7 +857,7 @@ function cinTick(){
   if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
   var loopOn=false,loopMode='off',loopB=document.getElementById('cinloop'),loopMenu=null;   // loopMode: off(끔) · all(이 방 추천+내 목록) · mine(내 목록만)
   window.cinPlayInfo=function(){return st?{id:st.id,playing:!st.paused&&!st.ended}:{id:null,playing:false};};   // ⭐ 마찌가 지금 노래가 나오는지 알아보는 용도
-  function inMusicRoom(){var si=cinSuiteIdx(),S=window.CIN_SUITES&&window.CIN_SUITES[si];return si>=0&&!(window.cinSecIn&&window.cinSecIn())&&!!S&&/음악/.test(S.name||'');}   // 🎵 '음악' 이 이름에 들어간 별실에서만 연속 재생 버튼이 보여요
+  function inMusicRoom(){if(window.cinSecIn&&window.cinSecIn())return true;var si=cinSuiteIdx(),S=window.CIN_SUITES&&window.CIN_SUITES[si];return si>=0&&!!S&&/음악/.test(S.name||'');}   // 🎵 연속 재생 버튼은 딱 두 곳에서만 보여요: '음악' 이 이름에 들어간 별실 + 🤫 1인 아지트 (아지트는 추천 목록이 없어서 내 목록이 이어져요)
   function loopQueue(){   // all: 이 방 추천 → 내 목록 순서 (⏭ 와 같은 순서), mine: 내 목록만. 겹치는 영상은 한 번만
     var q=(loopMode==='mine')?[]:preItems().slice(),seen={};q.forEach(function(x){seen[x.id]=1;});
     loadL().forEach(function(x){if(!seen[x.id]){seen[x.id]=1;q.push({id:x.id,name:x.name});}});
