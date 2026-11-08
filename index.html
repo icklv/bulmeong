@@ -4525,6 +4525,12 @@ function sync(){
   }
   var tt=(scene==='fire'&&rainK>.5?'비 오는 불멍':NAMES[scene])+' '+ch+'번방'+cinRoomTag(ch)+' · 지금 '+list.length+'명'+(lobby?(lobby.ok===false?(soloOn?' · 혼자 보는 중 (접속자가 많아요)':' · 연결 중…'):''):' · 혼자 보는 중')+(location.search.indexOf('debug')>=0&&room&&room.dbg?' ['+room.dbg()+']':'');
   if(tt!==topTxt){topTxt=tt;topEl.textContent=tt;}
+  var hideTop=(folded&&scene==='cinema')?'none':'';if(topEl.style.display!==hideTop)topEl.style.display=hideTop;
+  var cc=document.getElementById('cincnt');   // 접은 영화관에서는 왼쪽 위 구석에 작게 '👥 N명'만 보여요
+  if(!cc){cc=document.createElement('div');cc.id='cincnt';cc.style.cssText='position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:10px;z-index:5;padding:4px 11px;font-size:.8rem;border-radius:14px;background:rgba(10,8,14,.45);color:rgba(255,255,255,.75);pointer-events:none;display:none';document.body.appendChild(cc);}
+  var showCc=(folded&&scene==='cinema');var ccT='👥 '+list.length+'명';
+  if(cc.textContent!==ccT)cc.textContent=ccT;
+  var ccD=showCc?'':'none';if(cc.style.display!==ccD)cc.style.display=ccD;   // 영화관에서 [접기]를 하면 위쪽 방 이름표도 숨겨요
 }
 // ════════════════════════════════════════
 // 🚪 장면 전환 · 첫 입장 위치
