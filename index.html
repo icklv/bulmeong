@@ -765,7 +765,8 @@ function cinTick(){
     cinFr.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=0&disablekb=1&iv_load_policy=3&cc_load_policy=0&enablejsapi=1'+(mutedNow()?'&mute=1':'')+(start>0?'&start='+start:'')+(location.protocol.indexOf('http')===0?'&origin='+encodeURIComponent(location.origin):'');
     cinWrap.appendChild(cinFr);
     var frNow=cinFr;
-    cinFr.addEventListener('load',function(){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*');}catch(e){}if(mutedNow()){[0,600,1800,3500].forEach(function(ms){setTimeout(function(){if(mutedNow()&&cinFr===frNow)cmd('mute');},ms);});}});
+    cinFr.addEventListener('load',function(){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*');}catch(e){}if(mutedNow()){[0,600,1800,3500].forEach(function(ms){setTimeout(function(){if(mutedNow()&&cinFr===frNow)cmd('mute');},ms);});}
+      [0,700,2000,4000,7000].forEach(function(ms){setTimeout(function(){if(cinFr===frNow){cmd('unloadModule',['captions']);cmd('unloadModule',['cc']);}},ms);});});   // 자동 자막은 계속 꺼둬요
     if(location.protocol.indexOf('http')!==0)toast('지금 파일로 열려 있어요 · 유튜브는 https:// 웹 주소에서만 나와요');
     try{if(!localStorage.getItem('cin-ad-note')){localStorage.setItem('cin-ad-note','1');setTimeout(function(){toast('광고가 나오면 건너뛸 수 없어요 · 유튜브 프리미엄이면 광고 없이 나와요');},1200);}}catch(e){}
     cinOn=true;cinPaused=false;
@@ -5686,13 +5687,14 @@ function startAudio(){
     }
     setTimeout(pop,80+Math.random()*(Math.random()<.2?900:380));
   })();
-  (function cricket(){   // 🦗 영화관 밖에서 영상을 안 볼 때 나는 풀벌레 소리
+  var cLP=ac.createBiquadFilter();cLP.type='lowpass';cLP.frequency.value=2900;cLP.Q.value=.3;cLP.connect(master);   // 높은 소리를 깎아서 부드럽게
+  (function cricket(){   // 🦗 영화관 밖에서 영상을 안 볼 때 나는 아주 잔잔한 풀벌레 소리
     if(ac&&on&&scene==='cinema'&&cinFireOn()){
-      var pn=ac.createStereoPanner?ac.createStereoPanner():null,out=master,fz=3700+Math.random()*1700,fast=Math.random()<.55,n=fast?5+Math.floor(Math.random()*5):2+Math.floor(Math.random()*2),per=fast?.05+Math.random()*.02:.17+Math.random()*.05,vo=.05+Math.random()*.04,t0=ac.currentTime+.05,k;
-      if(pn){pn.pan.value=Math.random()*1.6-.8;pn.connect(master);out=pn;}
-      for(k=0;k<n;k++){var o=ac.createOscillator(),g=ac.createGain(),ts=t0+k*per;o.type='sine';o.frequency.value=fz*(1+.003*k);g.gain.setValueAtTime(.0001,ts);g.gain.linearRampToValueAtTime(vo,ts+.012);g.gain.exponentialRampToValueAtTime(.0001,ts+(fast?.04:.12));o.connect(g);g.connect(out);o.start(ts);o.stop(ts+(fast?.05:.14));}
+      var pn=ac.createStereoPanner?ac.createStereoPanner():null,out=cLP,fz=2500+Math.random()*900,fast=Math.random()<.35,n=fast?4+Math.floor(Math.random()*3):2,per=fast?.065+Math.random()*.02:.22+Math.random()*.06,vo=.014+Math.random()*.014,t0=ac.currentTime+.05,k;
+      if(pn){pn.pan.value=Math.random()*1.4-.7;pn.connect(cLP);out=pn;}
+      for(k=0;k<n;k++){var o=ac.createOscillator(),g=ac.createGain(),ts=t0+k*per;o.type='sine';o.frequency.value=fz*(1+.002*k);g.gain.setValueAtTime(.0001,ts);g.gain.linearRampToValueAtTime(vo,ts+.025);g.gain.exponentialRampToValueAtTime(.0001,ts+(fast?.06:.18));o.connect(g);g.connect(out);o.start(ts);o.stop(ts+(fast?.07:.2));}
     }
-    setTimeout(cricket,320+Math.random()*1000);
+    setTimeout(cricket,1100+Math.random()*2600);
   })();
 }
 btn.addEventListener('click',function(){
