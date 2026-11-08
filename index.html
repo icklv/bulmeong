@@ -2922,7 +2922,22 @@ function loyTick(now){
     var u=(now-u2.t0)/330;if(u<0){d2.visible=false;continue;}if(u>=1){u2.on=false;d2.visible=false;continue;}
     d2.visible=true;d2.position.lerpVectors(u2.a,u2.b,u);d2.position.y+=Math.sin(u*Math.PI)*.28;}
 }
-function eatEnd(cancel){var sn=eat&&eat.sn;eat=null;snkReset();if(cancel)snkChain=0;if(sn&&!cancel){snkHold=snkHold2;snkHold2=null;if(snkHold)snkChain=Date.now()+900;}yamH.visible=false;teaTh=-1.35;teaPh=0;yamB.textContent=yamLab('go');if(!cancel)toast(sn?sn.done:(scene==='cabin'?'마시멜로 잘 먹었어요. 달콤하고 따뜻해요 🍡':'군고구마 잘 먹었어요. 속이 따뜻해져요 🍠'));}
+function eatEnd(cancel){var sn=eat&&eat.sn;eat=null;snkReset();if(cancel)snkChain=0;if(sn&&!cancel){snkHold=snkHold2;snkHold2=null;if(snkHold)snkChain=Date.now()+900;}yamH.visible=false;if(colaH)colaH.visible=false;teaTh=-1.35;teaPh=0;yamB.textContent=yamLab('go');if(!cancel)toast(sn?sn.done:(scene==='cabin'?'마시멜로 잘 먹었어요. 달콤하고 따뜻해요 🍡':'군고구마 잘 먹었어요. 속이 따뜻해져요 🍠'));}
+
+// 🥤 콜라 전용 컵: 고구마 막대기 대신 컵+빨대로 마셔요
+var colaH=null,colaL=null;
+function colaMk(){
+  colaH=new THREE.Group();colaH.visible=false;
+  var gm=new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:.35,side:THREE.DoubleSide});
+  colaH.add(mesh(new THREE.CylinderGeometry(.075,.06,.2,14,1,true),gm,0,0,0));
+  colaH.add(mesh(new THREE.CylinderGeometry(.06,.06,.02,14),gm,0,-.1,0));
+  colaL=mesh(new THREE.CylinderGeometry(.07,.057,.17,14),new THREE.MeshLambertMaterial({color:0x3a1208,emissive:0x1a0804}),0,-.015,0);colaH.add(colaL);
+  colaH.add(mesh(new THREE.CylinderGeometry(.08,.08,.02,14),M(0xb3262e,0x2a0808),0,.105,0));
+  var st=mesh(new THREE.CylinderGeometry(.01,.01,.22,6),M(0xff6f9a,0x401020),.02,.2,0);st.rotation.z=-.12;colaH.add(st);
+  colaH.scale.setScalar(2.0);
+}
+function colaLevel(l){if(!colaL)return;colaL.scale.y=Math.max(.05,l);colaL.position.y=-.1+.17*Math.max(.05,l)/2;}
+function colaIs(){return !!(eat&&eat.sn&&eat.sn.lab.indexOf('콜라')>=0);}
 function eatTick(now,pm){
   if(yamH.parent!==pm.g)pm.g.add(yamH);
   var AG=scene==='cabin'?gC:(scene==='cinema'?gM:gF);for(var ci=0;ci<crumbs.length;ci++)if(crumbs[ci].parent!==AG)AG.add(crumbs[ci]);
@@ -2936,6 +2951,13 @@ function eatTick(now,pm){
   var d=new THREE.Vector3(-hx,1.45-hy,.33-hz).normalize(),r=new THREE.Vector3(-.15,.8,.55).normalize();
   d.lerp(r,1-lf).normalize();
   yamH.position.set(hx,hy,hz);yamH.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),d);
+  if(colaIs()){
+    if(!colaH)colaMk();if(colaH.parent!==pm.g)pm.g.add(colaH);
+    if(eat.cb!==bt){eat.cb=bt;colaLevel(1-bt/5);}
+    colaH.position.set(hx,hy,hz);colaH.quaternion.setFromEuler(new THREE.Euler(-1.0*lf,0,0));
+    colaH.visible=me.sit<3;yamH.visible=false;return;
+  }
+  if(colaH)colaH.visible=false;
   var len=Math.max(0,.3-.06*bt);yamH.visible=len>.005&&me.sit<3;setYamLen(len);
 }
 function crumbTick(){for(var i=0;i<crumbs.length;i++){var c=crumbs[i],u=c.userData;if(!c.visible)continue;u.l--;c.position.x+=u.vx;c.position.y+=u.vy;c.position.z+=u.vz;u.vy-=.0012;c.material.opacity=Math.max(0,u.l/40);if(u.l<=0)c.visible=false;}}
@@ -3748,8 +3770,8 @@ function stepMe(){
 // 👥 다른 사람 모습 보여주기 (먹기 · 낚시 · 새우깡 · 눈 던지기)
 // ════════════════════════════════════════
 // 내가 지금 먹거나 마시는 중인지 (다른 사람 화면에 보이게 같이 보내요)
-function myAct(){try{if(window.__spEv&&Date.now()-window.__spEvT<2800)return window.__spEv;if(window.__snEv&&Date.now()-window.__snEvT<800)return window.__snEv;if(window.__bwEv&&Date.now()-window.__bwEvT<800)return window.__bwEv;if(loyA)return 'loy';if(fishOn&&scene==='fire')return 'fish';if(scene==='cabin'&&typeof ICE!=='undefined'&&ICE.F)return 'ice';if(window.__spTouching)return 'sand';if(shrHold.on)return 'shrH';if(shrTossT&&Date.now()-shrTossT<1800)return 'shrT'+(shrTossN%10);if(trkE)return 'e:'+trkE.k;if(eat)return scene==='cabin'?'mm':'yam';if(tea)return 'tea';if(trkHold)return 'h:'+trkHold;}catch(e){}return '';}
-var RA_EM={tea:'🍵',yam:'🍠',mm:'🍡',sk:'🍢',pt:'🌀',bm:'🍺',jc:'🧃',ice:'🎣'},RA_TX={};
+function myAct(){try{if(window.__spEv&&Date.now()-window.__spEvT<2800)return window.__spEv;if(window.__snEv&&Date.now()-window.__snEvT<800)return window.__snEv;if(window.__bwEv&&Date.now()-window.__bwEvT<800)return window.__bwEv;if(loyA)return 'loy';if(fishOn&&scene==='fire')return 'fish';if(scene==='cabin'&&typeof ICE!=='undefined'&&ICE.F)return 'ice';if(window.__spTouching)return 'sand';if(shrHold.on)return 'shrH';if(shrTossT&&Date.now()-shrTossT<1800)return 'shrT'+(shrTossN%10);if(trkE)return 'e:'+trkE.k;if(eat)return colaIs()?'co':(scene==='cabin'?'mm':'yam');if(tea)return 'tea';if(trkHold)return 'h:'+trkHold;}catch(e){}return '';}
+var RA_EM={tea:'🍵',co:'🥤',yam:'🍠',mm:'🍡',sk:'🍢',pt:'🌀',bm:'🍺',jc:'🧃',ice:'🎣'},RA_TX={};
 function raFood(mm){var c=document.createElement('canvas');c.width=c.height=64;var x=c.getContext('2d');x.translate(32,34);x.rotate(-.45);
   if(mm){x.strokeStyle='#8a5a2c';x.lineWidth=2.5;x.lineCap='round';x.beginPath();x.moveTo(-28,6);x.lineTo(22,-4);x.stroke();}
   x.fillStyle=mm?'#d9a24a':'#3a1f1c';x.beginPath();x.ellipse(-6,0,17,10,0,0,6.283);x.fill();
@@ -4258,7 +4280,7 @@ function sync(){
 // 🚪 장면 전환 · 첫 입장 위치
 // ════════════════════════════════════════
 // 장면 전환
-var ac=null,master=null,lp=null,on=false,baseG=null,wg=null,wlp=null;
+var ac=null,master=null,lp=null,on=false,baseG=null,wg=null,wlp=null,hpb=null;
 function say(first){
   var L=scene==='cabin'?cabinLines:scene==='beach'?beachLines:scene==='cinema'?cinemaLines:fireLines;
   msg.classList.remove('on');
@@ -4297,7 +4319,7 @@ function setScene(n,c){me.cin=-1;
   for(var i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',bs[i].dataset.s===n?'true':'false');
   var tt=document.getElementById('tabtog');if(tt)tt.textContent=({fire:'🔥',beach:'🌊',cabin:'❄️',cinema:'🎬'}[n]||'🧭')+' ▾';
   clampPos(me,'');me.tx=me.x;me.tz=me.z;
-  if(lp&&ac)lp.frequency.setTargetAtTime(n==='cabin'?450:900,ac.currentTime,.4);if(baseG&&ac)baseG.gain.setTargetAtTime(n==='cinema'?0:(n==='beach'?.12:.7),ac.currentTime,.4);
+  if(lp&&ac)lp.frequency.setTargetAtTime(n==='cabin'?650:700,ac.currentTime,.4);if(hpb&&ac)hpb.frequency.setTargetAtTime(n==='cabin'?280:170,ac.currentTime,.4);if(baseG&&ac)baseG.gain.setTargetAtTime(n==='cinema'?0:(n==='beach'?.07:(n==='cabin'?.06:.02)),ac.currentTime,.4);
   fillCh();
   if(lobby){var cc=ch;lobby.presence({s:n,c:ch}).catch(function(){});lobby.join(n+ch).then(function(nr){if(scene===n&&ch===cc){room=nr;unsub=nr.on('chat',onChat);if(n==='cinema')setTimeout(function(){if(room===nr&&window.cinAsk)window.cinAsk();},800);}else nr.leave();}).catch(function(){});}
 }
@@ -5669,23 +5691,26 @@ function startAudio(){
   /* 반복되는 이음매에서 '웅' 하고 튀는 소리가 나지 않게 끝과 처음을 부드럽게 이어줘요 */
   for(var i1=0;i1<xf;i1++){var fk=i1/xf*Math.PI/2;d[i1]=tmp[i1]*Math.sin(fk)+tmp[len+i1]*Math.cos(fk);}
   var s=ac.createBufferSource();s.buffer=b;s.loop=true;
-  lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=scene==='cabin'?450:900;
-  var hpb=ac.createBiquadFilter();hpb.type='highpass';hpb.frequency.value=120;
-  baseG=ac.createGain();baseG.gain.value=scene==='cinema'?0:(scene==='beach'?.12:.7);s.connect(lp);lp.connect(hpb);hpb.connect(baseG);baseG.connect(master);s.start();
+  lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=scene==='cabin'?650:700;
+  hpb=ac.createBiquadFilter();hpb.type='highpass';hpb.frequency.value=scene==='cabin'?280:170;
+  baseG=ac.createGain();baseG.gain.value=scene==='cinema'?0:(scene==='beach'?.07:(scene==='cabin'?.06:.02));s.connect(lp);lp.connect(hpb);hpb.connect(baseG);baseG.connect(master);s.start();
   var wb=ac.createBuffer(1,len,ac.sampleRate),wd=wb.getChannelData(0);for(var i2=0;i2<len;i2++)wd[i2]=(Math.random()*2-1)*.5;
   var s2=ac.createBufferSource();s2.buffer=wb;s2.loop=true;wlp=ac.createBiquadFilter();wlp.type='lowpass';wlp.frequency.value=900;wg=ac.createGain();wg.gain.value=0;s2.connect(wlp);wlp.connect(wg);wg.connect(master);s2.start();
   var rs2=ac.createBufferSource();rs2.buffer=wb;rs2.loop=true;var rhp=ac.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=1800;var rg2=ac.createGain();rg2.gain.value=0;rs2.connect(rhp);rhp.connect(rg2);rg2.connect(master);rs2.start();
   setInterval(function(){if(ac)rg2.gain.setTargetAtTime(scene==='fire'?.5*rainK:0,ac.currentTime,.3);},150);
-  setInterval(function(){if(!ac)return;var tw2=Date.now()/1000,v=.5*(.5+.5*Math.sin(tw2*.55))+.5*(.5+.5*Math.sin(tw2*.31+1.7));wg.gain.setTargetAtTime(scene==='beach'?.08+.6*v*v:0,ac.currentTime,.25);wlp.frequency.setTargetAtTime(400+1600*v,ac.currentTime,.25);},120);
+  setInterval(function(){if(!ac)return;var tw2=Date.now()/1000,v=.5*(.5+.5*Math.sin(tw2*.55))+.5*(.5+.5*Math.sin(tw2*.31+1.7));wg.gain.setTargetAtTime(scene==='beach'?.03+.2*v*v:0,ac.currentTime,.4);wlp.frequency.setTargetAtTime(300+800*v,ac.currentTime,.4);},120);
   setInterval(function(){if(ac&&baseG&&scene==='cinema')baseG.gain.setTargetAtTime(0,ac.currentTime,.5);},250);
   (function pop(){
     if(ac&&scene!=='cabin'&&scene!=='beach'&&scene!=='cinema'&&cinFireOn()){
-      var o=ac.createBufferSource(),bb=ac.createBuffer(1,ac.sampleRate*.05,ac.sampleRate),dd=bb.getChannelData(0);
-      for(var j=0;j<dd.length;j++)dd[j]=(Math.random()*2-1)*Math.pow(1-j/dd.length,3);
-      o.buffer=bb;var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=1200+Math.random()*2500;
-      var gn=ac.createGain();gn.gain.value=.15+Math.random()*.35;o.connect(hp);hp.connect(gn);gn.connect(master);o.start();
+      // 🔥 장작 타는 소리: 짧고 작은 '틱' 여러 개 + 가끔 낮고 둥근 '톡'
+      var big=false,sr=ac.sampleRate,L=Math.floor(sr*(big?.09:.022)),bb=ac.createBuffer(1,L,sr),dd=bb.getChannelData(0);
+      for(var j=0;j<L;j++)dd[j]=(Math.random()*2-1)*Math.pow(1-j/L,big?2.6:4.5)*Math.min(1,j/40);
+      var o=ac.createBufferSource();o.buffer=bb;
+      var bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=big?(380+Math.random()*260):(1100+Math.random()*1100);bp.Q.value=big?.9:1.1;
+      var gn=ac.createGain();gn.gain.value=big?(.07+Math.random()*.05):(.05+Math.random()*.09);
+      o.connect(bp);bp.connect(gn);gn.connect(master);o.start();
     }
-    setTimeout(pop,80+Math.random()*(Math.random()<.2?900:380));
+    setTimeout(pop,150+Math.random()*(Math.random()<.3?1400:480));
   })();
   var cLP=ac.createBiquadFilter();cLP.type='lowpass';cLP.frequency.value=2900;cLP.Q.value=.3;cLP.connect(master);   // 높은 소리를 깎아서 부드럽게
   (function cricket(){   // 🦗 영화관 밖에서 영상을 안 볼 때 나는 아주 잔잔한 풀벌레 소리
