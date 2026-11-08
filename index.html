@@ -631,8 +631,8 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
 
   // ═══ 🤫 비밀 아지트 (1인실): 매점에서 한참 떨어진 오솔길 끝, 브라운관 TV 하나와 푹신한 방석 하나만 있는 작은 방 ═══
   (function(){
-    var SX=33.3,SZ=15,SR=2.7,RR=3.6,TVX=2.0,TVK=1.3,CORR=[SX-9.5,SX-2.5,SZ-1.1,SZ+1.1];
-    window.CIN_SEC={x:SX,z:SZ,r:SR,tv:TVX};CIN_RECTS.push(CORR);
+    var SX=33.3,SZ=15,SR=2.7,RR=3.6,TVX=2.0,TVK=1.3,TVS=.35,CORR=[SX-9.5,SX-2.5,SZ-1.1,SZ+1.1];
+    window.CIN_SEC={x:SX,z:SZ,r:SR,tv:TVX-TVS};CIN_RECTS.push(CORR);
     var HID=new THREE.Group();HID.visible=false;gM.add(HID);   // 🤫 가까이 가야만 보이는 비밀 구역 묶음
     var G=new THREE.Group();G.position.set(SX,0,SZ);HID.add(G);
     function add(o,x,y,z){o.position.set(x,y,z);G.add(o);return o;}
@@ -663,7 +663,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     // 입구 발판 (납작한 나무 판 3개만 · 길은 없어요)
     var slabM=M(0x6a4c36,0x180e08);
     [SX-6.6,SX-5.2,SX-3.8].forEach(function(wx){HID.add(mesh(new THREE.BoxGeometry(.95,.08,1.5),slabM,wx,.04,SZ));});
-    var TVG=new THREE.Group();TVG.scale.set(1,TVK,TVK);G.add(TVG);   // 📺 TV는 위아래·좌우로만 키워요 (깊이는 그대로라 울타리 밖으로 안 튀어나가요)
+    var TVG=new THREE.Group();TVG.scale.set(1,TVK,TVK);TVG.position.x=-TVS;G.add(TVG);   // 📺 TV는 위아래·좌우로만 키워요 (깊이는 그대로라 울타리 밖으로 안 튀어나가요)
     function addT(o,x,y,z){o.position.set(x,y,z);TVG.add(o);return o;}
     // 브라운관 TV (울타리 안쪽 동쪽, 서쪽 입구를 바라봐요)
     addT(new THREE.Mesh(new THREE.BoxGeometry(1.1,.25,2.3),wood),2.55,.125,0);                          // 받침대
@@ -677,12 +677,11 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     for(q=0;q<4;q++)addT(new THREE.Mesh(new THREE.BoxGeometry(.03,.1,.03),dark),1.97,.38,-.8+q*.12);  // 스피커 줄무늬
     [-1,1].forEach(function(s){var an2=addT(new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,1.1,5),metalAnt()),2.55,2.25,s*.3);an2.rotation.x=s*.5;addT(new THREE.Mesh(new THREE.SphereGeometry(.04,6,5),metalAnt()),2.55,2.77,s*.55);});   // 토끼 귀 안테나
     function metalAnt(){return M(0x9a9aa6,0x101012);}
-    var tvGlow=glowSprite('150,200,230',.35,3.4*TVK);add(tvGlow,1.5,1.0*TVK,-.25);   // TV 불빛이 은은하게 번져요
-    // 나만의 푹신한 큰 방석 + 둥근 발받침
+    var tvGlow=glowSprite('150,200,230',.35,3.4*TVK);add(tvGlow,1.5-TVS,1.0*TVK,-.25);   // TV 불빛이 은은하게 번져요
+    // 나만의 푹신한 큰 방석
     var cn0=gM.children.length;cushion(SX-.2,SZ,0xb393d6,SX+2,SZ,1.7);HID.add(gM.children[cn0]);
     var bm0=new THREE.Mesh(new THREE.BoxGeometry(.02,.02,.02),mpadM);bm0.position.set(SX,-60,SZ);HID.add(bm0);   // 눕기 전용(눌러서 집히지 않게 땅속에 숨겨둔 점)
     mBeds.push({m:bm0,x:SX-.2,z:SZ+.8,fx:SX+2,fz:SZ,bed:true,flip:true,sky:true});   // 🌌 방석 위에 누워 하늘보기
-    add(new THREE.Mesh(new THREE.CylinderGeometry(.42,.46,.3,16),M(0xe5c36a,0x181004)),1.0,.15,0);
     // 울타리 옆 작은 탁자 + 등불, 화분
     add(new THREE.Mesh(new THREE.CylinderGeometry(.36,.4,.55,12),wood),-1.6,.28,-2.45);
     add(new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.2,8),new THREE.MeshBasicMaterial({color:0xffe2a0,fog:false})),-1.6,.66,-2.45);
@@ -693,8 +692,8 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     function inRoom(x,z){return Math.hypot(x-SX,z-SZ)<RR-.2;}
     window.cinSecIn=function(){return scene==='cinema'&&inRoom(me.x,me.z);};
     window.cinSecAt=function(x,z){return inRoom(x,z);};   // 🤫 남의 위치가 아지트 안인지 (아지트 안에 있으면 서로 안 보여요)
-    window.cinSecCorner=function(i){return new THREE.Vector3(SX+1.94,(1.1+((i<2)?.5345:-.5345))*TVK,SZ+((i===0||i===3)?-.95:.95)*TVK);};   // TV 화면 속 16:9 영상 자리
-    window.cinSecFp=function(){if(!window.cinSecIn())return null;return {sw:1.9*TVK,sh:1.069*TVK,d:Math.max(1.6,SX+1.94-me.x),cy:1.1*TVK,lat:Math.abs(me.z-SZ)*.5};};
+    window.cinSecCorner=function(i){return new THREE.Vector3(SX+1.94-TVS,(1.1+((i<2)?.5345:-.5345))*TVK,SZ+((i===0||i===3)?-.95:.95)*TVK);};   // TV 화면 속 16:9 영상 자리
+    window.cinSecFp=function(){if(!window.cinSecIn())return null;return {sw:1.9*TVK,sh:1.069*TVK,d:Math.max(1.6,SX+1.94-TVS-me.x),cy:1.1*TVK,lat:Math.abs(me.z-SZ)*.5};};
     var was=false;setInterval(function(){try{var d=window.cinSecIn();if(d&&!was)toast('🤫 비밀 아지트예요 · TV로 혼자 영상을 볼 수 있어요');was=d;}catch(e){}},250);
     // 🌌 아지트 안에서는 "눕기" 대신 "누워서 하늘 보기"로 보여요
     setInterval(function(){try{var lb=document.getElementById('lie');if(!lb)return;if(window.cinSecIn()){if(lb.textContent==='눕기')lb.textContent='🌌 누워서 하늘 보기';}else if(lb.textContent==='🌌 누워서 하늘 보기')lb.textContent='눕기';}catch(e){}},250);
