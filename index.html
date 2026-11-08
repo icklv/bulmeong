@@ -853,16 +853,21 @@ function cinTick(){
   if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
   var loopOn=false,loopB=document.getElementById('cinloop');
   function inMusicRoom(){var si=cinSuiteIdx(),S=window.CIN_SUITES&&window.CIN_SUITES[si];return si>=0&&!(window.cinSecIn&&window.cinSecIn())&&!!S&&/음악/.test(S.name||'');}   // 🎵 '음악' 이 이름에 들어간 별실에서만 연속 재생 버튼이 보여요
+  function loopQueue(){   // 이 방 추천 → 내 목록 순서 (⏭ 와 같은 순서), 겹치는 영상은 한 번만
+    var q=preItems().slice(),seen={};q.forEach(function(x){seen[x.id]=1;});
+    loadL().forEach(function(x){if(!seen[x.id]){seen[x.id]=1;q.push({id:x.id,name:x.name});}});
+    return q;
+  }
   function loopNext(){   // 음악실 추천 목록만 순서대로 이어서 틀어요 (마지막 다음은 처음으로)
     if(!loopOn||!inMusicRoom()||!st||st.local)return;
-    var q=preItems();if(!q.length)return;
+    var q=loopQueue();if(!q.length)return;
     var cur=st.id,n=-1,i;for(i=0;i<q.length;i++)if(q[i].id===cur){n=i;break;}
     if(n<0)return;   // 내가 직접 붙여넣은 영상이면 이어 틀지 않아요
     var nx=q[(n+1)%q.length];toast('🔁 다음 곡 · '+String(nx.name||('영상 '+nx.id.slice(0,4))).slice(0,20));play(nx.id,0,false);
   }
   if(loopB)loopB.addEventListener('click',function(){loopOn=!loopOn;loopB.setAttribute('aria-pressed',loopOn?'true':'false');toast(loopOn?'🔁 연속 재생 켜짐 · 음악실 목록이 이어서 나와요':'연속 재생 꺼짐');});
   function markEnd(){if(!st||st.ended)return;st.ended=true;st.paused=true;st.t0=vdur>0?vdur:nowT();updPause();
-    if(loopOn&&inMusicRoom()&&!st.local&&preItems().some(function(x){return x.id===st.id;})){var endId=st.id;setTimeout(function(){if(st&&st.id===endId&&st.ended)loopNext();},900);return;}
+    if(loopOn&&inMusicRoom()&&!st.local&&loopQueue().some(function(x){return x.id===st.id;})){var endId=st.id;setTimeout(function(){if(st&&st.id===endId&&st.ended)loopNext();},900);return;}
     toast('영상이 끝났어요 · ↻ 를 누르면 다시 봐요');}
   function updPause(){cinPaused=!!(st&&st.paused);if(pauseB)pauseB.textContent=(st&&st.ended)?'↻':((st&&st.paused)?'▶':'⏸');}
   function showJoin(){
@@ -997,18 +1002,27 @@ function cinTick(){
   // ── 내 영상 목록 (이 기기의 이 브라우저에만 저장돼요) ──
   var LKEY='hy-cin-list-v1',mem=[],panel=null,listBox=null,preBox=null,pUrl=null,pName=null,lbtn=document.getElementById('cinlistbtn');
   function loadL(){
-    try{var r=localStorage.getItem(LKEY);if(r){var a=JSON.parse(r);if(Array.isArray(a))return a.filter(function(x){return x&&/^[A-Za-z0-9_-]{11}$/.test(x.id||'');}).slice(0,30);}}catch(e){}
+    try{var r=localStorage.getItem(LKEY);if(r){var a=JSON.parse(r);if(Array.isArray(a))return a.filter(function(x){return x&&/^[A-Za-z0-9_-]{11}$/.test(x.id||'');}).slice(0,100);}}catch(e){}
     return mem.slice();
   }
   function saveL(a){mem=a.slice();try{localStorage.setItem(LKEY,JSON.stringify(a));}catch(e){}}
   function hideList(){if(panel)panel.style.display='none';}
-  function addRow(box,id,name,canDel,idx){
+  function addRow(box,id,name,canDel,idx,canAdd){
     var row=document.createElement('div');row.className='it';
     var im=document.createElement('img');im.alt='';im.loading='lazy';im.src='https://i.ytimg.com/vi/'+id+'/mqdefault.jpg';
     var nm=document.createElement('span');nm.textContent=String(name||'영상').slice(0,40);
     var pb=document.createElement('button');pb.type='button';pb.textContent='▶';pb.setAttribute('aria-label','틀기');
     pb.addEventListener('click',function(){hideList();play(id,0,false);});
     row.appendChild(im);row.appendChild(nm);row.appendChild(pb);
+    if(canAdd){   // 검색 결과에서 바로 내 목록에 저장
+      var ab2=document.createElement('button');ab2.type='button';ab2.textContent='＋';ab2.setAttribute('aria-label','내 목록에 추가');
+      ab2.addEventListener('click',function(){
+        var a=loadL(),k;for(k=0;k<a.length;k++)if(a[k].id===id){toast('이미 내 목록에 있어요');return;}
+        if(a.length>=100){toast('목록은 100개까지 저장할 수 있어요');return;}
+        a.unshift({id:id,name:String(name||'').slice(0,40)||('영상 '+id.slice(0,4))});saveL(a);renderList();ab2.textContent='✓';toast('내 목록에 저장했어요');
+      });
+      row.appendChild(ab2);
+    }
     if(canDel){
       var db=document.createElement('button');db.type='button';db.textContent='🗑';db.setAttribute('aria-label','지우기');
       db.addEventListener('click',function(){var b=loadL();b.splice(idx,1);saveL(b);renderList();});
@@ -1040,7 +1054,7 @@ function cinTick(){
     for(k=0;k<a.length;k++)if(a[k].id===id){found=k;break;}
     if(found>=0){if(nm)a[found].name=nm;toast('이미 있는 영상이에요'+(nm?' · 이름을 바꿨어요':''));}
     else{
-      if(a.length>=30){toast('목록은 30개까지 저장할 수 있어요');return;}
+      if(a.length>=100){toast('목록은 100개까지 저장할 수 있어요');return;}
       a.unshift({id:id,name:nm||('영상 '+id.slice(0,4))});toast('목록에 저장했어요');
     }
     saveL(a);pUrl.value='';pName.value='';renderList();
@@ -1053,13 +1067,13 @@ function cinTick(){
     sBox.textContent='';
     if(!key){var e1=document.createElement('div');e1.className='em';e1.textContent='검색 키가 아직 없어요 · 파일 위쪽 YT_API_KEY 에 넣어주면 돼요';sBox.appendChild(e1);return;}
     var w=document.createElement('div');w.className='em';w.textContent='찾는 중…';sBox.appendChild(w);
-    var url='https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&videoSyndicated=true&maxResults=8&q='+encodeURIComponent(q)+'&key='+encodeURIComponent(key);
+    var url='https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&videoSyndicated=true&maxResults=25&q='+encodeURIComponent(q)+'&key='+encodeURIComponent(key);
     fetch(url).then(function(r){return r.json();}).then(function(j){
       sBox.textContent='';
-      if(j&&j.error){var e2=document.createElement('div');e2.className='em';e2.textContent=(j.error.code===403?'오늘 검색 가능 횟수를 다 썼거나 키 설정이 막혀 있어요':'검색에 실패했어요')+' ('+j.error.code+')';sBox.appendChild(e2);return;}
+      if(j&&j.error){var e2=document.createElement('div');e2.className='em';e2.textContent=(j.error.code===403?'오늘 검색 가능 횟수를 다 썼거나 키 설정이 막혀 있어요':'검색에 실패했어요')+' ('+j.error.code+(j.error.errors&&j.error.errors[0]&&j.error.errors[0].reason?' · '+j.error.errors[0].reason:'')+(j.error.details&&j.error.details[0]&&j.error.details[0].reason?' · '+j.error.details[0].reason:'')+')';sBox.appendChild(e2);return;}
       var items=(j&&j.items)||[],n=0;
       items.forEach(function(it){var id=it.id&&it.id.videoId;if(!id||!/^[A-Za-z0-9_-]{11}$/.test(id))return;n++;
-        addRow(sBox,id,decodeHtml((it.snippet&&it.snippet.title)||'영상'),false,0);});
+        addRow(sBox,id,decodeHtml((it.snippet&&it.snippet.title)||'영상'),false,0,true);});
       if(!n){var e3=document.createElement('div');e3.className='em';e3.textContent='결과가 없어요 · 다른 말로 찾아봐요';sBox.appendChild(e3);}
     }).catch(function(){sBox.textContent='';var e4=document.createElement('div');e4.className='em';e4.textContent='검색에 실패했어요 · 인터넷 연결을 확인해 줘요';sBox.appendChild(e4);});
   }
