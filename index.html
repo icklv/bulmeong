@@ -3905,7 +3905,9 @@ function cabinHit0(o,k){
 }
 // 입력
 var yawP=0,pitP=0;var drag=null,rc=new THREE.Raycaster(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),hit=new THREE.Vector3();
-cv.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY,moved:false};try{cv.setPointerCapture(e.pointerId);}catch(err){}});
+document.addEventListener('contextmenu',function(e){var t=e.target&&e.target.tagName;if(t==='INPUT'||t==='TEXTAREA')return;e.preventDefault();});   // 오른쪽 클릭·길게 누르기 메뉴는 안 떠요 (입력칸은 붙여넣기 때문에 그대로)
+cv.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse'&&e.button!==0)return;   // 마우스 오른쪽·가운데 버튼은 무시해요
+  drag={x:e.clientX,y:e.clientY,moved:false};try{cv.setPointerCapture(e.pointerId);}catch(err){}});
 cv.addEventListener('pointermove',function(e){
   if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
   if(!drag.moved&&Math.abs(dx)+Math.abs(dy)<6)return;
