@@ -187,7 +187,7 @@ body.folded .ui #actrow button[data-ic]::before{font-size:1.3rem}
 <button id="tabtog" class="tabtog" type="button" aria-expanded="false" aria-controls="tabs" aria-label="장소 바꾸기" title="장소 바꾸기">🔥 ▾</button>
 <p class="skysay" id="skysay"></p><div class="tabs" id="tabs"><button data-s="fire" type="button">🔥 숲속 캠핑 불멍</button><button data-s="beach" type="button">🌊 바닷가 물멍</button><button data-s="cabin" type="button">❄️ 눈 오는 오두막</button><button data-s="cinema" type="button">🎬 별빛 영화관</button></div>
 <div class="log" id="log"></div>
-<div class="ui"><p class="msg" id="msg"></p><div class="chatrow" id="sitrow" style="display:none"><button type="button" data-s="chair">의자에 앉기</button><button type="button" data-s="floor">바닥에 앉기</button></div><div class="chatrow" id="actrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="gob" type="button" aria-pressed="false" style="display:none">이동</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">1인칭</button><button id="lie" type="button" style="display:none">눕기</button><button id="lv" type="button" style="display:none">3인칭</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button><button id="zone" type="button" style="display:none">멍때리기</button><button id="cinenter" type="button" style="display:none"></button></div><div class="chatrow" id="gorow" style="display:none"><button type="button" data-g="fire">모닥불</button><button type="button" data-g="gb">방명록 자리</button><button type="button" data-g="rain">비 오는 캠핑장</button><button type="button" data-g="cat">고양이 놀이터</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래편지</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"><button type="button" data-k="hang" id="hangbtn" style="display:none">걸기</button></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow" id="cinrow" style="display:none"><div id="cinside"><button id="cinlink" type="button" title="링크로 틀기" aria-label="링크로 틀기" aria-expanded="false">🔗</button><button id="cinlistbtn" type="button" title="영상 목록" aria-label="영상 목록">📋</button><div id="cinctl" style="display:none"><button id="cinpause" type="button" title="멈춤" aria-label="멈춤">⏸</button><button id="cinback" type="button" title="10초 뒤로" aria-label="10초 뒤로">⏪</button><button id="cinfwd" type="button" title="10초 앞으로" aria-label="10초 앞으로">⏩</button><button id="cinstop" type="button" title="끄기" aria-label="끄기">✕</button></div></div><div id="cinbar"><button id="cinjoin" type="button" style="display:none">📽 같이 보기</button><div id="cinseekrow" style="display:none"><input id="cinseek" type="range" min="0" max="3600" step="1" value="0" aria-label="영상 위치"><span id="cintime"></span></div></div><div id="cinurlrow" style="display:none"><input id="cinurl" placeholder="유튜브 링크 붙여넣기" aria-label="유튜브 링크" autocomplete="off"><button id="cinplay" type="button">틀기</button><button id="cinfile" type="button">📁 내 영상</button><input id="cinfilein" type="file" accept="video/*" style="display:none"></div></div><div class="chatrow" id="mainrow"></div><div id="setrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div><div class="chatrow"><button id="acttog" type="button" aria-expanded="false" aria-controls="actrow">활동</button><button id="settog" type="button" aria-expanded="false" aria-controls="setrow">설정</button></div></div>
+<div class="ui"><p class="msg" id="msg"></p><div class="chatrow" id="sitrow" style="display:none"><button type="button" data-s="chair">의자에 앉기</button><button type="button" data-s="floor">바닥에 앉기</button></div><div class="chatrow" id="actrow"><button id="tent" type="button">텐트 들어가기</button><button id="sit" type="button">앉기</button><button id="gob" type="button" aria-pressed="false" style="display:none">이동</button><button id="lhb" type="button" style="display:none">등대 올라가기</button><button id="fpb" type="button" style="display:none">1인칭</button><button id="lie" type="button" style="display:none">눕기</button><button id="lv" type="button" style="display:none">3인칭</button><button id="sky" type="button" style="display:none">하늘 보기</button><button id="tea" type="button" style="display:none">차 마시기</button><button id="yam" type="button" style="display:none">고구마 굽기</button><button id="mus" type="button" style="display:none">음악 켜기</button><button id="vmute" type="button" style="display:none">영상 소리 끄기</button><button id="zone" type="button" style="display:none">멍때리기</button><button id="cinenter" type="button" style="display:none"></button></div><div class="chatrow" id="gorow" style="display:none"><button type="button" data-g="fire">모닥불</button><button type="button" data-g="gb">방명록 자리</button><button type="button" data-g="rain">비 오는 캠핑장</button><button type="button" data-g="cat">고양이 놀이터</button></div><div class="chatrow" id="sandrow" style="display:none"><button id="sandbtn" type="button" aria-pressed="false">모래편지</button><div class="sandpad" id="shapes" style="display:none"><div class="chatrow"><input id="sandin" maxlength="12" placeholder="새기고 싶은 말을 써요" aria-label="새길 글자" autocomplete="off"><button type="button" data-k="hang" id="hangbtn" style="display:none">걸기</button></div><div class="chatrow"><label style="display:flex;align-items:center;gap:6px;pointer-events:auto;color:var(--text)">크기<input id="sandsz" type="range" min="0.3" max="1.5" step="0.1" value="0.6" aria-label="글씨 크기" style="width:7em;padding:4px 8px"></label><button type="button" data-k="border">테두리 없음</button><button type="button" data-k="flat">모래 평평하게</button></div></div></div><div class="chatrow" id="cinrow" style="display:none"><div id="cinside"><button id="cinlink" type="button" title="링크로 틀기" aria-label="링크로 틀기" aria-expanded="false">🔗</button><button id="cinlistbtn" type="button" title="영상 목록" aria-label="영상 목록">📋</button><div id="cinctl" style="display:none"><button id="cinpause" type="button" title="멈춤" aria-label="멈춤">⏸</button><button id="cinback" type="button" title="10초 뒤로" aria-label="10초 뒤로">⏪</button><button id="cinfwd" type="button" title="10초 앞으로" aria-label="10초 앞으로">⏩</button><button id="cinstop" type="button" title="끄기" aria-label="끄기">✕</button></div></div><div id="cinbar"><button id="cinjoin" type="button" style="display:none">📽 같이 보기</button><div id="cinseekrow" style="display:none"><input id="cinseek" type="range" min="0" max="3600" step="1" value="0" aria-label="영상 위치"><span id="cintime"></span></div></div><div id="cinurlrow" style="display:none"><input id="cinurl" placeholder="유튜브 링크 붙여넣기" aria-label="유튜브 링크" autocomplete="off"><button id="cinplay" type="button">틀기</button><button id="cinfile" type="button">📁 내 영상</button><input id="cinfilein" type="file" accept="video/*" style="display:none"></div></div><div class="chatrow" id="mainrow"></div><div id="setrow"><input id="nick" maxlength="8" placeholder="닉네임" aria-label="닉네임"><select id="ch" aria-label="방 선택"></select><button id="snd" type="button">소리 켜기</button></div><div class="chatrow"><button id="acttog" type="button" aria-expanded="false" aria-controls="actrow">활동</button><button id="settog" type="button" aria-expanded="false" aria-controls="setrow">설정</button></div></div>
 <script>
 /* ▼▼▼ 여기 두 줄만 네 Supabase 값으로 바꿔줘 (Supabase 대시보드 → Project Settings → API) ▼▼▼ */
 window.SUPA_URL='https://mcbauedrqldfhjulvhoi.supabase.co';   /* 예: https://abcdxyz.supabase.co */
@@ -723,8 +723,10 @@ function cinTick(){
   function nowT(){if(lvEl&&st&&st.local)return lvEl.currentTime||0;if(!st)return 0;var tt=st.paused?st.t0:st.t0+(Date.now()-st.ref)/1000;return vdur>0?Math.min(tt,vdur):tt;}
   function send(s){s=String(s).replace('CIN|','CIN|@'+cinPlace()+'|');try{if(room&&room.sendChat)room.sendChat('\u0001'+s,(me.name||'나그네').slice(0,8));}catch(e){}}
   function cmd(fn,args){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:args||[]}),'*');}catch(e){}}
-  function applyMute(){var m=!!window.__muted;try{if(lvEl)lvEl.muted=m;}catch(e){}if(m)cmd('mute');else{cmd('unMute');cmd('setVolume',[100]);}}   // [소리 끄기/켜기] 를 따라 영상 소리도 같이 꺼요
+  function mutedNow(){return !!(window.__muted||window.__vmuted);}
+  function applyMute(){var m=mutedNow();try{if(lvEl)lvEl.muted=m;}catch(e){}if(m)cmd('mute');else{cmd('unMute');cmd('setVolume',[100]);}}   // [소리 끄기/켜기] 를 따라 영상 소리도 같이 꺼요
   window.cinApplyMute=applyMute;
+  (function(){var vb=document.getElementById('vmute');if(vb)vb.addEventListener('click',function(){window.__vmuted=!window.__vmuted;applyMute();vb.textContent=window.__vmuted?'영상 소리 켜기':'영상 소리 끄기';});})();
   var linkB=document.getElementById('cinlink'),urlRow=document.getElementById('cinurlrow');
   function showUrl(v){if(urlRow)urlRow.style.display=v?'flex':'none';if(linkB)linkB.setAttribute('aria-expanded',v?'true':'false');if(v)setTimeout(function(){try{urlEl.focus();}catch(e){}},30);}
   if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
@@ -760,10 +762,10 @@ function cinTick(){
     cinFr.style.cssText='width:100%;height:100%;border:0;pointer-events:none';
     cinFr.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');
     cinFr.setAttribute('title','영화관 영상');cinFr.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
-    cinFr.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=0&disablekb=1&iv_load_policy=3&cc_load_policy=0&enablejsapi=1'+(window.__muted?'&mute=1':'')+(start>0?'&start='+start:'')+(location.protocol.indexOf('http')===0?'&origin='+encodeURIComponent(location.origin):'');
+    cinFr.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=0&disablekb=1&iv_load_policy=3&cc_load_policy=0&enablejsapi=1'+(mutedNow()?'&mute=1':'')+(start>0?'&start='+start:'')+(location.protocol.indexOf('http')===0?'&origin='+encodeURIComponent(location.origin):'');
     cinWrap.appendChild(cinFr);
     var frNow=cinFr;
-    cinFr.addEventListener('load',function(){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*');}catch(e){}if(window.__muted){[0,600,1800,3500].forEach(function(ms){setTimeout(function(){if(window.__muted&&cinFr===frNow)cmd('mute');},ms);});}});
+    cinFr.addEventListener('load',function(){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*');}catch(e){}if(mutedNow()){[0,600,1800,3500].forEach(function(ms){setTimeout(function(){if(mutedNow()&&cinFr===frNow)cmd('mute');},ms);});}});
     if(location.protocol.indexOf('http')!==0)toast('지금 파일로 열려 있어요 · 유튜브는 https:// 웹 주소에서만 나와요');
     try{if(!localStorage.getItem('cin-ad-note')){localStorage.setItem('cin-ad-note','1');setTimeout(function(){toast('광고가 나오면 건너뛸 수 없어요 · 유튜브 프리미엄이면 광고 없이 나와요');},1200);}}catch(e){}
     cinOn=true;cinPaused=false;
@@ -785,7 +787,7 @@ function cinTick(){
     }
     lvUrl=URL.createObjectURL(file);
     lvEl=document.createElement('video');lvEl.style.cssText='width:100%;height:100%;object-fit:contain;background:#000;pointer-events:none';
-    lvEl.setAttribute('playsinline','');lvEl.playsInline=true;lvEl.muted=!!window.__muted;lvEl.preload='auto';lvEl.src=lvUrl;
+    lvEl.setAttribute('playsinline','');lvEl.playsInline=true;lvEl.muted=mutedNow();lvEl.preload='auto';lvEl.src=lvUrl;
     lvEl.addEventListener('loadedmetadata',function(){if(isFinite(lvEl.duration))vdur=lvEl.duration;});
     lvEl.addEventListener('play',function(){if(st){st.paused=false;st.ended=false;updPause();}});
     lvEl.addEventListener('pause',function(){if(st&&!st.ended){st.paused=true;updPause();}});
@@ -3985,7 +3987,7 @@ var skyStars=null;for(var sk=0;sk<ig.children.length;sk++)if(ig.children[sk].isP
 function skyVis(on){for(var i=0;i<ig.children.length;i++){var ch=ig.children[i];if(!ch.isPoints&&!ch.isLight&&!ch.userData.keep)ch.visible=!on;}}
 skyBtn.addEventListener('click',function(){sky=!sky;skyBtn.textContent=sky?'둘러보기':'하늘 보기';skyVis(sky);document.body.classList.toggle('skyon',sky);if(sky){foldPrev=folded;setFold(true,false);}else setFold(foldPrev,false);});
 // 스피커 음악 (잡음 없는 잔잔한 피아노 톤, 브라우저에서 직접 만들어 재생)
-var mac=null,mg=null,mf=null,mTimer=0,mNext=0,mBeat=0,musicOn=false,musBtn=document.getElementById('mus');
+var mac=null,mg=null,mf=null,mTimer=0,mNext=0,mBeat=0,musicOn=false,musBtn=document.getElementById('mus'),vmEl=document.getElementById('vmute');
 var CHM=[[48,55,59,64],[45,52,55,60],[41,48,52,57],[43,50,59,64]],ARP=[0,2,1,3,2,3,1,2],PENT=[72,74,76,79,81];
 function mfq(m){return 440*Math.pow(2,(m-69)/12);}
 function mNote(m,t0,dur,type,vol,att,det){var o=mac.createOscillator(),g=mac.createGain();o.type=type;o.frequency.value=mfq(m);if(det)o.detune.value=det;g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(vol,t0+att);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);g.connect(mf);o.start(t0);o.stop(t0+dur+.05);}
@@ -3996,8 +3998,8 @@ function musicStep(t0){
   if(e%2===0&&Math.random()<.16)mNote(PENT[Math.floor(Math.random()*5)],t0,2.2,'sine',.045,.03);
 }
 function musicTick(){if(!mac)return;while(mNext<mac.currentTime+.6){musicStep(mNext);mNext+=.44;mBeat++;}}
-function musicTarget(){return musicOn&&scene==='fire'?(inTent?1:.25):0;}
-function duckAmb(){if(ac&&master)master.gain.setTargetAtTime(on&&!musicTarget()&&!window.__zone?.55:0,ac.currentTime,.9);}
+function musicTarget(){return musicOn&&scene==='fire'?(inTent?1:.25):(musicOn&&scene==='cinema'?.5:0);}   // 영화관에서도 잔잔한 음악 (캠핑장 스피커 음악 재활용)
+function duckAmb(){if(ac&&master)master.gain.setTargetAtTime(on&&!(musicTarget()&&scene!=='cinema')&&!window.__zone?.55:0,ac.currentTime,.9);}
 function toggleMusic(){
   try{
     if(!mac){
@@ -4056,7 +4058,9 @@ setInterval(function(){
   var v=(can||zoneOn)?'':'none';if(zoneBtn.style.display!==v)zoneBtn.style.display=v;
 },250);
 function spkTick(){
-  var md=inTent?'':'none';if(musBtn.style.display!==md)musBtn.style.display=md;
+  var md=(inTent||scene==='cinema')?'':'none';if(musBtn.style.display!==md)musBtn.style.display=md;
+  if(musicOn&&scene!=='cinema'&&!inTent)toggleMusic();   // 영화관을 떠나면 음악도 꺼져요
+  if(vmEl){var vv=(scene==='cinema'&&cinOn)?'':'none';if(vmEl.style.display!==vv)vmEl.style.display=vv;if(!cinOn&&window.__vmuted){window.__vmuted=false;vmEl.textContent='영상 소리 끄기';}}   // 영상이 나올 때만 [영상 소리 끄기]가 떠요
   if(mg&&t%15===0){mg.gain.setTargetAtTime(musicTarget(),mac.currentTime,.5);duckAmb();}
   spkLed.color.setHex(musicOn?(t%90<45?0x6ad6ff:0x3aa0d0):0x4a4f5a);spkGlow.material.opacity=musicOn?.35+.2*Math.sin(t*.08):0;
 }
@@ -5682,13 +5686,21 @@ function startAudio(){
     }
     setTimeout(pop,80+Math.random()*(Math.random()<.2?900:380));
   })();
+  (function cricket(){   // 🦗 영화관 밖에서 영상을 안 볼 때 나는 풀벌레 소리
+    if(ac&&on&&scene==='cinema'&&cinFireOn()){
+      var pn=ac.createStereoPanner?ac.createStereoPanner():null,out=master,fz=3700+Math.random()*1700,fast=Math.random()<.55,n=fast?5+Math.floor(Math.random()*5):2+Math.floor(Math.random()*2),per=fast?.05+Math.random()*.02:.17+Math.random()*.05,vo=.05+Math.random()*.04,t0=ac.currentTime+.05,k;
+      if(pn){pn.pan.value=Math.random()*1.6-.8;pn.connect(master);out=pn;}
+      for(k=0;k<n;k++){var o=ac.createOscillator(),g=ac.createGain(),ts=t0+k*per;o.type='sine';o.frequency.value=fz*(1+.003*k);g.gain.setValueAtTime(.0001,ts);g.gain.linearRampToValueAtTime(vo,ts+.012);g.gain.exponentialRampToValueAtTime(.0001,ts+(fast?.04:.12));o.connect(g);g.connect(out);o.start(ts);o.stop(ts+(fast?.05:.14));}
+    }
+    setTimeout(cricket,320+Math.random()*1000);
+  })();
 }
 btn.addEventListener('click',function(){
   try{
     if(!ac)startAudio();
     if(ac.state==='suspended')ac.resume();
     on=!on;window.__muted=!on;try{if(window.cinApplyMute)window.cinApplyMute();}catch(e2){}master.gain.cancelScheduledValues(ac.currentTime);
-    master.gain.setTargetAtTime(on&&!musicTarget()&&!window.__zone?.55:0,ac.currentTime,.4);
+    master.gain.setTargetAtTime(on&&!(musicTarget()&&scene!=='cinema')&&!window.__zone?.55:0,ac.currentTime,.4);
     btn.textContent=on?'소리 끄기':'소리 켜기';
   }catch(err){btn.textContent='소리를 쓸 수 없어요';}
 });
@@ -5744,7 +5756,7 @@ btn.addEventListener('click',function(){
 })();
 // 버튼 글자를 아이콘으로: 글자는 그대로 두고 화면에만 아이콘으로 보여요 (길게 누르면 이름이 보여요)
 (function(){
-  var IC={'설정':'⚙️','비눗방울 불기':'🫧','내 모습 보기':'🙂','누운 시점으로':'👁️','텐트 들어가기':'⛺','텐트 나가기':'🚪','별실 나가기':'🚪','앉기':'🪑','이동':'🧭','일어나기':'🧍','눕기':'🛌','하늘 보기':'🌌','둘러보기':'👀','차 마시기':'🍵','찻잔 내려놓기':'⏹️','고구마 굽기':'🍠','고구마 굽는 중…':'⏳','고구마 먹기':'😋','마시멜로 굽기':'🍡','물 끼얹기':'💦','마시멜로 굽는 중…':'⏳','마시멜로 먹기':'😋','그만 먹기':'⏹️','음악 켜기':'🎵','음악 끄기':'🔇','소리 켜기':'🔊','소리 끄기':'🔇','등대 올라가기':'🗼','등대에서 내려가기':'⬇️','불 보기':'🔥','바다 보기':'🌊','시점 돌아가기':'↩️','오두막 들어가기':'🏠','밖으로 나가기':'🚪','눈 던지기':'⛄','소원 걸기':'🌟','하늘에 그리기':'🖌️','던지기 끄기':'⏹️','고양이랑 놀기':'🐱','놀이 끄기':'⏹️','방명록':'📝','방명록 끝내기':'✖️','모래편지':'💌','모래편지 끝내기':'✖️','🎣 낚시 놀이':'🎣','🧶 털실 던지기':'🧶','🤚 쓰다듬기':'🤚','모래놀이':'🏖️','멍때리기':'☁️','멍때리기 끝내기':'⏹️','오로라 가루':'🌈','오로라 끄기':'🔥','푸드트럭':'🚚','먹기':'😋','새우깡':'🦐','새우깡 주기':'🦐','새우깡 내리기':'⏹️','채팅 숨기기':'🙈','채팅 보기':'💬','말하기':'🗨️'};
+  var IC={'설정':'⚙️','비눗방울 불기':'🫧','내 모습 보기':'🙂','누운 시점으로':'👁️','텐트 들어가기':'⛺','텐트 나가기':'🚪','별실 나가기':'🚪','앉기':'🪑','이동':'🧭','일어나기':'🧍','눕기':'🛌','하늘 보기':'🌌','둘러보기':'👀','차 마시기':'🍵','찻잔 내려놓기':'⏹️','고구마 굽기':'🍠','고구마 굽는 중…':'⏳','고구마 먹기':'😋','마시멜로 굽기':'🍡','물 끼얹기':'💦','마시멜로 굽는 중…':'⏳','마시멜로 먹기':'😋','그만 먹기':'⏹️','음악 켜기':'🎵','음악 끄기':'🔇','영상 소리 끄기':'🔇','영상 소리 켜기':'🔊','소리 켜기':'🔊','소리 끄기':'🔇','등대 올라가기':'🗼','등대에서 내려가기':'⬇️','불 보기':'🔥','바다 보기':'🌊','시점 돌아가기':'↩️','오두막 들어가기':'🏠','밖으로 나가기':'🚪','눈 던지기':'⛄','소원 걸기':'🌟','하늘에 그리기':'🖌️','던지기 끄기':'⏹️','고양이랑 놀기':'🐱','놀이 끄기':'⏹️','방명록':'📝','방명록 끝내기':'✖️','모래편지':'💌','모래편지 끝내기':'✖️','🎣 낚시 놀이':'🎣','🧶 털실 던지기':'🧶','🤚 쓰다듬기':'🤚','모래놀이':'🏖️','멍때리기':'☁️','멍때리기 끝내기':'⏹️','오로라 가루':'🌈','오로라 끄기':'🔥','푸드트럭':'🚚','먹기':'😋','새우깡':'🦐','새우깡 주기':'🦐','새우깡 내리기':'⏹️','채팅 숨기기':'🙈','채팅 보기':'💬','말하기':'🗨️'};
   function upd(){var bs=document.querySelectorAll('.ui button,#fold');for(var i=0;i<bs.length;i++){var b=bs[i],tx=(b.textContent||'').trim(),ic=IC[tx],ti=tx;if(ic){if(b.dataset.ic!==ic)b.dataset.ic=ic;if(b.title!==ti)b.title=ti;b.setAttribute('aria-label',ti);}else if(b.dataset.ic)delete b.dataset.ic;}}
   var pend=false;function sch(){if(pend)return;pend=true;Promise.resolve().then(function(){pend=false;upd();});}
   if(window.MutationObserver){var mo=new MutationObserver(sch),o={childList:true,characterData:true,subtree:true};mo.observe(document.querySelector('.ui'),o);mo.observe(document.getElementById('fold'),o);}
