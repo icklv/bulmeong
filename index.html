@@ -851,10 +851,10 @@ function cinTick(){
   var linkB=document.getElementById('cinlink'),urlRow=document.getElementById('cinurlrow');
   function showUrl(v){if(urlRow)urlRow.style.display=v?'flex':'none';if(linkB)linkB.setAttribute('aria-expanded',v?'true':'false');if(v)setTimeout(function(){try{urlEl.focus();}catch(e){}},30);}
   if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
-  var loopOn=false,loopB=document.getElementById('cinloop');
+  var loopOn=false,loopMode='off',loopB=document.getElementById('cinloop'),loopMenu=null;   // loopMode: off(끔) · all(이 방 추천+내 목록) · mine(내 목록만)
   function inMusicRoom(){var si=cinSuiteIdx(),S=window.CIN_SUITES&&window.CIN_SUITES[si];return si>=0&&!(window.cinSecIn&&window.cinSecIn())&&!!S&&/음악/.test(S.name||'');}   // 🎵 '음악' 이 이름에 들어간 별실에서만 연속 재생 버튼이 보여요
-  function loopQueue(){   // 이 방 추천 → 내 목록 순서 (⏭ 와 같은 순서), 겹치는 영상은 한 번만
-    var q=preItems().slice(),seen={};q.forEach(function(x){seen[x.id]=1;});
+  function loopQueue(){   // all: 이 방 추천 → 내 목록 순서 (⏭ 와 같은 순서), mine: 내 목록만. 겹치는 영상은 한 번만
+    var q=(loopMode==='mine')?[]:preItems().slice(),seen={};q.forEach(function(x){seen[x.id]=1;});
     loadL().forEach(function(x){if(!seen[x.id]){seen[x.id]=1;q.push({id:x.id,name:x.name});}});
     return q;
   }
@@ -862,10 +862,38 @@ function cinTick(){
     if(!loopOn||!inMusicRoom()||!st||st.local)return;
     var q=loopQueue();if(!q.length)return;
     var cur=st.id,n=-1,i;for(i=0;i<q.length;i++)if(q[i].id===cur){n=i;break;}
-    if(n<0)return;   // 내가 직접 붙여넣은 영상이면 이어 틀지 않아요
+    if(n<0){if(loopMode!=='mine')return;n=-1;}   // 전체 모드: 직접 붙여넣은 영상이면 이어 틀지 않아요 · 내 목록 모드: 목록 첫 곡부터 시작해요
     var nx=q[(n+1)%q.length];toast('🔁 다음 곡 · '+String(nx.name||('영상 '+nx.id.slice(0,4))).slice(0,20));play(nx.id,0,false);
   }
-  if(loopB)loopB.addEventListener('click',function(){loopOn=!loopOn;loopB.setAttribute('aria-pressed',loopOn?'true':'false');toast(loopOn?'🔁 연속 재생 켜짐 · 음악실 목록이 이어서 나와요':'연속 재생 꺼짐');});
+  function setLoopMode(m){
+    loopMode=m;loopOn=(m!=='off');
+    if(loopB){loopB.setAttribute('aria-pressed',loopOn?'true':'false');loopB.title=m==='all'?'연속 재생 · 전체':(m==='mine'?'연속 재생 · 내 목록':'연속 재생 (음악실)');}
+    toast(m==='all'?'🔁 전체 연속 재생 · 이 방 추천 → 내 목록 순서로 이어져요':(m==='mine'?'🔁 내 목록 연속 재생 · 내 목록만 이어져요':'연속 재생 꺼짐'));
+  }
+  function hideLoopMenu(){if(loopMenu)loopMenu.style.display='none';}
+  function showLoopMenu(){
+    if(!loopMenu){
+      var css=document.createElement('style');
+      css.textContent='#cinloopmenu{position:fixed;z-index:70;display:flex;flex-direction:column;gap:6px;padding:10px;background:rgba(18,13,10,.96);border:1px solid rgba(233,220,200,.28);border-radius:16px;color:var(--text);box-sizing:border-box;min-width:170px}'
+        +'#cinloopmenu button{font:inherit;color:var(--text);background:var(--btn-bg);border:1px solid rgba(233,220,200,.3);border-radius:12px;padding:9px 12px;text-align:left;pointer-events:auto}'
+        +'#cinloopmenu button[aria-checked=true]{border-color:rgba(255,190,120,.9);background:rgba(70,40,15,.85)}';
+      document.head.appendChild(css);
+      loopMenu=document.createElement('div');loopMenu.id='cinloopmenu';loopMenu.setAttribute('role','menu');loopMenu.style.display='none';
+      [['all','🔁 전체 연속 재생'],['mine','📋 내 목록 연속 재생'],['off','⏹ 연속 재생 끄기']].forEach(function(o){
+        var b=document.createElement('button');b.type='button';b.setAttribute('data-m',o[0]);b.textContent=o[1];
+        b.addEventListener('click',function(e){e.stopPropagation();setLoopMode(o[0]);hideLoopMenu();});
+        loopMenu.appendChild(b);
+      });
+      document.body.appendChild(loopMenu);
+      document.addEventListener('click',function(e){if(loopMenu&&loopMenu.style.display!=='none'&&e.target!==loopB&&!loopMenu.contains(e.target))hideLoopMenu();});
+    }
+    var bs=loopMenu.children,i;for(i=0;i<bs.length;i++)bs[i].setAttribute('aria-checked',bs[i].getAttribute('data-m')===loopMode?'true':'false');
+    loopMenu.style.display='flex';
+    var r=loopB.getBoundingClientRect(),w=loopMenu.offsetWidth||190;
+    loopMenu.style.left=Math.max(8,r.left-w-8)+'px';   // 버튼 왼쪽에 펼쳐요
+    loopMenu.style.top=Math.max(8,Math.min(r.top,window.innerHeight-loopMenu.offsetHeight-8))+'px';
+  }
+  if(loopB)loopB.addEventListener('click',function(e){e.stopPropagation();if(loopMenu&&loopMenu.style.display!=='none'){hideLoopMenu();return;}showLoopMenu();});
   function markEnd(){if(!st||st.ended)return;st.ended=true;st.paused=true;st.t0=vdur>0?vdur:nowT();updPause();
     if(loopOn&&inMusicRoom()&&!st.local&&loopQueue().some(function(x){return x.id===st.id;})){var endId=st.id;setTimeout(function(){if(st&&st.id===endId&&st.ended)loopNext();},900);return;}
     toast('영상이 끝났어요 · ↻ 를 누르면 다시 봐요');}
@@ -987,7 +1015,7 @@ function cinTick(){
     seekEl.addEventListener('change',function(){dragSeek=false;seekTo(+seekEl.value);});
   }
   setInterval(function(){
-    if(loopB){var sv=inMusicRoom()?'':'none';if(loopB.style.display!==sv)loopB.style.display=sv;}
+    if(loopB){var sv=inMusicRoom()?'':'none';if(loopB.style.display!==sv){loopB.style.display=sv;if(sv==='none')hideLoopMenu();}}
     if(st&&!st.paused&&!st.ended&&vdur>0&&st.t0+(Date.now()-st.ref)/1000>=vdur+1.5)markEnd();
     if(!st||!seekEl||dragSeek)return;var t=nowT();
     if(vdur>0&&+seekEl.max!==Math.floor(vdur))seekEl.max=Math.floor(vdur);
@@ -1006,7 +1034,8 @@ function cinTick(){
     return mem.slice();
   }
   function saveL(a){mem=a.slice();try{localStorage.setItem(LKEY,JSON.stringify(a));}catch(e){}}
-  function hideList(){if(panel)panel.style.display='none';}
+  function clearSearch(){if(sBox)sBox.textContent='';if(sInp)sInp.value='';if(sClr)sClr.style.display='none';}   // 검색 결과·검색어 지우기
+  function hideList(){if(panel)panel.style.display='none';clearSearch();}   // 목록을 닫으면 검색 결과도 같이 지워져요
   function addRow(box,id,name,canDel,idx,canAdd){
     var row=document.createElement('div');row.className='it';
     var im=document.createElement('img');im.alt='';im.loading='lazy';im.src='https://i.ytimg.com/vi/'+id+'/mqdefault.jpg';
@@ -1059,12 +1088,12 @@ function cinTick(){
     }
     saveL(a);pUrl.value='';pName.value='';renderList();
   }
-  var sInp=null,sBox=null;
+  var sInp=null,sBox=null,sClr=null;
   function decodeHtml(t){var x=document.createElement('textarea');x.innerHTML=t;return x.value;}
   function doSearch(q){
     q=String(q||'').trim();if(!q||!sBox)return;
     var key=window.YT_API_KEY;
-    sBox.textContent='';
+    sBox.textContent='';if(sClr)sClr.style.display='';
     if(!key){var e1=document.createElement('div');e1.className='em';e1.textContent='검색 키가 아직 없어요 · 파일 위쪽 YT_API_KEY 에 넣어주면 돼요';sBox.appendChild(e1);return;}
     var w=document.createElement('div');w.className='em';w.textContent='찾는 중…';sBox.appendChild(w);
     var url='https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&videoSyndicated=true&maxResults=25&q='+encodeURIComponent(q)+'&key='+encodeURIComponent(key);
@@ -1106,8 +1135,10 @@ function cinTick(){
     sInp=document.createElement('input');sInp.placeholder='🔎 유튜브 검색 (가수·영상 이름)';sInp.setAttribute('autocomplete','off');sInp.style.margin='0';
     var sB=document.createElement('button');sB.type='button';sB.textContent='검색';sB.style.whiteSpace='nowrap';
     sB.addEventListener('click',function(){doSearch(sInp.value);});
+    sClr=document.createElement('button');sClr.type='button';sClr.textContent='✕';sClr.title='검색 결과 지우기';sClr.setAttribute('aria-label','검색 결과 지우기');sClr.style.cssText='display:none;white-space:nowrap';
+    sClr.addEventListener('click',clearSearch);
     sInp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();doSearch(sInp.value);}});
-    srow.appendChild(sInp);srow.appendChild(sB);panel.appendChild(srow);
+    srow.appendChild(sInp);srow.appendChild(sClr);srow.appendChild(sB);panel.appendChild(srow);
     sBox=document.createElement('div');panel.appendChild(sBox);
     preBox=document.createElement('div');panel.appendChild(preBox);
     var mine=document.createElement('div');mine.className='sec';mine.textContent='📋 내 목록 (이 기기에만 저장돼요)';panel.appendChild(mine);
