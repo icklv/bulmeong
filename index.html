@@ -829,7 +829,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
       var pc=new RTCPeerConnection(ICE),tr=pc.addTransceiver('audio',{direction:'sendrecv'}),a=document.createElement('audio');a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a);
       var p={pc:pc,tr:tr,a:a,t0:Date.now()};peers[id]=p;
       if(stream){var tk=stream.getAudioTracks()[0];if(tk)try{tr.sender.replaceTrack(tk);}catch(e){}}
-      pc.ontrack=function(e){try{a.srcObject=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.muted=!!window.__muted;var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
+      pc.ontrack=function(e){try{var rv=e.receiver;if(rv){if('jitterBufferTarget' in rv)rv.jitterBufferTarget=30;if('playoutDelayHint' in rv)rv.playoutDelayHint=.03;}}catch(x){}try{a.srcObject=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.muted=!!window.__muted;var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
       pc.onconnectionstatechange=function(){var s=pc.connectionState;p.t0=Date.now();if(s==='connected'){try{toast('🎙️ 친구와 음성이 연결됐어요');}catch(e){}}if((s==='failed'||s==='closed')&&peers[id]===p)dropPeer(id);};
       return p;
     }
