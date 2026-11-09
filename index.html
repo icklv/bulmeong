@@ -817,19 +817,21 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
   (function(){
     var row=document.getElementById('actrow');if(!row)return;
     var btn=document.createElement('button');btn.type='button';btn.id='korvoice';btn.style.display='none';btn.textContent='마이크 켜기';row.appendChild(btn);
-    var myId='v'+Math.random().toString(36).slice(2,10),sbCh=null,chName='',peers={},stream=null,micOn=false,joined=false,subOk=false,busy=false,lastHi=0,an=null,anCtx=null,anBuf=null,heard=false,micAt=0;
+    var myId='v'+Math.random().toString(36).slice(2,10),sbCh=null,chName='',peers={},stream=null,micOn=false,joined=false,subOk=false,busy=false,lastHi=0,an=null,anCtx=null,anBuf=null,heard=false,micAt=0,VX=null,KVOX=2.4;
     var box=document.createElement('div');box.style.display='none';document.body.appendChild(box);
     var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
     function roomName(){return 'hy-voice-'+(typeof ch!=='undefined'?ch:'0');}
     function sig(o){try{if(sbCh&&subOk){var r=sbCh.send({type:'broadcast',event:'v',payload:o});if(r&&r.catch)r.catch(function(){});}}catch(e){}}
     function gathered(pc){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();var t=setTimeout(res,2500);pc.addEventListener('icegatheringstatechange',function f(){if(pc.iceGatheringState==='complete'){clearTimeout(t);pc.removeEventListener('icegatheringstatechange',f);res();}});});}
-    function dropPeer(id){var p=peers[id];if(!p)return;delete peers[id];try{p.pc.close();}catch(e){}try{p.a.srcObject=null;if(p.a.parentNode)p.a.parentNode.removeChild(p.a);}catch(e){}}
+    function vxCtx(){try{if(!VX){var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;VX=new AC();}if(VX.state==='suspended')VX.resume().catch(function(){});return VX;}catch(e){return null;}}
+    function dropPeer(id){var p=peers[id];if(!p)return;delete peers[id];try{if(p.sr)p.sr.disconnect();if(p.gn)p.gn.disconnect();}catch(e){}try{p.pc.close();}catch(e){}try{p.a.srcObject=null;if(p.a.parentNode)p.a.parentNode.removeChild(p.a);}catch(e){}}
     function newPeer(id){
       dropPeer(id);
       var pc=new RTCPeerConnection(ICE),tr=pc.addTransceiver('audio',{direction:'sendrecv'}),a=document.createElement('audio');a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a);
       var p={pc:pc,tr:tr,a:a,t0:Date.now()};peers[id]=p;
       if(stream){var tk=stream.getAudioTracks()[0];if(tk)try{tr.sender.replaceTrack(tk);}catch(e){}}
-      pc.ontrack=function(e){try{var rv=e.receiver;if(rv){if('jitterBufferTarget' in rv)rv.jitterBufferTarget=30;if('playoutDelayHint' in rv)rv.playoutDelayHint=.03;}}catch(x){}try{a.srcObject=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.muted=!!window.__muted;var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
+      pc.ontrack=function(e){try{var rv=e.receiver;if(rv){if('jitterBufferTarget' in rv)rv.jitterBufferTarget=30;if('playoutDelayHint' in rv)rv.playoutDelayHint=.03;}}catch(x){}try{var st=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.srcObject=st;a.muted=!!window.__muted;var vc=vxCtx();if(vc){try{var sr=vc.createMediaStreamSource(st),gn=vc.createGain(),cp=vc.createDynamicsCompressor();gn.gain.value=window.__muted?0:KVOX;cp.threshold.value=-18;cp.ratio.value=6;sr.connect(gn);gn.connect(cp);cp.connect(vc.destination);p.sr=sr;p.gn=gn;}catch(e3){p.gn=null;}}   // 친구 목소리를 키워서 (마이크는 반주보다 작게 들려서) 들려줘요
+var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
       pc.onconnectionstatechange=function(){var s=pc.connectionState;p.t0=Date.now();if(s==='connected'){try{toast('🎙️ 친구와 음성이 연결됐어요');}catch(e){}}if((s==='failed'||s==='closed')&&peers[id]===p)dropPeer(id);};
       return p;
     }
@@ -875,7 +877,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
       if(busy)return;
       if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('이 브라우저에서는 마이크를 쓸 수 없어요');return;}
       busy=true;
-      navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false}}).then(function(s){
+      navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}).then(function(s){
         busy=false;if(!window.cinKorIn||!window.cinKorIn()){s.getTracks().forEach(function(t){t.stop();});return;}
         stream=s;micOn=true;heard=false;micAt=Date.now();lvStart(s);var tk=s.getAudioTracks()[0];
         Object.keys(peers).forEach(function(id){try{peers[id].tr.sender.replaceTrack(tk);}catch(e){}});
@@ -891,13 +893,13 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
         if(inK&&!joined)join();else if(!inK&&joined)leave();
         var tx=micOn?'마이크 끄기':'마이크 켜기';if(btn.textContent!==tx)btn.textContent=tx;
         var ti='방 안 음성 '+n+'명 연결';if(btn.title!==ti&&!btn.dataset.ic)btn.title=ti;
-        Object.keys(peers).forEach(function(id){var a=peers[id].a;if(a.muted!==!!window.__muted)a.muted=!!window.__muted;if(a.srcObject&&a.paused){var pp=a.play();if(pp&&pp.catch)pp.catch(function(){});}});
+        if(VX&&VX.state==='suspended')VX.resume().catch(function(){});Object.keys(peers).forEach(function(id){var q9=peers[id],a=q9.a,mu9=!!window.__muted,wa=!!(q9.gn&&VX&&VX.state==='running');if(q9.gn&&q9.gn.gain.value!==(mu9?0:KVOX))q9.gn.gain.value=mu9?0:KVOX;var am=wa?true:mu9;if(a.muted!==am)a.muted=am;if(a.srcObject&&a.paused){var pp=a.play();if(pp&&pp.catch)pp.catch(function(){});}});
         Object.keys(peers).forEach(function(id){var q=peers[id];if(q&&q.pc.connectionState!=='connected'&&Date.now()-q.t0>12000)dropPeer(id);});
         if(joined&&subOk&&!n&&Date.now()-lastHi>8000){lastHi=Date.now();sig({k:'hi',f:myId});}   // 친구가 아직 안 이어졌으면 8초마다 다시 인사해요
         if(micOn&&an&&!heard){an.getByteTimeDomainData(anBuf);var mx=0,qi;for(qi=0;qi<anBuf.length;qi++)mx=Math.max(mx,Math.abs(anBuf[qi]-128));if(mx>12){heard=true;toast('🎤 목소리가 잘 잡혀요 👍');}else if(Date.now()-micAt>7000){heard=true;toast('🎤 목소리가 안 잡혀요 · 기기의 마이크 설정과 음소거를 확인해 줘요');}}
       }catch(e){}
     },400);
-    addEventListener('pointerdown',function(){Object.keys(peers).forEach(function(id){var a=peers[id].a;if(a&&a.srcObject&&a.paused){var q=a.play();if(q&&q.catch)q.catch(function(){});}});},true);
+    addEventListener('pointerdown',function(){if(VX&&VX.state==='suspended')VX.resume().catch(function(){});Object.keys(peers).forEach(function(id){var a=peers[id].a;if(a&&a.srcObject&&a.paused){var q=a.play();if(q&&q.catch)q.catch(function(){});}});},true);
     addEventListener('pagehide',function(){try{leave();}catch(e){}});
   })();
 
