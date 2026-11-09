@@ -803,7 +803,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     })();
     // 🎤 안에 있는지 · 영상 위치 · 1인칭 · 길 안내
     function inRoom(x,z){return x>KX-HX+.1&&x<KX+HX&&Math.abs(z-KZ)<HZ;}
-    window.cinKorIn=function(){return scene==='cinema'&&inRoom(me.x,me.z);};
+    window.cinKorIn=function(){return scene==='cinema'&&inRoom(me.x,me.z);};window.cinKorAt=function(x,z){return scene==='cinema'&&inRoom(x,z);};
     window.cinKorCorner=function(i){return new THREE.Vector3(SCX,SCY+((i<2)?SH/2:-SH/2),KZ+((i===0||i===3)?-SW/2:SW/2));};
     window.cinKorFp=function(){if(!window.cinKorIn())return null;return {sw:SW,sh:SH,d:Math.max(1.6,SCX-me.x),cy:SCY,lat:Math.abs(me.z-KZ)*.5};};
     window.cinKorCamClamp=function(w){w.x=Math.max(KX-HX+.3,Math.min(KX+HX-.3,w.x));w.z=Math.max(KZ-HZ+.3,Math.min(KZ+HZ-.3,w.z));w.y=Math.max(.8,Math.min(WH-.3,w.y));};
@@ -817,7 +817,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
   (function(){
     var row=document.getElementById('actrow');if(!row)return;
     var btn=document.createElement('button');btn.type='button';btn.id='korvoice';btn.style.display='none';btn.textContent='마이크 켜기';row.appendChild(btn);
-    var myId='v'+Math.random().toString(36).slice(2,10),sbCh=null,chName='',peers={},stream=null,micOn=false,joined=false,subOk=false,busy=false,lastHi=0,an=null,anCtx=null,anBuf=null,heard=false,micAt=0,VX=null,KVOX=2.4;
+    var myId='v'+Math.random().toString(36).slice(2,10),sbCh=null,chName='',peers={},stream=null,micOn=false,joined=false,subOk=false,busy=false,lastHi=0,an=null,anCtx=null,anBuf=null,heard=false,warned=false,micAt=0,VX=null,KVOX=2.4;
     var box=document.createElement('div');box.style.display='none';document.body.appendChild(box);
     var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
     function roomName(){return 'hy-voice-'+(typeof ch!=='undefined'?ch:'0');}
@@ -830,7 +830,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
       var pc=new RTCPeerConnection(ICE),tr=pc.addTransceiver('audio',{direction:'sendrecv'}),a=document.createElement('audio');a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a);
       var p={pc:pc,tr:tr,a:a,t0:Date.now()};peers[id]=p;
       if(stream){var tk=stream.getAudioTracks()[0];if(tk)try{tr.sender.replaceTrack(tk);}catch(e){}}
-      pc.ontrack=function(e){try{var rv=e.receiver;if(rv){if('jitterBufferTarget' in rv)rv.jitterBufferTarget=30;if('playoutDelayHint' in rv)rv.playoutDelayHint=.03;}}catch(x){}try{var st=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.srcObject=st;a.muted=!!window.__muted;var vc=vxCtx();if(vc){try{var sr=vc.createMediaStreamSource(st),gn=vc.createGain(),cp=vc.createDynamicsCompressor();gn.gain.value=window.__muted?0:KVOX;cp.threshold.value=-18;cp.ratio.value=6;sr.connect(gn);gn.connect(cp);cp.connect(vc.destination);p.sr=sr;p.gn=gn;}catch(e3){p.gn=null;}}   // 친구 목소리를 키워서 (마이크는 반주보다 작게 들려서) 들려줘요
+      pc.ontrack=function(e){try{var rv=e.receiver;if(rv){if('jitterBufferTarget' in rv)rv.jitterBufferTarget=150;if('playoutDelayHint' in rv)rv.playoutDelayHint=.15;}}catch(x){}try{var st=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.srcObject=st;a.muted=!!window.__muted;var vc=vxCtx();if(vc){try{var sr=vc.createMediaStreamSource(st),gn=vc.createGain(),cp=vc.createDynamicsCompressor();gn.gain.value=window.__muted?0:KVOX;cp.threshold.value=-18;cp.ratio.value=6;sr.connect(gn);gn.connect(cp);cp.connect(vc.destination);p.sr=sr;p.gn=gn;}catch(e3){p.gn=null;}}   // 친구 목소리를 키워서 (마이크는 반주보다 작게 들려서) 들려줘요
 var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
       pc.onconnectionstatechange=function(){var s=pc.connectionState;p.t0=Date.now();if(s==='connected'){try{toast('🎙️ 친구와 음성이 연결됐어요');}catch(e){}}if((s==='failed'||s==='closed')&&peers[id]===p)dropPeer(id);};
       return p;
@@ -879,7 +879,7 @@ var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
       busy=true;
       navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}).then(function(s){
         busy=false;if(!window.cinKorIn||!window.cinKorIn()){s.getTracks().forEach(function(t){t.stop();});return;}
-        stream=s;micOn=true;heard=false;micAt=Date.now();lvStart(s);var tk=s.getAudioTracks()[0];
+        stream=s;micOn=true;heard=false;warned=false;micAt=Date.now();lvStart(s);var tk=s.getAudioTracks()[0];
         Object.keys(peers).forEach(function(id){try{peers[id].tr.sender.replaceTrack(tk);}catch(e){}});
         toast(Object.keys(peers).length?'🎤 마이크 켜짐 · 이어폰 없이도 돼요 (에코는 자동으로 줄여줘요)':'🎤 마이크 켜짐 · 지금은 방에 연결된 친구가 없어요 (내 소리는 나한테 안 들려요)');
       }).catch(function(){busy=false;toast('마이크 권한이 필요해요 · 주소창 옆 자물쇠에서 마이크를 허용해 줘요');});
@@ -896,7 +896,7 @@ var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
         if(VX&&VX.state==='suspended')VX.resume().catch(function(){});Object.keys(peers).forEach(function(id){var q9=peers[id],a=q9.a,mu9=!!window.__muted,wa=!!(q9.gn&&VX&&VX.state==='running');if(q9.gn&&q9.gn.gain.value!==(mu9?0:KVOX))q9.gn.gain.value=mu9?0:KVOX;var am=wa?true:mu9;if(a.muted!==am)a.muted=am;if(a.srcObject&&a.paused){var pp=a.play();if(pp&&pp.catch)pp.catch(function(){});}});
         Object.keys(peers).forEach(function(id){var q=peers[id];if(q&&q.pc.connectionState!=='connected'&&Date.now()-q.t0>12000)dropPeer(id);});
         if(joined&&subOk&&!n&&Date.now()-lastHi>8000){lastHi=Date.now();sig({k:'hi',f:myId});}   // 친구가 아직 안 이어졌으면 8초마다 다시 인사해요
-        if(micOn&&an&&!heard){an.getByteTimeDomainData(anBuf);var mx=0,qi;for(qi=0;qi<anBuf.length;qi++)mx=Math.max(mx,Math.abs(anBuf[qi]-128));if(mx>12){heard=true;toast('🎤 목소리가 잘 잡혀요 👍');}else if(Date.now()-micAt>7000){heard=true;toast('🎤 목소리가 안 잡혀요 · 기기의 마이크 설정과 음소거를 확인해 줘요');}}
+        if(micOn&&an&&!heard){try{if(anCtx&&anCtx.state==='suspended')anCtx.resume();}catch(e8){}an.getByteTimeDomainData(anBuf);var mx=0,qi;for(qi=0;qi<anBuf.length;qi++)mx=Math.max(mx,Math.abs(anBuf[qi]-128));if(mx>5){heard=true;toast('🎤 목소리가 잘 잡혀요 👍');}else if(!warned&&Date.now()-micAt>12000){warned=true;toast('🎤 아직 소리가 안 들려요 · 말을 해보고, 계속 안 되면 마이크 설정과 음소거를 확인해 줘요');}}
       }catch(e){}
     },400);
     addEventListener('pointerdown',function(){if(VX&&VX.state==='suspended')VX.resume().catch(function(){});Object.keys(peers).forEach(function(id){var a=peers[id].a;if(a&&a.srcObject&&a.paused){var q=a.play();if(q&&q.catch)q.catch(function(){});}});},true);
@@ -4485,7 +4485,7 @@ function arcTick(){if(!arcRow)return;
     else used=false;
     if(used)e.preventDefault();e.stopImmediatePropagation();},true);
   addEventListener('keyup',function(e){if(root.classList.contains('on')){if(mode==='pong'&&['ArrowUp','ArrowDown','w','W','s','S'].indexOf(e.key)>=0)pg.key=0;e.stopImmediatePropagation();}},true);
-  document.addEventListener('visibilitychange',function(){if(document.hidden&&root.classList.contains('on')&&mode!=='menu')menu();});
+  var hidAt=0;document.addEventListener('visibilitychange',function(){if(document.hidden){hidAt=Date.now();}else{var long=hidAt&&Date.now()-hidAt>30000;hidAt=0;if(long&&root.classList.contains('on')&&mode!=='menu')menu();}});
   // ───── 🏓 퐁 초대: 방 사람이 '같이하기'를 누르면 화면 위에 [참여] 가 떠요 ─────
   var invBan=null,invTm=0;
   function invHide(){if(invBan&&invBan.parentNode)invBan.parentNode.removeChild(invBan);invBan=null;clearTimeout(invTm);}
@@ -5729,7 +5729,7 @@ function sync(){
     p=list[i];applyOutfit(p.g,p.sit|0,scene==='cabin'&&cabInAt(p.x,p.z)>=0);if(p.me){var ins0=scene==='cabin'&&cabInAt(p.x,p.z)>=0;if(ins0!==sauIn){sauIn=ins0;if(scene==='cabin')toast(ins0?'사우나복으로 갈아입었어요 🧖':'다시 따뜻한 옷으로 갈아입었어요 🧥');}}var gy0=(p.me&&me.lh)?6.19:((p.ty!==undefined)?p.ty:(scene==='beach'?groundY(p.x,p.z):(scene==='cabin'?cabFloor(p.x,p.z):(scene==='cinema'?cinFloorG(p.x,p.z):0))));p.gy=(p.gy||0)+(gy0-(p.gy||0))*.3;if(p.me)me.y=p.gy;p.g.position.set(p.x,(p.mv?Math.abs(Math.sin(t*.3))*.06:0)+p.gy,p.z);p.g.rotation.y=p.ry;
     if(!p.me)p.g.visible=!(scene==='cinema'&&window.cinSecAt&&(window.cinSecIn()||window.cinSecAt(p.x,p.z)));   // 🤫 1인 아지트: 안에 있으면 남이 안 보이고, 안에 있는 사람도 밖에 안 보여요
     p.g.legs[0].rotation.x=p.mv?Math.sin(t*.3)*.7:0;p.g.legs[1].rotation.x=p.mv?-Math.sin(t*.3)*.7:0;
-    if(p.me)p.g.visible=(lv3&&me.sit>=3&&me.sit<=6)||!((fpv&&(scene==='beach'||scene==='fire'||scene==='cabin'||scene==='cinema')&&(!me.sit||me.sit===1||me.sit===2))||(scene==='fire'&&me.sit===4&&!inTent)||(scene==='cabin'&&me.sit===5));setLabel(p,p.name);var sp=p.sit|0,ly=sp===3||sp===4||sp===5||sp===6;p.g.rotation.x=ly?-Math.PI/2:0;var kk=1;if(scene==='fire'&&Math.abs(p.x-IX)<5.5&&Math.abs(p.z-IZ)<5)kk=sp===3?.7:.6;if(scene==='cabin')for(var kc=0;kc<CAB.length;kc++)if(Math.abs(p.x-CAB[kc][0])<3.1&&Math.abs(p.z-CAB[kc][1])<2.4){kk=sp===5?.7:.52;break;}p.g.scale.setScalar(p.g.scale.x+(kk-p.g.scale.x)*.2);
+    if(p.me)p.g.visible=(lv3&&me.sit>=3&&me.sit<=6)||!((fpv&&(scene==='beach'||scene==='fire'||scene==='cabin'||scene==='cinema')&&(!me.sit||me.sit===1||me.sit===2))||(scene==='fire'&&me.sit===4&&!inTent)||(scene==='cabin'&&me.sit===5));setLabel(p,p.name);var sp=p.sit|0,ly=sp===3||sp===4||sp===5||sp===6;p.g.rotation.x=ly?-Math.PI/2:0;var kk=1;if(scene==='cinema'&&window.cinKorAt&&window.cinKorAt(p.x,p.z))kk=.65;if(scene==='fire'&&Math.abs(p.x-IX)<5.5&&Math.abs(p.z-IZ)<5)kk=sp===3?.7:.6;if(scene==='cabin')for(var kc=0;kc<CAB.length;kc++)if(Math.abs(p.x-CAB[kc][0])<3.1&&Math.abs(p.z-CAB[kc][1])<2.4){kk=sp===5?.7:.52;break;}p.g.scale.setScalar(p.g.scale.x+(kk-p.g.scale.x)*.2);
     var bT=0;if(scene==='fire'&&Math.abs(p.x-IX)<5.5&&Math.abs(p.z-IZ)<5){bT=tentH(p.x,p.z);if(sp){var tso=ly?[-1.1,-.6,-.3]:[-.5,.4,.8];for(var tsi=0;tsi<tso.length;tsi++)bT=Math.max(bT,tentH(p.x+Math.sin(p.ry)*tso[tsi],p.z+Math.cos(p.ry)*tso[tsi]));}}else if(scene==='fire'&&!ly&&Math.abs(p.x)<1.4&&Math.abs(p.z-RAINZ)<2.8)bT=.2+ARC*(1-Math.pow((p.z-RAINZ)/2.8,2));p.bh=(p.bh||0)+(bT-(p.bh||0))*.25;
     if(ly){if(sp===5&&scene==='cabin')p.g.position.z=p.z-.4;if(sp===6){p.g.position.x=p.x+Math.sin(p.ry)*1.0;p.g.position.z=p.z+Math.cos(p.ry)*1.0;}p.g.position.y=sp===6?.46+p.gy:(sp===4?.95:(sp===5?(scene==='cabin'?.86:(scene==='beach'&&onLounger(p.x,p.z)?.72:.48)):(kk<1?.4:.55)));p.g.legs[0].rotation.x=p.g.legs[1].rotation.x=0;}
     else if(sp){var csc=p.g.scale.x,csy=(sp===2&&scene==='cabin')?cabSeatTop(p.x,p.z):null;p.g.position.y=(csy!==null)?(csy-.43*csc):((sp===1?(-.45*csc+(1-csc)*.08):(.15+(scene==='cabin'?(1-csc)*.5:0)))+p.gy);p.g.legs[0].rotation.x=p.g.legs[1].rotation.x=-1.45;}
@@ -5739,7 +5739,7 @@ function sync(){
     if(p.me&&sp===1&&scene==='beach'){var dgA=window.__spDig,nwA=performance.now();if(dgA&&nwA-dgA<2600){var phA=nwA*.012;p.g.rotation.x=.16+Math.sin(phA*2)*.04;p.g.arms[0].rotation.x=-1.2+Math.sin(phA)*.7;p.g.arms[1].rotation.x=-1.2-Math.sin(phA)*.7;}else if(window.__spTouching){var phB=nwA*.015;p.g.arms[1].rotation.x=-1.1+Math.sin(phB)*.35;p.g.arms[1].rotation.z=.15+Math.sin(phB*.5)*.2;}}
     p.lab.position.set(0,ly?.9:2.5,ly?1.4:0);p.lab.visible=!(p.me&&ly);if(p.bub)p.bub.position.set(0,ly?.9:3.0,ly?2.1:0);if(p.bub&&(t>p.bubT||(chatHidden&&p.bubChat)))p.bub.visible=false;
   }
-  var tt=(scene==='fire'&&rainK>.5?'비 오는 불멍':NAMES[scene])+' '+ch+'번방'+cinRoomTag(ch)+' · 지금 '+list.length+'명'+(lobby?(lobby.ok===false?(soloOn?' · 혼자 보는 중 (접속자가 많아요)':' · 연결 중…'):''):' · 혼자 보는 중')+(location.search.indexOf('debug')>=0&&room&&room.dbg?' ['+room.dbg()+']':'');
+  var tt=(scene==='fire'&&rainK>.5?'비 오는 불멍':NAMES[scene])+' '+ch+'번방'+cinRoomTag(ch)+' · 지금 '+list.length+'명'+(lobby?(lobby.ok===false?(soloOn?' · 혼자 보는 중 (접속자가 많아요)':((soloAt&&Date.now()-soloAt>4000)?' · 연결 중… ('+String(lobby.err||lobby.st||'?').slice(0,40)+' '+(lobby.drops||0)+'회)':'')):''):' · 혼자 보는 중')+(location.search.indexOf('debug')>=0&&room&&room.dbg?' ['+room.dbg()+']':'');
   if(tt!==topTxt){topTxt=tt;topEl.textContent=tt;}
   var hideTop=(folded&&scene==='cinema')?'none':'';if(topEl.style.display!==hideTop)topEl.style.display=hideTop;
   var cc=document.getElementById('cincnt');   // 접은 영화관에서는 왼쪽 위 구석에 작게 '👥 N명'만 보여요
@@ -5779,7 +5779,7 @@ chSel.addEventListener('change',function(){
 setInterval(function(){if(document.activeElement!==chSel)fillCh();},2000);
 var mi=0;
 function setScene(n,c){me.cin=-1;
-  scene=n;ch=c||autoCh(n);lastSent='';topTxt='';
+  scene=n;ch=c||autoCh(n);lastSent='';topTxt='';try{R.setPixelRatio(n==='cinema'?1:Math.min(devicePixelRatio||1,2));size();}catch(ePR){}
   if(inTent)leaveTent();tentBtn.style.display=n==='fire'?'':'none';lieBtn.style.display='none';me.sit=0;sitBtn.textContent='앉기';angClear();
   var S=SET[n];sc.background=new THREE.Color(S.bg);sc.fog=new THREE.FogExp2(S.fc||S.bg,S.fog);cam.far=n==='beach'?1100:220;cam.updateProjectionMatrix();
   amb.color.setHex(S.amb);amb.intensity=S.ai;moon.color.setHex(S.mc);moon.intensity=S.mi;R.toneMappingExposure=S.ex||1.15;
@@ -5846,7 +5846,7 @@ function toEntry(n){
 // === Supabase 실시간 접속 (GitHub Pages 등 Claude 밖에서 배포할 때 사용) ===
 // 방 안의 사람 위치는 Broadcast로만 주고받아요(2초마다 "나 여기 있어" 신호 포함). 로비 인원수만 Presence를 써요.
 function makeSupaLobby(url,key){
-  var sb=supabase.createClient(url,key);window.__SB=sb;
+  var sb=supabase.createClient(url,key,{realtime:{heartbeatIntervalMs:15000,timeout:20000}});window.__SB=sb;
   var myId='p'+Math.random().toString(36).slice(2,10);
   function mk(name,withPos){
     var ch=sb.channel(name,{config:{presence:{key:myId},broadcast:{self:false}}});
@@ -5897,19 +5897,20 @@ function makeSupaLobby(url,key){
     o.ready=new Promise(function(res,rej){
       var done=false;
       ch.subscribe(function(status,err){
+        o.st=status;if(status!=='SUBSCRIBED')o.drops=(o.drops||0)+1;
         if(status==='SUBSCRIBED'){
           ready=true;o.ok=true;lastStatic='';lastDyn='';lastSend=0;
           if(!iv)iv=setInterval(tick,100);tick();
           if(!done){done=true;res(o);}
         }else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
           ready=false;o.ok=false;o.err=status+(err?' '+(err.message||err):'');console.warn('[실시간 연결 실패]',name,o.err);
-          if(!done){done=true;try{sb.removeChannel(ch);}catch(e){}rej(new Error(status));}
+          if(!done){done=true;if(withPos){try{sb.removeChannel(ch);}catch(e){}}rej(new Error(status));}
         }else if(status==='CLOSED'){ready=false;o.ok=false;}
       });
     });
     return o;
   }
-  var lob=mk('hy-lobby',false);
+  var lob=mk('hy-lobby',false);lob.ready.catch(function(){});
   lob.join=function(n){return mk('hy-room-'+n,true).ready;};
   return lob;
 }
