@@ -771,24 +771,11 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     var stX=KX+HX-2.0;
     add(new THREE.Mesh(new THREE.BoxGeometry(3.1,.08,HZ*2-1.2),M(0x8a5a36,0x1e1008)),stX,.04,KZ);   // 무대 바닥
     add(new THREE.Mesh(new THREE.BoxGeometry(.06,.05,HZ*2-1.2),neonP),KX+HX-3.55,.1,KZ);            // 무대 앞 가장자리 불빛
-    // 🖼️ 동쪽 벽 액자 5개 + 천 깃발 줄 + 무대 스피커 (번쩍이는 LP판 대신 · 가는 줄무늬 없이 큼직한 면과 단색만 써서 깜빡이지 않아요)
-    var PIC=[['#f6d9a8','#ff9a5c','#6bb39e'],['#cfe6e0','#ffd27a','#4f9a8e'],['#f3c9c0','#fff1cf','#c2574a'],['#d7dff0','#ffb347','#5b7fa8'],['#f1e2c4','#e8a0a8','#7fa66a']];
-    function picTex(c){return tex(160,160,function(x,w,h){x.fillStyle=c[0];x.fillRect(0,0,w,h);x.fillStyle=c[1];x.beginPath();x.arc(w*.68,h*.32,h*.17,0,6.283);x.fill();x.fillStyle=c[2];x.beginPath();x.moveTo(0,h);x.lineTo(0,h*.72);x.quadraticCurveTo(w*.3,h*.5,w*.6,h*.74);x.quadraticCurveTo(w*.8,h*.62,w,h*.7);x.lineTo(w,h);x.fill();});}
-    var frM=M(0x5a3a22,0x120a06);
-    for(var pk=0;pk<5;pk++){var pw=pk%2?1.15:.9,ph=pk%2?.9:1.15,pz=KZ-3.6+pk*1.8;
-      add(new THREE.Mesh(new THREE.BoxGeometry(.06,ph+.14,pw+.14),frM),KX+HX-.05,2.75,pz);
-      var pp=add(new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),bas(picTex(PIC[pk]))),KX+HX-.09,2.75,pz);pp.rotation.y=-Math.PI/2;}
-    // 🎏 천 깃발 줄 (벽 위쪽, 단색 삼각 깃발)
-    var FLC=[0xff9a5c,0x6bb39e,0xffd27a,0xe8a0a8,0x7fa6c9],FLG=new THREE.Shape();FLG.moveTo(-.17,0);FLG.lineTo(.17,0);FLG.lineTo(0,-.4);FLG.lineTo(-.17,0);
-    var FLGeo=new THREE.ShapeGeometry(FLG);
-    for(var fk=0;fk<12;fk++){var fz=KZ-4.4+fk*.8,fy=4.1-Math.sin(fk/11*Math.PI)*.22;
-      var fl2=add(new THREE.Mesh(FLGeo,new THREE.MeshBasicMaterial({color:FLC[fk%5],side:THREE.DoubleSide,fog:false})),KX+HX-.1,fy,fz);fl2.rotation.y=-Math.PI/2;}
-    add(new THREE.Mesh(new THREE.BoxGeometry(.02,.02,HZ*2-1.2),M(0xe9dcc0,0x2a2418)),KX+HX-.1,4.12,KZ);
-    // 🔈 무대 스피커 한 쌍 (나무 상자 + 단색 스피커 면)
-    [-3.1,3.1].forEach(function(dz){
-      add(new THREE.Mesh(new THREE.BoxGeometry(.5,.9,.5),M(0x7a4e2e,0x180e06)),KX+HX-.9,.53,KZ+dz);
-      [[.3,.15],[.62,.1]].forEach(function(c){var sp=add(new THREE.Mesh(new THREE.CylinderGeometry(c[1]*1.25,c[1]*1.25,.03,16),M(0x23232b,0x08080a)),KX+HX-1.16,c[0]+.08,KZ+dz);sp.rotation.z=Math.PI/2;});
-    });
+    // 💿 LP판 데코
+    function lpTex(col){return tex(128,128,function(x,w,h){x.fillStyle='#0b0b0f';x.beginPath();x.arc(64,64,64,0,6.283);x.fill();x.strokeStyle='#23232d';x.lineWidth=1;for(var r=24;r<62;r+=5){x.beginPath();x.arc(64,64,r,0,6.283);x.stroke();}x.fillStyle=col;x.beginPath();x.arc(64,64,22,0,6.283);x.fill();x.fillStyle='#0b0b0f';x.beginPath();x.arc(64,64,3,0,6.283);x.fill();});}
+    var LPC=['#ffb347','#7fe0d0','#ff8a65','#fff1cf','#ffd27a'];
+    for(var lk=0;lk<7;lk++){var lw=add(new THREE.Mesh(new THREE.CircleGeometry(.42,28),bas(lpTex(LPC[lk%5]))),KX+HX-.06,3.55,KZ-3+lk*1.0);lw.rotation.y=-Math.PI/2;}   // 동쪽 벽 LP 줄
+    for(var lq=0;lq<3;lq++){var lg2=add(new THREE.Mesh(new THREE.CircleGeometry(.4,24),bas(lpTex(LPC[(lq+1)%5]))),KX+HX-1.0,.55,KZ-2.6+lq*.28);lg2.rotation.y=-Math.PI/2;lg2.rotation.z=-.15;}   // 무대에 세워둔 LP
     // 🎤 마이크 스탠드 (무대 앞)
     add(new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.04,14),M(0x2a2a34)),KX+HX-3.0,.1,KZ);
     add(new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.4,6),M(0x9a9aa6,0x101012)),KX+HX-3.0,.8,KZ);
@@ -847,30 +834,45 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     var LS=[];   // (노래방 조명은 뺐어요)
     [[0,-1],[0,1]].forEach(function(p){add(new THREE.Mesh(new THREE.BoxGeometry(HX*2-.2,.05,.05),neonP),KX,WH-.12,KZ+p[1]*(HZ-.1));});
     [[-1],[1]].forEach(function(p){add(new THREE.Mesh(new THREE.BoxGeometry(.05,.05,HZ*2-.2),neonC),KX+p[0]*(HX-.1),WH-.12,KZ);});
-    // 방이 은은하게 보이도록 (동적 불빛)
+    // 방이 은은하게 보이도록 (동적 불빛 · 턴테이블 LP가 천천히 돌아요)
     var t0=Date.now();
     (function tick(){
       try{if(scene==='cinema'&&Math.hypot(me.x-KX,me.z-KZ)<45){var t=(Date.now()-t0)/1000;DB.rotation.y=t*.6;rg.rotation.y=t*1.6;
         for(var k=0;k<LS.length;k++){var a=t*(.5+k*.17)+k*1.3;LS[k].position.set(KX+Math.cos(a)*(HX-.9),.12+(k%2)*1.2+Math.sin(a*1.7)*.4,KZ+Math.sin(a*1.3)*(HZ-.8));LS[k].material.opacity=.3+.2*Math.sin(t*2+k);}}}catch(e){}
       requestAnimationFrame(tick);
     })();
-    // 📋 벽 메뉴판 '속닥방 메뉴': 누르면 방 설명 창이 열려요 (🎤 음성 · 💬 방 안 전용 채팅 · 🎵 영상/노래). 채팅은 기본 [말하기] 버튼을 그대로 써요
-    var mnT=tex(512,384,function(x,w,h){x.fillStyle='#6b4a2e';x.fillRect(0,0,w,h);x.fillStyle='#1f2d2a';x.fillRect(16,16,w-32,h-32);x.strokeStyle='#ffd27a';x.lineWidth=3;x.strokeRect(26,26,w-52,h-52);x.textAlign='center';x.fillStyle='#ffd27a';x.font='bold 46px '+FONT;x.fillText('☕ 속닥방 메뉴',w/2,92);x.textAlign='left';x.fillStyle='#fff1cf';x.font='28px '+FONT;x.fillText('🎤 음성 대화',60,160);x.fillText('💬 속닥 채팅 (이 방 안에서만)',60,212);x.fillText('🎵 영상 같이 보기',60,264);x.textAlign='center';x.fillStyle='#7fe0d0';x.font='bold 26px '+FONT;x.fillText('👆 눌러서 방 설명 보기',w/2,332);});
+    // 📋 벽 메뉴판 '속닥방 메뉴': 누르면 방 설명 창이 열려요 (🎤 음성 · 💬 방 안 전용 채팅 · 🎵 영상/노래). 채팅 창은 설명 창의 버튼이나 💬 속닥 채팅 버튼으로 열어요
+    var mnT=tex(512,384,function(x,w,h){x.fillStyle='#6b4a2e';x.fillRect(0,0,w,h);x.fillStyle='#1f2d2a';x.fillRect(16,16,w-32,h-32);x.strokeStyle='#ffd27a';x.lineWidth=3;x.strokeRect(26,26,w-52,h-52);x.textAlign='center';x.fillStyle='#ffd27a';x.font='bold 46px '+FONT;x.fillText('☕ 속닥방 메뉴',w/2,92);x.textAlign='left';x.fillStyle='#fff1cf';x.font='28px '+FONT;x.fillText('🎤 음성 대화',60,160);x.fillText('💬 속닥 채팅 (이 방 안에서만)',60,212);x.fillText('🎵 영상 같이 보기',60,264);x.textAlign='center';x.fillStyle='#7fe0d0';x.font='bold 26px '+FONT;x.fillText('👆 눌러서 열어보세요',w/2,332);});
     var mnB=add(new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.8),bas(mnT)),KX-.5,2.3,KZ-HZ+.06);
+    var pn=document.createElement('div');pn.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);width:min(92vw,420px);display:none;flex-direction:column;gap:8px;padding:12px;border-radius:18px;background:rgba(20,14,10,.9);border:1px solid rgba(255,190,120,.5);z-index:30;color:#e9dcc8;font-size:.95rem;backdrop-filter:blur(6px)';
+    pn.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>☕ 속닥방</b><button type="button" id="kpx" style="padding:4px 14px">✕</button></div><button type="button" id="kpm" style="padding:8px">🎤 마이크 켜기</button><div id="kpl" style="overflow-y:auto;height:120px;font-size:.9rem"></div><div style="display:flex;gap:6px"><input id="kpi" maxlength="60" placeholder="속닥속닥… (이 방 친구에게만 보여요)" autocomplete="off" style="flex:1;width:auto;min-width:0;text-align:left;border-radius:14px"><button type="button" id="kps">보내기</button></div><div style="font-size:.78rem;opacity:.75">🎧 마이크가 연결되면 같은 방 친구와 음성으로, 안 되면 여기 채팅으로 이야기해요</div>';
+    document.body.appendChild(pn);
+    var kl=pn.querySelector('#kpl'),ki=pn.querySelector('#kpi'),km=pn.querySelector('#kpm'),lastM={t:'',at:0},lastS=0;
+    function kadd(n,tx,mine){var d=document.createElement('div');d.style.cssText='padding:2px 6px;word-break:break-all'+(mine?';text-align:right;color:#ffd27a':'');d.textContent=mine?tx:n+': '+tx;kl.appendChild(d);while(kl.children.length>40)kl.removeChild(kl.firstChild);kl.scrollTop=kl.scrollHeight;}
+    function kopen(o){pn.style.display=o?'flex':'none';if(o)kl.scrollTop=kl.scrollHeight;}
+    function ksend(){var v=(ki.value||'').trim().slice(0,60);if(!v||Date.now()-lastS<700)return;var c=typeof chatCheck==='function'?chatCheck(v):{ok:true,t:v};if(!c||!c.ok){toast('지금은 보낼 수 없어요');return;}try{if(!room||!room.sendChat){toast('아직 연결 중이에요');return;}room.sendChat('\u0001KCH|'+c.t,(me.name||'나그네').slice(0,8));}catch(e){return;}lastS=Date.now();lastM={t:c.t,at:lastS};kadd('',c.t,true);ki.value='';}
+    pn.querySelector('#kpx').addEventListener('click',function(){kopen(false);});
+    pn.querySelector('#kps').addEventListener('click',ksend);
+    ['keydown','keyup'].forEach(function(ev){ki.addEventListener(ev,function(e){e.stopPropagation();if(ev==='keydown'&&e.key==='Enter'){e.preventDefault();ksend();}});});
+    km.addEventListener('click',function(){var vb=document.getElementById('korvoice');if(vb)vb.click();});
     // 📖 방 설명 창 (벽 메뉴판을 누르면 열려요)
-    var inf=document.createElement('div');inf.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);width:min(92vw,420px);display:none;flex-direction:column;gap:8px;padding:12px;border-radius:18px;background:rgba(20,14,10,.9);border:1px solid rgba(255,190,120,.5);z-index:30;color:#e9dcc8;font-size:.95rem;backdrop-filter:blur(6px)';inf.style.display='none';inf.style.gap='10px';inf.style.maxHeight='70vh';inf.style.overflowY='auto';
+    var inf=document.createElement('div');inf.style.cssText=pn.style.cssText;inf.style.display='none';inf.style.gap='10px';inf.style.maxHeight='70vh';inf.style.overflowY='auto';
     inf.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>☕ 속닥방 이야기</b><button type="button" id="kix" style="padding:4px 14px">✕</button></div>'
       +'<div style="line-height:1.6">둘러앉아 속닥속닥, 이야기하고 노래·영상을 같이 즐기는 작은 방이에요. 이 방 안에 있는 친구끼리만 연결돼요.</div>'
       +'<div style="line-height:1.55"><b>🎤 음성 대화</b><br><span style="opacity:.85">화면 아래 <b>마이크 켜기</b> 버튼을 누르면 같은 방 친구와 목소리로 이야기해요. 🎧 이어폰을 끼면 울림 없이 또렷해요.</span></div>'
-      +'<div style="line-height:1.55"><b>💬 속닥 채팅</b><br><span style="opacity:.85">평소 쓰던 <b>말하기</b> 버튼 그대로예요. 이 방 안에서 남기면 머리 위 말풍선이 이 방 친구에게만 보이고 바깥 공간에는 나오지 않아서 부담 없이 써도 돼요.</span></div>'
+      +'<div style="line-height:1.55"><b>💬 속닥 채팅</b><br><span style="opacity:.85">마이크 연결이 매끄럽지 않을 때는 글자로 이야기해요. 이 방 안 친구에게만 보이고 바깥 공간 채팅에는 나오지 않아서 부담 없이 써도 돼요.</span></div>'
       +'<div style="line-height:1.55"><b>🎵 노래 · 영상</b><br><span style="opacity:.85">테이블 위 태블릿으로 좋아하는 노래나 영상을 자유롭게 틀어요. 🔗 유튜브 링크를 붙여넣거나 검색하면 방 안 모두가 같이 보고 들어요.</span></div>'
-      ;
+      +'<button type="button" id="kic" style="padding:9px">💬 속닥 채팅 열기</button>';
     document.body.appendChild(inf);
     function iopen(o){inf.style.display=o?'flex':'none';}
     inf.querySelector('#kix').addEventListener('click',function(){iopen(false);});
-    // 💬 속닥방 채팅: 별도 창·버튼 없이, 화면 아래 기본 [말하기]를 그대로 써요. 이 방 안에 있으면 자동으로 '방 안 친구에게만' 전달돼요
-    setInterval(function(){try{if(typeof chatIn==='undefined'||!chatIn)return;var ph=window.cinKorIn()?'속닥속닥… (이 방 친구에게만 보여요)':'한마디 남겨요';if(chatIn.placeholder!==ph)chatIn.placeholder=ph;if(!window.cinKorIn()&&inf.style.display!=='none')iopen(false);}catch(e){}},400);
-    window.korChatIn=function(d){try{if(!window.cinKorIn())return;var pl=(typeof players!=='undefined')&&players[d.id];if(pl&&typeof pl.x==='number'&&!window.cinKorAt(pl.x,pl.z))return;var c=typeof chatCheck==='function'?chatCheck(String(d.t).slice(5)):{ok:true,t:String(d.t).slice(5)};if(!c||!c.ok)return;if(chatHidden)return;var n=String(d.n||'나그네').slice(0,8);if(pl)bubble(pl,c.t,true);addLog('💬 '+n,c.t);try{if(window.__ttsSpeak)window.__ttsSpeak(c.t,String(d.n||'나그네').slice(0,8));}catch(e){}}catch(e){}};
+    inf.querySelector('#kic').addEventListener('click',function(){iopen(false);kopen(true);});
+    // 💬 속닥 채팅 버튼 (방 안에서만 보여요) - 벽 판까지 안 가도 바로 열려요
+    (function(){var row=document.getElementById('actrow');if(!row)return;var cb=document.createElement('button');cb.type='button';cb.id='korchatbtn';cb.style.display='none';cb.textContent='💬 속닥 채팅';row.appendChild(cb);
+      cb.addEventListener('click',function(){kopen(pn.style.display==='none');});
+      setInterval(function(){try{var d=window.cinKorIn();var v=d?'':'none';if(cb.style.display!==v)cb.style.display=v;if(!d&&inf.style.display!=='none')iopen(false);}catch(e){}},400);})();
+    window.korChatIn=function(d){try{if(!window.cinKorIn())return;var pl=(typeof players!=='undefined')&&players[d.id];if(pl&&typeof pl.x==='number'&&!window.cinKorAt(pl.x,pl.z))return;var c=typeof chatCheck==='function'?chatCheck(String(d.t).slice(5)):{ok:true,t:String(d.t).slice(5)};if(!c||!c.ok)return;var n=String(d.n||'나그네').slice(0,8);if(lastM.t===c.t&&Date.now()-lastM.at<4000&&n===(me.name||'나그네').slice(0,8))return;kadd(n,c.t,false);if(pn.style.display==='none')toast('💬 '+n+': '+c.t);}catch(e){}};
+    setInterval(function(){try{if(pn.style.display==='none')return;if(!window.cinKorIn()){kopen(false);return;}var vb=document.getElementById('korvoice'),on=vb&&/끄기/.test(vb.textContent);km.textContent=on?'🎤 마이크 끄기 (켜져 있어요)':'🎤 마이크 켜기';}catch(e){}},400);
     var dn=null;cv.addEventListener('pointerdown',function(e){dn=[e.clientX,e.clientY,Date.now()];});
     cv.addEventListener('pointerup',function(e){try{if(!dn||!window.cinKorIn())return;var mv=Math.hypot(e.clientX-dn[0],e.clientY-dn[1]),dt=Date.now()-dn[2];dn=null;if(mv>8||dt>600)return;var r=cv.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-((e.clientY-r.top)/r.height)*2+1},cam);if(rc.intersectObject(mnB,false).length)iopen(true);}catch(x){}});
     // 🎤 안에 있는지 · 영상 위치 · 1인칭 · 길 안내
@@ -882,7 +884,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     function inKor(x,z){return inRoom(x,z)||(x>KX-HX-5.9&&x<=KX-HX+.1&&Math.abs(z-KZ)<1.3);}
     window.cinKorRoute=function(tp){var A=inKor(me.x,me.z),B=inKor(tp[0],tp[1]);if(A===B)return null;return [[KX-HX-2.6,KZ],tp];};
     window.cinKorGo=function(){return [[KX-HX-2.6,KZ],[KX-HX+1.4,KZ]];};   // 이동 탭에서 [💬 속닥방]을 누르면 걸어갈 곳
-    var was=false,seen=false;setInterval(function(){try{var d=window.cinKorIn();if(d&&!was){toast(seen?'💬 속닥방이에요 · [말하기]를 누르면 이 방 친구에게만 보여요':'💬 속닥방! [말하기]를 누르면 이 방 친구에게만 보여요 · 🎤 마이크도 켤 수 있어요 · 🎧 이어폰이 있으면 더 좋아요');seen=true;}was=d;}catch(e){}},250);
+    var was=false,seen=false;setInterval(function(){try{var d=window.cinKorIn();if(d&&!was){toast(seen?'💬 속닥방이에요 · 벽 메뉴판을 누르면 방 설명이 나와요':'💬 속닥방! 벽 메뉴판을 누르면 방 설명이 나와요 · 🎤 음성이 어려우면 💬 속닥 채팅 · 🎧 이어폰이 있으면 더 좋아요');seen=true;}was=d;}catch(e){}},250);
   })();
 
   // ═══ 🎙️ 속닥방 음성: 방 안에 있는 사람끼리 마이크 소리를 주고받아요 (WebRTC · 연결 신호는 Supabase 방송으로 주고받아요) ═══
@@ -3780,10 +3782,10 @@ function arcTick(){if(!arcRow)return;
   function best(k){try{return +localStorage.getItem('hy-arc-'+k)||0;}catch(e){return 0;}}
   function setBest(k,v){try{localStorage.setItem('hy-arc-'+k,String(v));}catch(e){}}
   function vib(n){try{if(navigator.vibrate)navigator.vibrate(n);}catch(e){}}
-  function stopAll(){cancelAnimationFrame(raf);raf=0;padStops.forEach(function(f){f();});if(padP)padP.style.display='none';if(padR)padR.style.display='none';rhyLeave();pgLeave();vzLeave();}
+  function stopAll(){cancelAnimationFrame(raf);raf=0;padStops.forEach(function(f){f();});if(padP)padP.style.display='none';if(padR)padR.style.display='none';rhyLeave();pgLeave();vzLeave();arLeave();}
   function btn(parent,html,fn){var b=document.createElement('button');b.type='button';b.innerHTML=html;b.addEventListener('click',fn);parent.appendChild(b);return b;}
   function menu(){stopAll();mode='menu';t1.textContent='🎮 오락실';s1.textContent='';s2.textContent='';cv.style.display='none';pad.style.display='none';mn.style.display='flex';mn.innerHTML='';
-    btn(mn,'🔨 두더지 잡기<small>최고 '+best('mole')+'점</small>',moleStart);btn(mn,'🧱 테트리스<small>최고 '+best('tet')+'점</small>',tetStart);btn(mn,'🫧 별방울<small>같은 색 4개를 모으면 톡! 혼자도, 누가 있으면 대전도 · 최고 '+best('bub')+'점</small>',bubStart);btn(mn,'🎵 리듬 스텝<small>내려오는 화살표를 박자에 맞춰 톡! 펌프·디디알처럼 · 최고 '+best('rhy')+'점</small>',rhyStart);btn(mn,'🏓 퐁<small>혼자면 냥이랑, 둘이면 같이 · 최고 '+best('pong')+'연승</small>',pongStart);mn.dataset.ov='';rkBox(mn,RK.tab,true,10);}
+    btn(mn,'🔨 두더지 잡기<small>최고 '+best('mole')+'점</small>',moleStart);btn(mn,'🧱 테트리스<small>최고 '+best('tet')+'점</small>',tetStart);btn(mn,'🫧 별방울<small>같은 색 4개를 모으면 톡! 혼자도, 누가 있으면 대전도 · 최고 '+best('bub')+'점</small>',bubStart);btn(mn,'🎵 리듬 스텝<small>내려오는 화살표를 박자에 맞춰 톡! 펌프·디디알처럼 · 최고 '+best('rhy')+'점</small>',rhyStart);btn(mn,'🏓 퐁<small>혼자면 냥이랑, 둘이면 같이 · 최고 '+best('pong')+'연승</small>',pongStart);btn(mn,'🏹 미니 양궁<small>바람을 읽고 과녁 한가운데로! 혼자도, 누가 있으면 점수 대결도 · 최고 '+best('arch')+'점</small>',archStart);mn.dataset.ov='';rkBox(mn,RK.tab,true,10);}
   function over(title,score,key,again,unit){unit=unit||'점';
     var b=best(key),nb=score>b;if(nb){b=score;setBest(key,score);}
     cx.fillStyle='rgba(8,6,16,.78)';cx.fillRect(0,0,cv.width,cv.height);cx.textAlign='center';cx.textBaseline='middle';
@@ -3823,8 +3825,8 @@ function arcTick(){if(!arcRow)return;
       [['no',no],['nm',nm],['pt',pt]].forEach(function(q){var sp=document.createElement('span');sp.className=q[0];sp.textContent=q[1];r.appendChild(sp);});ls.appendChild(r);}
     function show(){
       var my=++seq;ls.innerHTML='';nt.textContent='불러오는 중…';
-      if(tabs){tb.innerHTML='';[['mole','🔨 두더지'],['tet','🧱 테트리스'],['bub','🫧 별방울'],['bubv','🫧 대전'],['rhy','🎵 리듬'],['pong','🏓 퐁']].forEach(function(q){var b=document.createElement('button');b.type='button';b.textContent=q[1];b.setAttribute('aria-pressed',q[0]===cur?'true':'false');b.addEventListener('click',function(){cur=q[0];RK.tab=cur;show();});tb.appendChild(b);});}
-      else{tb.textContent={mole:'🔨 두더지',tet:'🧱 테트리스',bub:'🫧 별방울',bubv:'🫧 대전',rhy:'🎵 리듬',pong:'🏓 퐁'}[cur]||'';}
+      if(tabs){tb.innerHTML='';[['mole','🔨 두더지'],['tet','🧱 테트리스'],['bub','🫧 별방울'],['bubv','🫧 대전'],['rhy','🎵 리듬'],['pong','🏓 퐁'],['arch','🏹 양궁']].forEach(function(q){var b=document.createElement('button');b.type='button';b.textContent=q[1];b.setAttribute('aria-pressed',q[0]===cur?'true':'false');b.addEventListener('click',function(){cur=q[0];RK.tab=cur;show();});tb.appendChild(b);});}
+      else{tb.textContent={mole:'🔨 두더지',tet:'🧱 테트리스',bub:'🫧 별방울',bubv:'🫧 대전',rhy:'🎵 리듬',pong:'🏓 퐁',arch:'🏹 양궁'}[cur]||'';}
       rkLoad(cur,function(arr,why){
         if(my!==seq||!box.isConnected)return;
         ls.innerHTML='';var me=myNick(),mine=best(cur),off=!arr,srvMine=0;
@@ -4405,15 +4407,18 @@ function arcTick(){if(!arcRow)return;
   }
   // ── 그리기
   function bStar(x,y,r){cx.beginPath();cx.moveTo(x,y-r);cx.quadraticCurveTo(x,y,x+r,y);cx.quadraticCurveTo(x,y,x,y+r);cx.quadraticCurveTo(x,y,x-r,y);cx.quadraticCurveTo(x,y,x,y-r);cx.closePath();cx.fill();}
-  function bBub(px,py,r,ci,al){var g;
-    cx.globalAlpha=al;cx.beginPath();cx.arc(px,py,r,0,6.2832);cx.fillStyle=BCOL[ci]||'#888';cx.fill();
-    g=cx.createRadialGradient(px-r*.3,py-r*.38,r*.08,px,py,r);g.addColorStop(0,'rgba(255,255,255,.8)');g.addColorStop(.4,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(0,0,0,.3)');
-    cx.beginPath();cx.arc(px,py,r,0,6.2832);cx.fillStyle=g;cx.fill();
-    cx.strokeStyle='rgba(255,255,255,.35)';cx.lineWidth=1;cx.stroke();
+  function bBub(px,py,r,ci,al,sq){var rx,ry,wb,g,k=BCOL[ci]||'#888',cy;   // 🟢 눈 없는 반투명 슬라임: 살짝 출렁이고, 속이 비치고, 바닥은 퍼져요
+    sq=sq||0;wb=Math.sin(performance.now()/430+px*.071+py*.053)*.035;rx=r*.97*(1+sq+wb);ry=r*.9*(1-sq-wb);cy=py+r*.05;
+    cx.globalAlpha=al*.82;cx.beginPath();cx.ellipse(px,cy,rx,ry,0,0,6.2832);cx.fillStyle=k;cx.fill();   // 몸통
+    cx.globalAlpha=al;
+    g=cx.createRadialGradient(px-rx*.25,cy-ry*.3,ry*.05,px,cy,rx);g.addColorStop(0,'rgba(255,255,255,.42)');g.addColorStop(.55,'rgba(255,255,255,.05)');g.addColorStop(1,'rgba(0,0,0,.28)');
+    cx.beginPath();cx.ellipse(px,cy,rx,ry,0,0,6.2832);cx.fillStyle=g;cx.fill();   // 속 비침 + 가장자리 진하게
+    cx.beginPath();cx.ellipse(px,cy,rx,ry,0,0,6.2832);cx.strokeStyle='rgba(255,255,255,.5)';cx.lineWidth=1.3;cx.stroke();
     if(ci===8){cx.strokeStyle='rgba(40,46,70,.6)';cx.lineWidth=2;cx.beginPath();cx.moveTo(px-r*.35,py-r*.1);cx.lineTo(px+r*.35,py-r*.1);cx.moveTo(px-r*.25,py+r*.28);cx.lineTo(px+r*.25,py+r*.28);cx.stroke();}   // 구름 무늬
-    else{cx.fillStyle='rgba(255,255,255,.95)';bStar(px-r*.34,py-r*.36,r*.3);}
+    else{cx.strokeStyle='rgba(255,255,255,.35)';cx.lineWidth=1;cx.beginPath();cx.arc(px+rx*.3,cy+ry*.3,r*.12,0,6.2832);cx.stroke();cx.beginPath();cx.arc(px+rx*.05,cy+ry*.5,r*.07,0,6.2832);cx.stroke();   // 속 작은 기포
+      cx.fillStyle='rgba(255,255,255,.88)';cx.beginPath();cx.ellipse(px-rx*.4,cy-ry*.5,rx*.27,ry*.12,-.55,0,6.2832);cx.fill();cx.beginPath();cx.arc(px-rx*.64,cy-ry*.14,r*.06,0,6.2832);cx.fill();}   // 반짝 하이라이트
     cx.globalAlpha=1;}
-  function bMiniBub(x,y,r,ci){cx.beginPath();cx.arc(x,y,r,0,6.2832);cx.fillStyle=BCOL[ci]||'#888';cx.fill();cx.fillStyle='rgba(255,255,255,.7)';cx.beginPath();cx.arc(x-r*.3,y-r*.35,r*.28,0,6.2832);cx.fill();}
+  function bMiniBub(x,y,r,ci){bBub(x,y,r,ci,1);}
   function bDraw(now){var r,c,v,g,X,Y,rr=BC/2-2,bw=BC*.56,t;now=now||performance.now();
     g=cx.createLinearGradient(0,0,0,376);g.addColorStop(0,'#1a1240');g.addColorStop(1,'#0a0820');cx.fillStyle=g;cx.fillRect(0,0,300,376);
     cx.fillStyle='rgba(255,255,255,.1)';for(r=0;r<14;r++)cx.fillRect((r*83)%296+2,(r*59)%370+3,2,2);
@@ -4423,20 +4428,14 @@ function arcTick(){if(!arcRow)return;
     for(r=1;r<BH;r++){cx.beginPath();cx.moveTo(BOX,BOY+r*BC+.5);cx.lineTo(BOX+BW*BC,BOY+r*BC+.5);cx.stroke();}
     for(c=1;c<BW;c++){cx.beginPath();cx.moveTo(BOX+c*BC+.5,BOY);cx.lineTo(BOX+c*BC+.5,BOY+BH*BC);cx.stroke();}
     cx.fillStyle='rgba(255,100,130,.22)';cx.font='bold 16px sans-serif';cx.textAlign='center';cx.textBaseline='alphabetic';cx.fillText('✕',BOX+2*BC+BC/2,BOY+BC/2+6);
-    // 이어 붙은 같은 색 방울은 다리로 이어줘요
-    for(r=0;r<BH;r++)for(c=0;c<BW;c++){v=bB[r][c];if(!v||v===9||bPopSet[r*BW+c])continue;
-      X=BOX+c*BC+BC/2;Y=BOY+r*BC+BC/2;cx.fillStyle=BCOL[v-1];
-      if(c<BW-1&&bB[r][c+1]===v&&!bPopSet[r*BW+c+1])cx.fillRect(X,Y-bw/2,BC,bw);
-      if(r<BH-1&&bB[r+1][c]===v&&!bPopSet[(r+1)*BW+c])cx.fillRect(X-bw/2,Y,bw,BC);}
     t=bPh==='pop'?Math.min(1,(now-bT)/380):0;
     for(r=0;r<BH;r++)for(c=0;c<BW;c++){v=bB[r][c];if(!v)continue;X=BOX+c*BC+BC/2;Y=BOY+r*BC+BC/2;
       if(bPopSet[r*BW+c]){
-        bBub(X,Y,rr*(1+.3*t),v-1,1-t*.9);
-        if(((t*6)|0)%2===0){cx.globalAlpha=.45*(1-t);cx.beginPath();cx.arc(X,Y,rr*(1+.3*t),0,6.2832);cx.fillStyle='#fff';cx.fill();cx.globalAlpha=1;}
-        cx.globalAlpha=1-t;cx.beginPath();cx.arc(X,Y,rr*(1+t*1.1),0,6.2832);cx.strokeStyle='#fff';cx.lineWidth=2;cx.stroke();cx.globalAlpha=1;
+        bBub(X,Y,rr*(1+.12*t),v-1,1-t*.9,.38*Math.sin(Math.min(1,t*1.4)*Math.PI*.9));
+        if(((t*6)|0)%2===0){cx.globalAlpha=.4*(1-t);cx.beginPath();cx.arc(X,Y,rr*(1+.2*t),0,6.2832);cx.fillStyle='#fff';cx.fill();cx.globalAlpha=1;}
+        cx.globalAlpha=1-t;cx.beginPath();cx.arc(X,Y,rr*(1+t*.9),0,6.2832);cx.strokeStyle='rgba(255,255,255,.8)';cx.lineWidth=2;cx.stroke();cx.fillStyle=BCOL[v-1]||'#888';for(var dq=0;dq<6;dq++){var da=dq*1.047+.4;cx.beginPath();cx.arc(X+Math.cos(da)*rr*(.7+t*1.5),Y+Math.sin(da)*rr*(.7+t*1.5),rr*.2*(1-t*.6),0,6.2832);cx.fill();}cx.globalAlpha=1;
       }else bBub(X,Y,rr,v-1,1);}
     if(bP&&!bOver){var d=BOFF[bP.o],px=BOX+bP.x*BC+BC/2,py=BOY+bP.y*BC+BC/2,sx=px+d[0]*BC,sy=py+d[1]*BC;
-      if(bP.a===bP.b){cx.fillStyle=BCOL[bP.a];if(d[0])cx.fillRect(Math.min(px,sx),py-bw/2,BC,bw);else cx.fillRect(px-bw/2,Math.min(py,sy),bw,BC);}
       bBub(px,py,rr,bP.a,1);bBub(sx,sy,rr,bP.b,1);}
     if(bMsg){var tt=(now-bMsg.at)/1000;if(tt<1){cx.globalAlpha=1-tt;cx.textAlign='center';cx.textBaseline='middle';cx.font='bold '+((28+tt*10)|0)+'px sans-serif';
       cx.lineWidth=5;cx.strokeStyle='rgba(20,10,50,.85)';cx.strokeText(bMsg.t,BOX+BW*BC/2,BOY+BH*BC*.4-tt*30);cx.fillStyle='#fff3d6';cx.fillText(bMsg.t,BOX+BW*BC/2,BOY+BH*BC*.4-tt*30);cx.globalAlpha=1;}else bMsg=null;}
@@ -4548,6 +4547,150 @@ function arcTick(){if(!arcRow)return;
     rh.ac=null;try{var AC=window.AudioContext||window.webkitAudioContext;if(AC){rh.ac=new AC();if(rh.ac.state==='suspended')rh.ac.resume();rh.t0=rh.ac.currentTime+.25;rhMusic(rh.ac,rh.t0);}}catch(e){rh.ac=null;}
     if(!rh.ac)rh.p0=performance.now()+250;
     rhInfo();raf=requestAnimationFrame(rhLoop);}
+  // ───── 🏹 미니 양궁 (혼자도 · 같은 방에 양궁 하는 사람이 있으면 점수 대결도) ─────
+  var AW=320,AH=400,AN=10,AX=160,AY=148,AR=94;
+  var arq={ch:null,ok:false,id:'a'+Math.random().toString(36).slice(2,9),iv:0,vs:false,opp:'',oppN:'',reqAt:0,invAt:0,lastRx:0,sendAt:0,rng:null,oppS:0,oppK:0,oppDone:false,R:[],k:0,sc:0,shots:[],fx:[],ph:'aim',press:null,fly:null,rt0:0,hitAt:0,gap:1200,tip:true};
+  function arInfo(){s1.textContent='🏹 '+arq.k+'/'+AN+'발 · '+arq.sc+'점';s2.textContent=arq.vs?('⚔ '+arq.oppN+' '+arq.oppS+'점 ('+arq.oppK+'/'+AN+')'):('최고 '+best('arch')+'점');}
+  function arReset(){var i,w,rn=(arq.vs&&arq.rng)?arq.rng:Math.random;   // 대전이면 둘이 똑같은 바람·과녁 순서예요
+    arq.R=[];for(i=0;i<AN;i++){w=(rn()*2-1)*Math.min(1,.4+i*.07);if(Math.abs(w)<.12)w=w<0?-.12:.12;arq.R.push({w:w,amp:i<3?0:(i<6?26:52),spd:1.1+rn()*.9,ph:rn()*6.28});}
+    arq.k=0;arq.sc=0;arq.shots=[];arq.fx=[];arq.ph='aim';arq.press=null;arq.fly=null;arq.rt0=performance.now();arq.oppS=0;arq.oppK=0;arq.oppDone=false;arq.tip=true;arInfo();}
+  function arTX(now){var R=arq.R[Math.min(arq.k,AN-1)];return R?AX+R.amp*Math.sin((now-arq.rt0)/1000*R.spd+R.ph):AX;}
+  function arSway(now,q){var hold=(now-q.t)/1000,st=Math.min(1,hold/.9),A=15-9*st,tt=now/1000;if(hold>2.4)A+=Math.min(16,(hold-2.4)*9);   // 오래 당기면 팔이 떨려요
+    return {x:Math.sin(tt*1.9)*A+Math.sin(tt*3.7)*A*.3,y:Math.cos(tt*2.4)*A*.8,A:A};}
+  function arShoot(now,q){var sw=arSway(now,q),R=arq.R[arq.k];if(!R)return;
+    arq.fly={t0:now,dur:430,sx:AX,sy:AH-44,ex:q.ax+sw.x+R.w*38,ey:q.ay+sw.y};arq.ph='fly';arq.press=null;arq.tip=false;vib(10);}   // 바람이 화살을 옆으로 밀어요
+  function arSendSc(){if(arq.vs)arSend('sc',{t:arq.opp,k:arq.k,s:arq.sc});}
+  function arFinish(){arq.ph='wait';if(arq.vs){var sn=function(){arSendSc();};sn();setTimeout(sn,150);setTimeout(sn,350);}
+    if(!arq.vs||arq.oppDone){arEnd();return true;}return false;}
+  function arEnd(){cancelAnimationFrame(raf);raf=0;arDraw(performance.now());
+    var vs=arq.vs,sc=arq.sc,oS=arq.oppS,oN=arq.oppN,won=sc>oS,tie=sc===oS;
+    over(vs?(won?'승리! 🎉':(tie?'무승부 🤝':'아쉬워요 😿')):'🏹 끝!',sc,'arch',archStart);
+    if(vs){cx.textAlign='center';cx.textBaseline='middle';cx.font='17px sans-serif';cx.fillStyle='#ffe3b0';cx.fillText('⚔ '+oN+' '+oS+'점',cv.width/2,cv.height/2+62);}
+    arq.vs=false;arq.opp='';arq.rng=null;arTrack();}
+  function arStep(now){var f,tx,d,s;
+    if(arq.ph==='fly'&&arq.fly){f=arq.fly;
+      if(now-f.t0>=f.dur){tx=arTX(now);d=Math.hypot(f.ex-tx,f.ey-AY);s=d>AR?0:Math.max(1,10-Math.floor(d/(AR/10)));
+        arq.shots.push({rx:f.ex-tx,ry:f.ey-AY});arq.fx.push({x:f.ex,y:f.ey,s:s,t:now});arq.sc+=s;arq.k++;arq.fly=null;arq.ph='hit';arq.hitAt=now;vib(s>=9?[14,30,14]:12);arInfo();arSendSc();}
+    }else if(arq.ph==='hit'&&now-arq.hitAt>720){
+      if(arq.k>=AN)return arFinish();
+      arq.ph='aim';arq.rt0=now;
+    }else if(arq.ph==='wait'&&arq.oppDone){arEnd();return true;}
+    return false;}
+  function arTick(now){if(!arq.vs)return;
+    if(now-arq.lastRx>10000){arOppLeft();return;}
+    if(now-arq.sendAt>=arq.gap){arq.sendAt=now;arSendSc();}}
+  function arLoop(now){if(mode!=='arch'){raf=0;return;}
+    arTick(now);if(!raf)return;
+    if(arStep(now)||!raf)return;
+    arDraw(now);raf=requestAnimationFrame(arLoop);}
+  function archStart(){stopAll();mode='arch';t1.textContent='🏹 미니 양궁';cv.width=AW;cv.height=AH;cv.style.display='block';pad.style.display='none';mn.style.display='none';mn.innerHTML='';arReset();arJoin();raf=requestAnimationFrame(arLoop);}
+  function arDraw(now){var g,j,x,y,p,a,s,wt,q=arq.press,R=arq.R[Math.min(arq.k,AN-1)]||{w:0},tx=arTX(now),cols=['#f4f1ea','#25252b','#3d8fe0','#e0483f','#ffd24a'],sw,hold,f;
+    g=cx.createLinearGradient(0,0,0,AH);g.addColorStop(0,'#8fd3ff');g.addColorStop(.6,'#dff3ff');g.addColorStop(.6,'#7bbf6a');g.addColorStop(1,'#4c9453');cx.fillStyle=g;cx.fillRect(0,0,AW,AH);
+    cx.fillStyle='rgba(255,255,255,.8)';[[52,70,20],[84,62,15],[256,98,18],[228,104,12]].forEach(function(c){cx.beginPath();cx.arc(c[0],c[1],c[2],0,6.2832);cx.fill();});
+    cx.lineCap='round';cx.strokeStyle='#6b4a2e';cx.lineWidth=7;cx.beginPath();cx.moveTo(tx-24,AY+AR*.6);cx.lineTo(tx-46,AY+AR+52);cx.moveTo(tx+24,AY+AR*.6);cx.lineTo(tx+46,AY+AR+52);cx.stroke();
+    for(j=0;j<10;j++){cx.beginPath();cx.arc(tx,AY,(10-j)*AR/10,0,6.2832);cx.fillStyle=cols[j>>1];cx.fill();cx.strokeStyle='rgba(0,0,0,.28)';cx.lineWidth=1;cx.stroke();}
+    cx.beginPath();cx.arc(tx,AY,AR,0,6.2832);cx.strokeStyle='#6b4a2e';cx.lineWidth=4;cx.stroke();
+    arq.shots.forEach(function(h){x=tx+h.rx;y=AY+h.ry;cx.strokeStyle='#5a3b1c';cx.lineWidth=2;cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+3,y+15);cx.stroke();cx.strokeStyle='#e0483f';cx.lineWidth=3;cx.beginPath();cx.moveTo(x+2.4,y+11);cx.lineTo(x+3,y+16);cx.stroke();cx.fillStyle='#2b1d0e';cx.beginPath();cx.arc(x,y,2.2,0,6.2832);cx.fill();});
+    wt=Math.abs(R.w)<.13?'🍃 바람 잔잔':'🍃 바람 '+(R.w<0?'◀ ':'')+(Math.abs(R.w)*10).toFixed(1)+(R.w>0?' ▶':'');
+    mRR(AW/2-72,8,144,28,14);cx.fillStyle='rgba(20,30,50,.55)';cx.fill();cx.fillStyle='#fff';cx.font='bold 14px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(wt,AW/2,23);
+    hold=q?Math.min(1,(now-q.t)/900):0;
+    cx.font='28px sans-serif';cx.fillStyle='#000';cx.fillText('🐱',AX,AH-8);
+    cx.strokeStyle='#8a5a36';cx.lineWidth=4;cx.beginPath();cx.arc(AX,AH-28,32,Math.PI*1.12,Math.PI*1.88);cx.stroke();
+    cx.strokeStyle='rgba(255,255,255,.85)';cx.lineWidth=1.5;cx.beginPath();cx.moveTo(AX-29.8,AH-39.8);cx.lineTo(AX,AH-34+hold*14);cx.lineTo(AX+29.8,AH-39.8);cx.stroke();
+    if(arq.ph==='aim'){cx.strokeStyle='#d8b27a';cx.lineWidth=2.5;cx.beginPath();cx.moveTo(AX,AH-34+hold*14);cx.lineTo(AX,AH-72+hold*14);cx.stroke();}
+    if(arq.fly){f=arq.fly;p=Math.min(1,(now-f.t0)/f.dur);x=f.sx+(f.ex-f.sx)*p;y=f.sy+(f.ey-f.sy)*p-Math.sin(p*Math.PI)*34;a=Math.atan2(f.ey-f.sy,f.ex-f.sx);s=1-.45*p;
+      cx.save();cx.translate(x,y);cx.rotate(a+Math.PI/2);cx.scale(s,s);cx.strokeStyle='#d8b27a';cx.lineWidth=3;cx.beginPath();cx.moveTo(0,0);cx.lineTo(0,34);cx.stroke();cx.strokeStyle='#e0483f';cx.lineWidth=4;cx.beginPath();cx.moveTo(0,28);cx.lineTo(0,36);cx.stroke();cx.fillStyle='#aab';cx.beginPath();cx.moveTo(0,-8);cx.lineTo(-4,2);cx.lineTo(4,2);cx.closePath();cx.fill();cx.restore();}
+    if(q){sw=arSway(now,q);x=q.ax+sw.x;y=q.ay+sw.y;
+      cx.strokeStyle='rgba(255,255,255,.28)';cx.lineWidth=1;cx.beginPath();cx.arc(q.ax,q.ay,sw.A+4,0,6.2832);cx.stroke();
+      cx.strokeStyle=sw.A>16?'#ff8a8a':'#fff';cx.lineWidth=2;cx.beginPath();cx.arc(x,y,10,0,6.2832);cx.moveTo(x-17,y);cx.lineTo(x-5,y);cx.moveTo(x+5,y);cx.lineTo(x+17,y);cx.moveTo(x,y-17);cx.lineTo(x,y-5);cx.moveTo(x,y+5);cx.lineTo(x,y+17);cx.stroke();}
+    arq.fx=arq.fx.filter(function(e){return now-e.t<900;});
+    arq.fx.forEach(function(e){var u=(now-e.t)/900;cx.globalAlpha=1-u;cx.font='bold 22px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.lineWidth=4;cx.strokeStyle='rgba(20,10,40,.8)';var tt=e.s===10?'🎯 10!':(e.s?e.s+'점':'빗나감');cx.strokeText(tt,e.x,e.y-14-u*26);cx.fillStyle=e.s>=9?'#ffe27a':'#fff';cx.fillText(tt,e.x,e.y-14-u*26);cx.globalAlpha=1;});
+    if(arq.tip&&arq.ph==='aim'&&!q){cx.textAlign='center';cx.textBaseline='middle';cx.font='bold 14px sans-serif';cx.lineWidth=4;cx.strokeStyle='rgba(20,30,50,.75)';cx.strokeText('꾹 누르고 끌어서 조준 → 놓으면 발사!',AW/2,290);cx.fillStyle='#fff';cx.fillText('꾹 누르고 끌어서 조준 → 놓으면 발사!',AW/2,290);cx.font='13px sans-serif';cx.strokeText('바람 반대쪽으로 살짝 보정해요',AW/2,312);cx.fillText('바람 반대쪽으로 살짝 보정해요',AW/2,312);}
+    if(arq.ph==='wait'&&arq.vs&&!arq.oppDone){mRR(AW/2-96,AH/2-22,192,44,16);cx.fillStyle='rgba(20,16,40,.78)';cx.fill();cx.fillStyle='#ffe3b0';cx.font='bold 16px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('상대를 기다리는 중… ⏳',AW/2,AH/2);}
+    cx.textBaseline='alphabetic';}
+  // 터치 · 마우스: 꾹 누르고 끌어서 조준 → 놓으면 발사
+  function arPt(e){var r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*cv.width/(r.width||1),y:(e.clientY-r.top)*cv.height/(r.height||1)};}
+  cv.addEventListener('pointerdown',function(e){if(mode!=='arch'||arq.ph!=='aim'||arq.press)return;e.preventDefault();try{cv.setPointerCapture(e.pointerId);}catch(x){}var p=arPt(e);arq.press={x0:p.x,y0:p.y,t:performance.now(),ax:AX,ay:AY+10,id:e.pointerId};});
+  cv.addEventListener('pointermove',function(e){var q=arq.press;if(mode!=='arch'||!q||e.pointerId!==q.id)return;var p=arPt(e);q.ax=Math.max(10,Math.min(AW-10,AX+(p.x-q.x0)*1.1));q.ay=Math.max(10,Math.min(AH-110,AY+10+(p.y-q.y0)*1.1));});
+  cv.addEventListener('pointerup',function(e){var q=arq.press;if(mode!=='arch'||!q||e.pointerId!==q.id)return;arq.press=null;arShoot(performance.now(),q);});
+  cv.addEventListener('pointercancel',function(e){var q=arq.press;if(q&&e.pointerId===q.id)arq.press=null;});
+  // ── 🏹 대전 (별방울처럼: 같은 방에서 양궁 하는 사람이 있으면 '같이하기' · 똑같은 바람/과녁으로 10발 점수 겨루기)
+  function arSend(ev,pl){var c=arq.ch;if(!c||!arq.ok)return;pl.f=arq.id;
+    try{var r=c.send({type:'broadcast',event:ev,payload:pl});if(r&&r.then)r.then(function(res){if(res==='rate limited')arq.gap=Math.min(3000,arq.gap*1.4);}).catch(function(){});}catch(e){}}
+  function arTrack(){var c=arq.ch;if(!c||!arq.ok)return;try{var r=c.track({n:myNick(),st:arq.vs?'busy':'free'});if(r&&r.catch)r.catch(function(){});}catch(e){}}
+  function arJoin(){
+    arLeave(true);
+    var sb=window.__SB;if(!sb)return;
+    try{
+      var c=sb.channel('hy-arrow-'+ch,{config:{broadcast:{self:false},presence:{key:arq.id}}});
+      c.on('presence',{event:'sync'},function(){arInv();});
+      ['req','acc','sc','qt'].forEach(function(ev){c.on('broadcast',{event:ev},function(m){arRx(ev,m&&m.payload);});});
+      arq.ch=c;arq.iv=setInterval(arInv,2500);
+      c.subscribe(function(st){
+        if(st==='SUBSCRIBED'){if(arq.ch===c){arq.ok=true;arTrack();}}
+        else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'){if(arq.ch===c)arq.ok=false;}
+      });
+    }catch(e){arq.ch=null;arq.ok=false;}
+  }
+  function arLeave(quiet){
+    var c=arq.ch;
+    if(c){if(!quiet&&arq.vs&&arq.ok)arSend('qt',{t:arq.opp});try{window.__SB.removeChannel(c);}catch(e){}}
+    clearInterval(arq.iv);arq.iv=0;arq.ch=null;arq.ok=false;arq.vs=false;arq.opp='';arq.rng=null;arq.press=null;
+    if(inv){inv.style.display='none';inv.dataset.k='';}
+  }
+  function arFree(){
+    var c=arq.ch,out=[];if(!c||!arq.ok)return out;
+    try{var st=c.presenceState();for(var k in st){if(k===arq.id)continue;var a=st[k];if(!a||!a.length)continue;var p=a[a.length-1];if(p&&p.st==='free')out.push({id:k,n:String(p.n||'나그네').slice(0,8)});}}catch(e){}
+    out.sort(function(a,b){return a.id<b.id?-1:1;});return out;
+  }
+  function arInvOff(){inv.style.display='none';inv.dataset.k='';}
+  function arInv(){
+    if(!inv)return;
+    if(mode!=='arch'||arq.vs){arInvOff();return;}
+    var f=arFree(),wait=Date.now()-arq.invAt<15000,np=f.length?0:pgPeers(),k,sp,b;
+    if(!f.length&&(!arq.ok||np<1)){arInvOff();return;}
+    k=f.length?'f'+f[0].id:'i'+np+(wait?'w':'');
+    if(inv.dataset.k===k&&inv.style.display==='flex')return;
+    inv.dataset.k=k;inv.innerHTML='';
+    sp=document.createElement('span');
+    if(f.length){
+      sp.textContent='🏹 '+f[0].n+' 님도 양궁 중이에요';inv.appendChild(sp);
+      b=document.createElement('button');b.type='button';b.textContent='같이하기';
+      b.addEventListener('click',function(){arq.reqAt=Date.now();arSend('req',{t:f[0].id,n:myNick(),s:arq.reqAt});sp.textContent='🏹 요청을 보냈어요…';});
+      inv.appendChild(b);
+    }else{
+      sp.textContent=wait?'🏹 방 사람들에게 알렸어요 · 참여하면 바로 시작해요':'🏹 방에 '+(np+1)+'명 있어요';inv.appendChild(sp);
+      if(!wait){
+        b=document.createElement('button');b.type='button';b.textContent='같이하기';
+        b.addEventListener('click',function(){arq.invAt=Date.now();try{if(room&&room.sendChat)room.sendChat('\u0001AGI|'+arq.id,myNick());}catch(e){}pgToast('🏹 방 사람들에게 알렸어요');inv.dataset.k='';arInv();setTimeout(arInv,15200);});
+        inv.appendChild(b);
+      }
+    }
+    inv.style.display='flex';
+  }
+  function arRx(ev,d){
+    if(!d||d.f===arq.id||d.t!==arq.id||mode!=='arch'||!arq.ch)return;
+    if(ev==='req'){if(!arq.vs){arSend('acc',{t:d.f,n:myNick(),s:d.s});arMatch(d.f,d.n,d.s);}return;}
+    if(ev==='acc'){if(!arq.vs&&Date.now()-arq.reqAt<6000)arMatch(d.f,d.n,d.s);return;}
+    if(!arq.vs||d.f!==arq.opp)return;
+    if(ev==='sc'){arq.oppK=Math.max(0,Math.min(AN,d.k|0));arq.oppS=Math.max(0,Math.min(AN*10,d.s|0));arq.oppDone=arq.oppK>=AN;arq.lastRx=performance.now();arInfo();}
+    else if(ev==='qt'){arOppLeft();}
+  }
+  function arMatch(id,n,s){
+    arq.vs=true;arq.opp=id;arq.oppN=String(n||'나그네').slice(0,8);arq.lastRx=performance.now();arq.sendAt=0;
+    arq.rng=vzRand(vzHash(String(s||0)+[arq.id,id].sort().join('')));   // 둘이 똑같은 바람 · 과녁 순서예요
+    arTrack();if(inv)inv.style.display='none';
+    pgToast('🏹 '+arq.oppN+' 님과 대결 시작!');
+    mn.style.display='none';mn.innerHTML='';
+    arReset();
+    if(!raf)raf=requestAnimationFrame(arLoop);
+  }
+  function arOppLeft(){
+    if(!arq.vs)return;
+    arq.vs=false;arq.opp='';arq.rng=null;arTrack();
+    pgToast('상대가 나갔어요 · 이어서 혼자 해요 🏹');arInfo();
+    if(arq.ph==='wait')arEnd();else arInv();
+  }
   // ───── 열기 · 닫기 · 키보드 ─────
   function open(){root.classList.add('on');menu();}
   function close(){stopAll();root.classList.remove('on');}
@@ -4617,6 +4760,34 @@ function arcTick(){if(!arcRow)return;
     var no=document.createElement('button');no.type='button';no.textContent='✕';
     [yes,no].forEach(function(b){b.style.padding='5px 12px';b.style.fontSize='.88rem';b.style.borderRadius='12px';});
     yes.addEventListener('click',function(){invHide();vzGo(id);});
+    no.addEventListener('click',invHide);
+    el.appendChild(sp);el.appendChild(yes);el.appendChild(no);document.body.appendChild(el);
+    invTm=setTimeout(invHide,20000);
+  };
+  // ───── 🏹 양궁 대전 초대: 방 사람이 '같이하기'를 누르면 화면 위에 [참여] 가 떠요 ─────
+  function arGo(id){
+    if(arcOpenFn&&!root.classList.contains('on'))arcOpenFn();
+    archStart();
+    var tries=0,t=setInterval(function(){
+      if(mode!=='arch'||arq.vs){clearInterval(t);return;}
+      if(!arq.ok){if(++tries>20)clearInterval(t);return;}
+      arq.reqAt=Date.now();arSend('req',{t:id,n:myNick(),s:arq.reqAt});
+      if(++tries>8){clearInterval(t);pgToast('상대가 이미 나갔나 봐요 · 먼저 혼자 해요 🏹');}
+    },1000);
+  }
+  window.arcArInvite=function(d){
+    var id=String(String(d.t||'').slice(1).split('|')[1]||'');
+    if(!/^a[a-z0-9]{3,12}$/.test(id)||id===arq.id)return;
+    if(mode==='arch'&&arq.vs)return;
+    var nm=String(d.n||'나그네').slice(0,8);
+    invHide();
+    var el=document.createElement('div');invBan=el;
+    el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top,0px));z-index:90;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:16px;background:rgba(24,16,12,.96);border:1px solid rgba(255,190,120,.45);color:#f3e6d0;font-size:.92rem;box-shadow:0 6px 24px rgba(0,0,0,.45);max-width:calc(100% - 20px);box-sizing:border-box';
+    var sp=document.createElement('span');sp.textContent='🏹 '+nm+' 님이 양궁 대결 하재요';
+    var yes=document.createElement('button');yes.type='button';yes.textContent='참여';
+    var no=document.createElement('button');no.type='button';no.textContent='✕';
+    [yes,no].forEach(function(b){b.style.padding='5px 12px';b.style.fontSize='.88rem';b.style.borderRadius='12px';});
+    yes.addEventListener('click',function(){invHide();arGo(id);});
     no.addEventListener('click',invHide);
     el.appendChild(sp);el.appendChild(yes);el.appendChild(no);document.body.appendChild(el);
     invTm=setTimeout(invHide,20000);
@@ -5469,12 +5640,12 @@ function chatCheck(raw){
   if(/https?:|www\.|\.com|\.kr|\.net|@/i.test(tx)||tx.replace(/\D/g,'').length>=7)return {ok:false,why:'링크나 연락처는 남길 수 없어요'};
   return {ok:true,t:tx};
 }
-function onChat(d){if(d&&typeof d.t==='string'&&d.t.charCodeAt(0)===1){try{if(d.t.slice(1,5)==='PGI|'){if(window.arcPgInvite)window.arcPgInvite(d);}else if(d.t.slice(1,5)==='BGI|'){if(window.arcBgInvite)window.arcBgInvite(d);}else if(d.t.slice(1,5)==='KCH|'){if(window.korChatIn)window.korChatIn(d);}else cinNet(d);}catch(e){}return;}
+function onChat(d){if(d&&typeof d.t==='string'&&d.t.charCodeAt(0)===1){try{if(d.t.slice(1,5)==='PGI|'){if(window.arcPgInvite)window.arcPgInvite(d);}else if(d.t.slice(1,5)==='BGI|'){if(window.arcBgInvite)window.arcBgInvite(d);}else if(d.t.slice(1,5)==='AGI|'){if(window.arcArInvite)window.arcArInvite(d);}else if(d.t.slice(1,5)==='KCH|'){if(window.korChatIn)window.korChatIn(d);}else cinNet(d);}catch(e){}return;}
   if(chatHidden)return;
   var c=chatCheck(d&&d.t);if(!c.ok)return;
   var p=players[d.id];if(p)bubble(p,c.t,true);
   addLog(String(d.n||'나그네').slice(0,8),c.t);
-  try{if(window.__ttsSpeak)window.__ttsSpeak(c.t,String(d.n||'나그네').slice(0,8));}catch(e){}
+  try{if(window.__ttsSpeak)window.__ttsSpeak(c.t);}catch(e){}
 }
 var inTent=null,tentBtn=document.getElementById('tent'),sitBtn=document.getElementById('sit'),lieBtn=document.getElementById('lie');
 function enterTent(){
@@ -6517,9 +6688,8 @@ function chatSend(){
   if(c.t===chatPrev&&now-chatPrevAt<10000)return;
   chatLast=now;chatPrev=c.t;chatPrevAt=now;
   var pm=players.me;if(pm)bubble(pm,c.t,true);
-  var kor=!!(window.cinKorIn&&window.cinKorIn());
-  addLog((kor?'💬 ':'')+(me.name||'나'),c.t);
-  var sent=!!(room&&room.sendChat&&room.sendChat((kor?'\u0001KCH|':'')+c.t,(me.name||'나그네').slice(0,8)));
+  addLog(me.name||'나',c.t);
+  var sent=!!(room&&room.sendChat&&room.sendChat(c.t,(me.name||'나그네').slice(0,8)));
   if(!sent&&!chatSolo){chatSolo=true;msgEl.textContent='지금은 혼자 있거나 연결 중이라 나한테만 보여요';msg.classList.add('on');}
   chatIn.value='';
 }
@@ -7490,7 +7660,7 @@ btn.addEventListener('click',function(){
     ['🛌','눕기','누우면 🌌 하늘 보기. 불멍 · 바닷가에선 🖌️ 하늘에 그리기'],
     ['🧍','일어나기','앉거나 누운 걸 풀어요'],
     ['👁️','시점','1인칭 / 3인칭. 화면을 끌면 둘러봐요'],
-    ['🗨️','말하기','한마디를 남겨요. 💬 속닥방 안에서는 방 친구에게만 보여요. 🙈로 채팅을 숨기고 💬로 다시 봐요'],
+    ['🗨️','말하기','한마디를 남겨요. 🙈로 채팅을 숨기고 💬로 다시 봐요'],
     ['📋','활동','지금 할 수 있는 것들이 모여 있어요'],
     ['⚙️','설정','닉네임 · 방 · 소리'],
     ['🔥','장소 바꾸기','왼쪽 위에서 다른 곳으로 옮겨가요'],
@@ -7555,27 +7725,15 @@ btn.addEventListener('click',function(){
   var koVoice=null;
   function pick(){try{var vs=speechSynthesis.getVoices();for(var i=0;i<vs.length;i++){if(/^ko/i.test(vs[i].lang)){koVoice=vs[i];break;}}}catch(e){}}
   if(ok){pick();try{speechSynthesis.onvoiceschanged=pick;}catch(e){}}
-  var q=[],busy=false,wd=null;
-  function next(){
-    if(busy)return;var it=q.shift();if(!it)return;
-    busy=true;
-    try{
-      var u=new SpeechSynthesisUtterance(it);
-      u.lang='ko-KR';if(koVoice)u.voice=koVoice;
-      u.rate=q.length>=2?1.3:(q.length?1.15:1.05);
-      var done=function(){if(!busy)return;busy=false;clearTimeout(wd);next();};
-      u.onend=done;u.onerror=done;
-      clearTimeout(wd);wd=setTimeout(done,15000);
-      speechSynthesis.speak(u);
-    }catch(e){busy=false;}
-  }
-  window.__ttsSpeak=function(t,n){
+  window.__ttsSpeak=function(t){
     if(!ok||!on||window.__muted)return;
     t=String(t||'').trim();if(!t)return;
-    var pre=((busy||q.length)&&n)?String(n).slice(0,8)+': ':'';
-    if(q.length>=3)q.shift();
-    q.push(pre+t.slice(0,80));
-    next();
+    try{
+      if(speechSynthesis.pending)speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(t.slice(0,80));
+      u.lang='ko-KR';if(koVoice)u.voice=koVoice;u.rate=1.05;
+      speechSynthesis.speak(u);
+    }catch(e){}
   };
   // 아이폰 등은 화면을 한 번 눌러야 소리가 나서, 첫 터치 때 미리 깨워둬요
   addEventListener('pointerdown',function(){
@@ -7588,7 +7746,7 @@ btn.addEventListener('click',function(){
     lab();
     b.addEventListener('click',function(){
       on=!on;try{localStorage.setItem('hy-tts',on?'1':'0');}catch(e){}
-      if(!on){q.length=0;busy=false;try{speechSynthesis.cancel();}catch(e){}}
+      if(!on){try{speechSynthesis.cancel();}catch(e){}}
       lab();
     });
     row.appendChild(b);
