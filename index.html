@@ -3471,7 +3471,7 @@ function arcTick(){if(!arcRow)return;
   +'#arc h3{margin:0;font-size:1.05rem;font-weight:600}'
   +'#arc .hb{display:flex;gap:6px}#arc .hb button{padding:6px 14px;font-size:.9rem}'
   +'#arc .sc{display:flex;justify-content:space-between;font-size:.95rem;min-height:1.3em}'
-  +'#arc canvas{display:none;position:static;inset:auto;margin:0 auto;max-width:100%;max-height:44vh;max-height:44dvh;width:auto;height:auto;border-radius:14px;touch-action:none;background:#000}'
+  +'#arc canvas{display:none;position:static;inset:auto;margin:0 auto;max-width:100%;max-height:52vh;max-height:52dvh;width:auto;height:auto;border-radius:14px;touch-action:none;background:#000}'
   +'#arc .pad{display:none;grid-template-columns:repeat(5,1fr);gap:14px 8px}#arc .pad button{padding:14px 0;font-size:1.25rem;border-radius:16px;touch-action:manipulation;min-width:0}#arc .pad .rot{background:rgba(255,190,120,.28);border-color:rgba(255,190,120,.7)}'
   +'#arc .mn{display:none;flex-direction:column;gap:10px}#arc .mn button{padding:14px;border-radius:16px;font-size:1.05rem;display:flex;flex-direction:column;align-items:center;gap:2px}#arc .mn small{opacity:.7;font-size:.8rem}'
   +'#arc .rk{border-radius:14px;background:rgba(255,255,255,.05);padding:10px 12px;display:flex;flex-direction:column;gap:6px;text-align:left}'
@@ -3905,7 +3905,10 @@ function arcTick(){if(!arcRow)return;
   function bind(b,fn,rp){var to=0,iv=0;function stop(){clearTimeout(to);clearInterval(iv);to=iv=0;}
     b.addEventListener('pointerdown',function(e){e.preventDefault();if(mode!=='tet'||tOver)return;fn();if(rp){stop();to=setTimeout(function(){iv=setInterval(function(){if(mode==='tet'&&!tOver)fn();else stop();},80);},220);}});
     ['pointerup','pointercancel','pointerleave'].forEach(function(n){b.addEventListener(n,stop);});padStops.push(stop);}
-  [null,null,null,null,['⟳',tRot,0,1],['◀',function(){tMove(-1);},1],['▶',function(){tMove(1);},1],null,null,['⤓',tDrop,0]].forEach(function(q){if(!q){pad.appendChild(document.createElement('span'));return;}var b=document.createElement('button');b.type='button';b.textContent=q[0];if(q[3])b.className='rot';b.setAttribute('aria-label',{'◀':'왼쪽','⟳':'돌리기','▶':'오른쪽','▼':'아래로','⤓':'바로 내리기'}[q[0]]);pad.appendChild(b);bind(b,q[1],q[2]);});
+  function bindHold(b,tap,hold,ms){var to=0;function stop(){clearTimeout(to);to=0;}
+    b.addEventListener('pointerdown',function(e){e.preventDefault();if(mode!=='tet'||tOver)return;tap();stop();to=setTimeout(function(){to=0;if(mode==='tet'&&!tOver)hold();},ms);});
+    ['pointerup','pointercancel','pointerleave'].forEach(function(n){b.addEventListener(n,stop);});padStops.push(stop);}
+  [null,null,null,null,['⟳',tRot,0,1],['◀',function(){tMove(-1);},1],['▶',function(){tMove(1);},1],null,null,['▼',function(){tDown(true);},0,0,1]].forEach(function(q){if(!q){pad.appendChild(document.createElement('span'));return;}var b=document.createElement('button');b.type='button';b.textContent=q[0];if(q[3])b.className='rot';b.setAttribute('aria-label',{'◀':'왼쪽','⟳':'돌리기','▶':'오른쪽','▼':'아래로','⤓':'바로 내리기'}[q[0]]);pad.appendChild(b);if(q[4])bindHold(b,q[1],tDrop,380);else bind(b,q[1],q[2]);});
   // ───── 열기 · 닫기 · 키보드 ─────
   function open(){root.classList.add('on');menu();}
   function close(){stopAll();root.classList.remove('on');}
