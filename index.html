@@ -457,7 +457,7 @@ SUITES.forEach(function(s){CIN_DR.push([-37.6,-36.2,s.c-1.6,s.c+1.6]);CIN_RECTS.
 var cinDoors=[],cinWay=[],cinWayT=null,cinWayOpen=false,cinEnterAct=null,cinLock=[],cinPrevZ=-1;
 function cinDoorOpen(i){var d=cinDoors[i];if(!d)return false;if(Date.now()<d.until)return true;if(d.hold&&me.x>-37.7&&me.x<-36.1&&Math.abs(me.z-SUITES[i].c)<1.7)return true;d.hold=false;return false;}
 function cinSuiteIdx(){if(scene!=='cinema')return -1;if(me.x<SU_XR+.1&&me.x>SU_X0-.5)for(var i=0;i<SUITES.length;i++)if(Math.abs(me.z-SUITES[i].c)<13)return i;return -1;}
-function cinPlace(){if(window.cinSecIn&&window.cinSecIn())return 'S';var i=cinSuiteIdx();return i<0?'H':String(i);}
+function cinPlace(){if(window.cinSecIn&&window.cinSecIn())return 'S';if(window.cinKorIn&&window.cinKorIn())return 'K';var i=cinSuiteIdx();return i<0?'H':String(i);}
 function cinZone(x,z){   // 0~2 별실 안 · 3 별실 바깥 길(옆문 앞) · 4 중앙 극장
   var i;if(x<SU_XR+.1&&x>SU_X0-.5){for(i=0;i<SUITES.length;i++)if(Math.abs(z-SUITES[i].c)<13)return i;}
   for(i=0;i<SUITES.length;i++)if(x>=-37.1&&x<-29.8&&Math.abs(z-SUITES[i].c)<2.4)return CIN_NS;
@@ -480,17 +480,18 @@ function cinRoutePt(P){   // 지금 위치 → P 까지 거쳐 갈 지점들 (�
   p.push(P);return p;
 }
 function cinTapRoute(){   // 바닥을 눌렀는데 다른 구역이면 걸어가요 (단, 별실 문은 [나가기/들어가기] 버튼으로만 드나들어요)
-  var tp=[me.tx,me.tz],za=cinZone(me.x,me.z),zb=cinZone(tp[0],tp[1]);var sr0=window.cinSecRoute&&window.cinSecRoute(tp);if(sr0){cinGoWay(sr0);return;}
+  var tp=[me.tx,me.tz],za=cinZone(me.x,me.z),zb=cinZone(tp[0],tp[1]);var sr0=window.cinSecRoute&&window.cinSecRoute(tp);if(!sr0&&window.cinKorRoute)sr0=window.cinKorRoute(tp);if(sr0){cinGoWay(sr0);return;}
   var pa=za===CIN_NS?cinPathIdx(me.x,me.z,1.3):-1,pb=zb===CIN_NS?cinPathIdx(tp[0],tp[1],1.3):-1;
   if(za===zb&&pa===pb){cinWay=[];return;}
   if(za<CIN_NS||zb<CIN_NS){cinGoWay(cinRoutePt(tp),true);return;}
   cinGoWay(cinRoutePt(tp));
 }
-function cinFpDist(){var sq=window.cinSecFp&&window.cinSecFp();if(sq)return sq;var zi=cinZone(me.x,me.z);return zi<CIN_NS?{sw:SUITES[zi].w,sh:SUITES[zi].h,d:Math.max(4,me.x-SU_SX),cy:SU_SY,lat:Math.abs(me.z-SUITES[zi].c)*.5}:{sw:(cinVert?CIN_H*9/16:CIN_W),sh:CIN_H,d:Math.max(4,me.z-CIN_SZ),cy:CIN_Y,lat:0};}
+function cinFpDist(){var sq=(window.cinSecFp&&window.cinSecFp())||(window.cinKorFp&&window.cinKorFp());if(sq)return sq;var zi=cinZone(me.x,me.z);return zi<CIN_NS?{sw:SUITES[zi].w,sh:SUITES[zi].h,d:Math.max(4,me.x-SU_SX),cy:SU_SY,lat:Math.abs(me.z-SUITES[zi].c)*.5}:{sw:(cinVert?CIN_H*9/16:CIN_W),sh:CIN_H,d:Math.max(4,me.z-CIN_SZ),cy:CIN_Y,lat:0};}
 window.CIN_FP_ZOOM=.92;window.CIN_FP_AIM=.2;
 window.cinShiftApply=(function(){var sv=0;return function(tt){sv+=(tt-sv)*.2;if(Math.abs(tt-sv)<.0005)sv=tt;if(!sv){if(cam.view&&cam.view.enabled)cam.clearViewOffset();return;}var W=cv.clientWidth||1,H=cv.clientHeight||1,px=H*sv/(2*Math.tan(cam.fov*Math.PI/360));cam.setViewOffset(W,H,0,-px,W,H);};})();   // 1인칭: 고개를 들지 않고 화면만 위로 밀어서, 스크린이 기울어 보이지 않게   // 1인칭: ZOOM 작을수록 가까이(확대), AIM 클수록 스크린 아래쪽을 봐서 덜 올려다봐요
 function cinFpFov(){var q=cinFpDist(),ey=cam.position.y,vw=2*Math.atan((q.sw/2+1+q.lat)/q.d/cam.aspect),vh=2*Math.max(.1,Math.atan2(q.cy+q.sh/2-ey,q.d)-Math.atan2(q.cy-q.sh*window.CIN_FP_AIM-ey,q.d)+.05),v=Math.max(vw,vh*.8)*180/Math.PI*window.CIN_FP_ZOOM;return Math.max(62,Math.min(cam.aspect<1?120:100,v));}   // 스크린이 화면에 다 들어오게 시야각을 자동으로 넓혀요
 function cinCamClamp(w){   // 별실 · 복도 안에서는 카메라도 벽 밖으로 못 나가요
+  if(window.cinKorIn&&window.cinKorIn()){window.cinKorCamClamp(w);return;}
   var z=cinZone(me.x,me.z),c;
   if(z<CIN_NS){c=SUITES[z].c;w.x=Math.max(-66.6,Math.min(-37.1,w.x));w.z=Math.max(c-12.8,Math.min(c+12.8,w.z));w.y=Math.max(1,Math.min(14.5,w.y));}
 }
@@ -534,10 +535,10 @@ function cinSetShape(v){   // v=true 면 세로(숏츠용, 9:16), false 면 가�
 function cinShapeTick(){   // 방(번호)이나 별실을 옮기면 영상을 끄고, 그곳 스크린 모양(가로/세로)으로 맞춰요
   if(scene!=='cinema'){var eb0=document.getElementById('cinenter');if(eb0&&eb0.style.display!=='none')eb0.style.display='none';return;}
   {var cdT=(cinOn&&!cinPaused)?.5:1;cinDim+=(cdT-cinDim)*.04;if(Math.abs(cdT-cinDim)<.003)cinDim=cdT;R.toneMappingExposure=((SET.cinema&&SET.cinema.ex)||1.3)*cinDim;}   // 영상을 틀면 주변이 서서히 어두워져요(스크린은 그대로 밝게)
-  var si=cinSuiteIdx(),sq0=!!(window.cinSecIn&&window.cinSecIn()),pl=sq0?'S':(si<0?'H':String(si));
+  var si=cinSuiteIdx(),sq0=!!(window.cinSecIn&&window.cinSecIn()),kq0=!!(window.cinKorIn&&window.cinKorIn()),pl=sq0?'S':(kq0?'K':(si<0?'H':String(si)));
   if(cinLastCh!==ch){cinLastCh=ch;cinLastPl=pl;if(typeof cinStop==='function')cinStop(true);}
   else if(cinLastPl!==pl){cinLastPl=pl;if(typeof cinStop==='function')cinStop(true);if(window.cinAsk)window.cinAsk();}
-  var r=window.CIN_ROOMS&&window.CIN_ROOMS[ch],v=sq0?false:(si>=0?!!SUITES[si].v:!!(r&&r.vertical));
+  var r=window.CIN_ROOMS&&window.CIN_ROOMS[ch],v=(sq0||kq0)?false:(si>=0?!!SUITES[si].v:!!(r&&r.vertical));
   if(v!==cinVert)cinSetShape(v);
   cinDoorTick();
 }
@@ -720,6 +721,176 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     window.cinSecGo=function(){return [[SX-5,SZ],[SX-1.4,SZ]];};   // 이동 탭에서 [📺 1인 아지트]를 누르면 걸어갈 곳
   })();
 
+  // ═══ 🎤 코인노래방: 오락실·매점 쪽 동쪽 끝, 노래방 반주기와 마이크가 있는 작은 룸 (친구랑 같이 들어가서 영상 보며 불러요) ═══
+  (function(){
+    var KX=31.5,KZ=-17,HX=3.5,HZ=3.1,WH=3.3,DW=1.9;   // 중심 · 방 반폭(x,z) · 벽 높이 · 문 폭 → 위치를 옮기려면 KX, KZ 만 바꿔요
+    var SCX=KX+HX-.2,SCY=1.75,SW=3.2,SH=1.8;   // TV 화면(동쪽 벽, 서쪽 문을 바라봐요)
+    window.CIN_KOR={x:KX,z:KZ,hx:HX,hz:HZ};
+    var RM=[KX-HX+.45,KX+HX-.45,KZ-HZ+.45,KZ+HZ-.45],DR=[KX-HX-5.6,KX-HX+.5,KZ-1,KZ+1];
+    CIN_RECTS.push(RM,DR);   // 방 안 · 문 앞 길은 걸어다닐 수 있어요
+    var G=new THREE.Group();gM.add(G);
+    function add(o,x,y,z){o.position.set(x,y,z);G.add(o);return o;}
+    function tex(w,h,fn){var c=cnv(w,h);fn(c.getContext('2d'),w,h);var t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;}
+    function bas(t){return new THREE.MeshBasicMaterial({map:t,fog:false,toneMapped:false});}
+    var FONT='"Gowun Batang","Noto Sans KR","Apple SD Gothic Neo","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+    function glow(rgb,op,size){var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:rgb,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));sp.scale.set(size,size,1);return sp;}
+    // 바닥: 보라색 카펫 + 반짝이 별무늬
+    var fl=add(new THREE.Mesh(new THREE.PlaneGeometry(HX*2,HZ*2),new THREE.MeshLambertMaterial({map:tex(256,256,function(x,w,h){x.fillStyle='#2a1440';x.fillRect(0,0,w,h);x.strokeStyle='#ff5fa8';x.lineWidth=5;x.strokeRect(10,10,w-20,h-20);x.strokeStyle='#4fd3ff';x.lineWidth=2;x.strokeRect(22,22,w-44,h-44);x.fillStyle='#ffe9a8';for(var q=0;q<26;q++){x.globalAlpha=.35+(q%3)*.15;x.beginPath();x.arc((q*53)%230+12,(q*97)%230+12,1.5+(q%3),0,6.283);x.fill();}}),emissive:0x1a0c2a})),0,.03,0);
+    fl.rotation.x=-Math.PI/2;fl.position.set(KX,.03,KZ);
+    // 벽 (방음 패널 줄무늬 · 안쪽 바깥쪽 둘 다 보여요) + 지붕
+    var wt=tex(256,128,function(x,w,h){x.fillStyle='#34194f';x.fillRect(0,0,w,h);for(var q=0;q<16;q++){x.fillStyle=q%2?'#3f2060':'#2a1442';x.fillRect(q*16,0,16,h);}x.fillStyle='#ff5fa8';x.fillRect(0,h-10,w,3);x.fillStyle='#4fd3ff';x.fillRect(0,h-5,w,2);});wt.wrapS=wt.wrapT=THREE.RepeatWrapping;
+    var wM=new THREE.MeshLambertMaterial({map:wt,emissive:0x1c0e2e,side:THREE.DoubleSide});
+    function wall(w,h,x,y,z,ry){var p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),wM);p.position.set(x,y,z);p.rotation.y=ry;G.add(p);return p;}
+    wall(HX*2,WH,KX,WH/2,KZ-HZ,0);wall(HX*2,WH,KX,WH/2,KZ+HZ,Math.PI);wall(HZ*2,WH,KX+HX,WH/2,KZ,-Math.PI/2);   // 북 · 남 · 동
+    var sd=HZ-DW/2;wall(sd,WH,KX-HX,WH/2,KZ-DW/2-sd/2,Math.PI/2);wall(sd,WH,KX-HX,WH/2,KZ+DW/2+sd/2,Math.PI/2);wall(DW,WH-2.4,KX-HX,2.4+(WH-2.4)/2,KZ,Math.PI/2);   // 서쪽 벽(문 틈 있음)
+    var rf=new THREE.Mesh(new THREE.PlaneGeometry(HX*2+.4,HZ*2+.4),new THREE.MeshLambertMaterial({color:0x1d0f2e,emissive:0x0c0616,side:THREE.DoubleSide}));rf.rotation.x=-Math.PI/2;rf.position.set(KX,WH+.02,KZ);G.add(rf);
+    // 문틀 네온 + 지붕 위 큰 간판
+    var neonP=new THREE.MeshBasicMaterial({color:0xff5fa8,fog:false}),neonC=new THREE.MeshBasicMaterial({color:0x4fd3ff,fog:false});
+    add(new THREE.Mesh(new THREE.BoxGeometry(.08,2.42,.08),neonP),KX-HX-.08,1.21,KZ-DW/2);add(new THREE.Mesh(new THREE.BoxGeometry(.08,2.42,.08),neonP),KX-HX-.08,1.21,KZ+DW/2);add(new THREE.Mesh(new THREE.BoxGeometry(.08,.08,DW+.08),neonC),KX-HX-.08,2.42,KZ);
+    var sgn=add(new THREE.Mesh(new THREE.PlaneGeometry(5.2,1.5),new THREE.MeshBasicMaterial({map:tex(512,148,function(x,w,h){x.fillStyle='#14081f';x.fillRect(0,0,w,h);x.strokeStyle='#ff5fa8';x.lineWidth=7;x.strokeRect(8,8,w-16,h-16);x.strokeStyle='#4fd3ff';x.lineWidth=3;x.strokeRect(20,20,w-40,h-40);x.textAlign='center';x.textBaseline='middle';x.shadowColor='#ff5fa8';x.shadowBlur=24;x.fillStyle='#ffe3f1';x.font='bold 62px '+FONT;x.fillText('🎤 코인노래방',w/2,h/2+4);}),side:THREE.DoubleSide,fog:false,toneMapped:false})),KX-HX-.25,WH+1.1,KZ);sgn.rotation.y=-Math.PI/2;
+    add(glow(0xff5fa8,.5,5),KX-HX-.9,WH+1.1,KZ);
+    [-1,1].forEach(function(s2){add(new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.2,6),M(0x2a2030)),KX-HX-.25,WH+.4,KZ+s2*2.3);});   // 간판 기둥
+    // 문 앞 길: 판 3개 + 꼬마전구 가로등
+    var slab=M(0x4a3a5a,0x140c1c);for(var sl=0;sl<3;sl++)add(new THREE.Mesh(new THREE.BoxGeometry(1.5,.08,1.9),slab),KX-HX-1.0-sl*1.55,.04,KZ);
+    [-1,1].forEach(function(s2){for(var lp=0;lp<2;lp++){var lx=KX-HX-1.8-lp*2.6;add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,1.3,6),M(0x2a2420)),lx,.65,KZ+s2*1.5);add(new THREE.Mesh(new THREE.SphereGeometry(.15,10,8),new THREE.MeshBasicMaterial({color:lp?0x7fe0ff:0xffa8d8,fog:false})),lx,1.4,KZ+s2*1.5);}});
+    // 입구 표지판 (극장 쪽에서 보여요)
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.07,2.2,6),M(0x2a2420)),KX-HX-6.4,1.1,KZ-1.6);
+    var ab=add(new THREE.Mesh(new THREE.PlaneGeometry(2.8,.8),new THREE.MeshBasicMaterial({map:tex(448,128,function(x,w,h){x.fillStyle='#2b1d3a';x.fillRect(0,0,w,h);x.strokeStyle='#ff9ad0';x.lineWidth=5;x.strokeRect(8,8,w-16,h-16);x.fillStyle='#ffe3f1';x.textAlign='center';x.textBaseline='middle';x.font='bold 40px '+FONT;x.fillText('🎤 코인노래방 →',w/2,h/2+2);}),side:THREE.DoubleSide,fog:false})),KX-HX-6.4,2.3,KZ-1.6);ab.rotation.y=-Math.PI/2;
+    // 📺 노래방 화면 (영상이 틀어지면 이 자리에 얹혀요)
+    add(new THREE.Mesh(new THREE.BoxGeometry(.14,SH+.36,SW+.36),M(0x0d0d14)),KX+HX-.1,SCY,KZ);
+    var scr=add(new THREE.Mesh(new THREE.PlaneGeometry(SW,SH),bas(tex(512,288,function(x,w,h){var gr=x.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#1a0f4a');gr.addColorStop(1,'#5a1d6e');x.fillStyle=gr;x.fillRect(0,0,w,h);x.textAlign='center';x.textBaseline='middle';x.fillStyle='#ffe3f1';x.shadowColor='#ff5fa8';x.shadowBlur=16;x.font='bold 46px '+FONT;x.fillText('🎤 코인노래방',w/2,70);x.shadowBlur=0;x.font='24px '+FONT;x.fillStyle='#cfe8ff';x.fillText('아래 🔗 에서 "곡 제목 + 노래방" 검색!',w/2,135);x.fillStyle='rgba(255,255,255,.14)';x.fillRect(60,196,w-120,46);x.fillStyle='#ff9ad0';x.fillRect(60,196,(w-120)*.38,46);x.fillStyle='#fff';x.font='bold 26px '+FONT;x.fillText('가사가 여기에 나와요 ♪',w/2,220);}))),SCX,SCY,KZ);scr.rotation.y=-Math.PI/2;
+    add(glow(0xb08aff,.35,5),KX+HX-1.2,SCY,KZ);
+    // 노래방 반주기 (TV 옆 서랍장 위)
+    var mx=KX+HX-.5,mz=KZ+2.45;
+    add(new THREE.Mesh(new THREE.BoxGeometry(.6,1.0,.95),M(0x1b1626,0x08060c)),mx,.5,mz);
+    var mp=add(new THREE.Mesh(new THREE.PlaneGeometry(.88,.9),bas(tex(256,256,function(x,w,h){x.fillStyle='#17141f';x.fillRect(0,0,w,h);x.fillStyle='#062a2a';x.fillRect(24,20,w-48,50);x.fillStyle='#4fffe0';x.font='bold 40px monospace';x.textAlign='center';x.textBaseline='middle';x.fillText('0 0 0 0',w/2,46);for(var r=0;r<4;r++)for(var q=0;q<3;q++){x.fillStyle='#2e2a3e';x.fillRect(32+q*52,92+r*38,44,30);x.fillStyle='#ffe3f1';x.font='bold 20px sans-serif';x.fillText(['1','2','3','4','5','6','7','8','9','*','0','#'][r*3+q],54+q*52,108+r*38);}x.fillStyle='#ff5fa8';x.beginPath();x.arc(204,112,14,0,6.283);x.fill();x.fillStyle='#59d46b';x.beginPath();x.arc(204,160,14,0,6.283);x.fill();x.fillStyle='#cfe8ff';x.font='bold 18px '+FONT;x.fillText('SING',204,206);}))),mx-.31,.5,mz);mp.rotation.y=-Math.PI/2;
+    add(new THREE.Mesh(new THREE.BoxGeometry(.5,.12,.8),M(0x2a2434)),mx,1.06,mz);
+    // 마이크 스탠드 (노래 부르는 자리) + 탁자 위 마이크 · 탬버린
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.04,14),M(0x2a2a34)),KX+1.3,.05,KZ-1.3);
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.5,6),M(0x9a9aa6,0x101012)),KX+1.3,.8,KZ-1.3);
+    add(new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),M(0x2a2a34,0x0a0a10)),KX+1.3,1.58,KZ-1.3);
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.06,18),M(0x3a2a4a,0x120a1c)),KX-.7,.4,KZ);add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.4,8),M(0x2a2030)),KX-.7,.2,KZ);
+    [[-.15,.12],[.1,-.1]].forEach(function(p,k){var mc=add(new THREE.Mesh(new THREE.CylinderGeometry(.025,.03,.26,8),M(0x2a2a34)),KX-.7+p[0],.46,KZ+p[1]);mc.rotation.z=Math.PI/2;mc.rotation.y=k*.8;add(new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),M(0xc9c9d4,0x181820)),KX-.7+p[0]+(k?.12:-.12),.46,KZ+p[1]);});
+    var tb=add(new THREE.Mesh(new THREE.TorusGeometry(.13,.025,6,16),M(0xd9a441,0x20140a)),KX-.45,.45,KZ-.3);tb.rotation.x=Math.PI/2;
+    // 자리: 벽 쪽 벤치 2개 (북쪽·남쪽 벽, 한 줄에 3명씩 앉아서 TV를 봐요)
+    [[KZ-HZ+.55,-1],[KZ+HZ-.55,1]].forEach(function(B){
+      var bz=B[0],sg=B[1],bx=KX-1.1,L=3.3,bg=new THREE.Group();bg.position.set(bx,0,bz);G.add(bg);cinChairGs.push(bg);
+      var bd=M(0x7a3a6a,0x1c0a1a),sf=M(0xb0508a,0x24101e),bs=M(0x2a2030);
+      bg.add(mesh(new THREE.BoxGeometry(L,.28,.62),bs,0,.17,0));        // 받침
+      bg.add(mesh(new THREE.BoxGeometry(L,.16,.7),sf,0,.4,0));          // 방석
+      bg.add(mesh(new THREE.BoxGeometry(L,.8,.16),bd,0,.88,sg*.34));    // 등받이 (벽 쪽)
+      [-1,1].forEach(function(s2){bg.add(mesh(new THREE.BoxGeometry(.16,.4,.7),bd,s2*(L/2-.08),.58,0));});   // 팔걸이
+      [-1,0,1].forEach(function(k){var px=bx+k*1.05,pd=mesh(new THREE.BoxGeometry(.95,.1,.7),mpadM,px,.55,bz);G.add(pd);mSeats.push({m:pd,x:px,z:bz,fx:SCX,fz:KZ});});   // 눌러서 앉는 칸 3개
+    });
+    // 천장: 미러볼 + 줄조명 + 움직이는 불빛
+    var DB=new THREE.Group();DB.position.set(KX,WH-.55,KZ);G.add(DB);
+    var dbt=tex(128,64,function(x,w,h){for(var r=0;r<8;r++)for(var q=0;q<16;q++){var v=150+((q*7+r*13)%5)*20;x.fillStyle='rgb('+v+','+v+','+(v+10)+')';x.fillRect(q*8,r*8,7,7);}});dbt.wrapS=THREE.RepeatWrapping;
+    DB.add(new THREE.Mesh(new THREE.SphereGeometry(.32,16,12),new THREE.MeshBasicMaterial({map:dbt,fog:false})));
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.01,.01,.5,4),M(0x888888)),KX,WH-.25,KZ);
+    var LS=[0xff5fa8,0x4fd3ff,0xffd24a,0x8aff9a,0xb08aff].map(function(c,k){var sp=glow(c,.55,1.5+k*.1);G.add(sp);return sp;});
+    [[0,-1],[0,1]].forEach(function(p){add(new THREE.Mesh(new THREE.BoxGeometry(HX*2-.2,.05,.05),neonP),KX,WH-.12,KZ+p[1]*(HZ-.1));});
+    [[-1],[1]].forEach(function(p){add(new THREE.Mesh(new THREE.BoxGeometry(.05,.05,HZ*2-.2),neonC),KX+p[0]*(HX-.1),WH-.12,KZ);});
+    // 방이 은은하게 보이도록 (동적 불빛)
+    var t0=Date.now();
+    (function tick(){
+      try{if(scene==='cinema'&&Math.hypot(me.x-KX,me.z-KZ)<45){var t=(Date.now()-t0)/1000;DB.rotation.y=t*.6;
+        for(var k=0;k<LS.length;k++){var a=t*(.5+k*.17)+k*1.3;LS[k].position.set(KX+Math.cos(a)*(HX-.9),.12+(k%2)*1.2+Math.sin(a*1.7)*.4,KZ+Math.sin(a*1.3)*(HZ-.8));LS[k].material.opacity=.35+.25*Math.sin(t*2+k);}}}catch(e){}
+      requestAnimationFrame(tick);
+    })();
+    // 🎤 안에 있는지 · 영상 위치 · 1인칭 · 길 안내
+    function inRoom(x,z){return x>KX-HX+.1&&x<KX+HX&&Math.abs(z-KZ)<HZ;}
+    window.cinKorIn=function(){return scene==='cinema'&&inRoom(me.x,me.z);};
+    window.cinKorCorner=function(i){return new THREE.Vector3(SCX,SCY+((i<2)?SH/2:-SH/2),KZ+((i===0||i===3)?-SW/2:SW/2));};
+    window.cinKorFp=function(){if(!window.cinKorIn())return null;return {sw:SW,sh:SH,d:Math.max(1.6,SCX-me.x),cy:SCY,lat:Math.abs(me.z-KZ)*.5};};
+    window.cinKorCamClamp=function(w){w.x=Math.max(KX-HX+.3,Math.min(KX+HX-.3,w.x));w.z=Math.max(KZ-HZ+.3,Math.min(KZ+HZ-.3,w.z));w.y=Math.max(.8,Math.min(WH-.3,w.y));};
+    function inKor(x,z){return inRoom(x,z)||(x>KX-HX-5.9&&x<=KX-HX+.1&&Math.abs(z-KZ)<1.3);}
+    window.cinKorRoute=function(tp){var A=inKor(me.x,me.z),B=inKor(tp[0],tp[1]);if(A===B)return null;return [[KX-HX-2.6,KZ],tp];};
+    window.cinKorGo=function(){return [[KX-HX-2.6,KZ],[KX-HX+1.4,KZ]];};   // 이동 탭에서 [🎤 코인노래방]을 누르면 걸어갈 곳
+    var was=false,seen=false;setInterval(function(){try{var d=window.cinKorIn();if(d&&!was){toast(seen?'🎤 코인노래방이에요 · 🔗로 노래방 영상 틀기 · 활동 메뉴에서 🎤 마이크':'🎤 코인노래방! 🔗에 "곡 제목 노래방" 검색 → 활동 메뉴 🎤 마이크 켜기 · 🎧 이어폰 꼭 끼고 불러요');seen=true;}was=d;}catch(e){}},250);
+  })();
+
+  // ═══ 🎙️ 코인노래방 음성: 방 안에 있는 사람끼리 마이크 소리를 주고받아요 (WebRTC · 연결 신호는 Supabase 방송으로 주고받아요) ═══
+  (function(){
+    var row=document.getElementById('actrow');if(!row)return;
+    var btn=document.createElement('button');btn.type='button';btn.id='korvoice';btn.style.display='none';btn.textContent='마이크 켜기';row.appendChild(btn);
+    var myId='v'+Math.random().toString(36).slice(2,10),sbCh=null,chName='',peers={},stream=null,micOn=false,joined=false,subOk=false,busy=false;
+    var box=document.createElement('div');box.style.display='none';document.body.appendChild(box);
+    var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+    function roomName(){return 'hy-voice-'+(typeof ch!=='undefined'?ch:'0');}
+    function sig(o){try{if(sbCh&&subOk){var r=sbCh.send({type:'broadcast',event:'v',payload:o});if(r&&r.catch)r.catch(function(){});}}catch(e){}}
+    function gathered(pc){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();var t=setTimeout(res,2500);pc.addEventListener('icegatheringstatechange',function f(){if(pc.iceGatheringState==='complete'){clearTimeout(t);pc.removeEventListener('icegatheringstatechange',f);res();}});});}
+    function dropPeer(id){var p=peers[id];if(!p)return;delete peers[id];try{p.pc.close();}catch(e){}try{p.a.srcObject=null;if(p.a.parentNode)p.a.parentNode.removeChild(p.a);}catch(e){}}
+    function newPeer(id){
+      dropPeer(id);
+      var pc=new RTCPeerConnection(ICE),tr=pc.addTransceiver('audio',{direction:'sendrecv'}),a=document.createElement('audio');a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a);
+      var p={pc:pc,tr:tr,a:a};peers[id]=p;
+      if(stream){var tk=stream.getAudioTracks()[0];if(tk)try{tr.sender.replaceTrack(tk);}catch(e){}}
+      pc.ontrack=function(e){try{a.srcObject=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.muted=!!window.__muted;var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
+      pc.onconnectionstatechange=function(){var s=pc.connectionState;if(s==='connected'){try{toast('🎙️ 친구와 음성이 연결됐어요');}catch(e){}}if((s==='failed'||s==='closed')&&peers[id]===p)dropPeer(id);};
+      return p;
+    }
+    function offerTo(id){
+      var p=newPeer(id);
+      p.pc.createOffer().then(function(o){return p.pc.setLocalDescription(o);}).then(function(){return gathered(p.pc);}).then(function(){if(peers[id]===p)sig({k:'off',f:myId,t:id,s:p.pc.localDescription.sdp});}).catch(function(){dropPeer(id);});
+    }
+    function rx(d){
+      if(!d||d.f===myId)return;if(d.t&&d.t!==myId)return;
+      if(d.k==='hi'){if(!peers[d.f]&&myId<d.f)offerTo(d.f);return;}
+      if(d.k==='bye'){dropPeer(d.f);return;}
+      if(d.k==='off'){
+        var p=newPeer(d.f);
+        p.pc.setRemoteDescription({type:'offer',sdp:d.s}).then(function(){return p.pc.createAnswer();}).then(function(an){return p.pc.setLocalDescription(an);}).then(function(){return gathered(p.pc);}).then(function(){if(peers[d.f]===p)sig({k:'ans',f:myId,t:d.f,s:p.pc.localDescription.sdp});}).catch(function(){dropPeer(d.f);});
+        return;
+      }
+      if(d.k==='ans'){var q=peers[d.f];if(q&&q.pc.signalingState==='have-local-offer')q.pc.setRemoteDescription({type:'answer',sdp:d.s}).catch(function(){dropPeer(d.f);});}
+    }
+    function join(){
+      var sb=window.__SB;if(!sb||joined||typeof RTCPeerConnection==='undefined')return;
+      joined=true;subOk=false;chName=roomName();
+      try{
+        var c=sb.channel(chName,{config:{broadcast:{self:false}}});sbCh=c;
+        c.on('broadcast',{event:'v'},function(m){rx(m&&m.payload);});
+        c.subscribe(function(st){if(sbCh!==c)return;if(st==='SUBSCRIBED'){subOk=true;sig({k:'hi',f:myId});}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED')subOk=false;});
+      }catch(e){joined=false;}
+    }
+    function leave(){
+      if(!joined)return;joined=false;subOk=false;
+      sig({k:'bye',f:myId});
+      Object.keys(peers).forEach(dropPeer);
+      var c=sbCh;sbCh=null;try{if(c&&window.__SB)window.__SB.removeChannel(c);}catch(e){}
+      micStop();
+    }
+    function micStop(){
+      micOn=false;
+      if(stream){stream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});stream=null;}
+      Object.keys(peers).forEach(function(id){try{peers[id].tr.sender.replaceTrack(null);}catch(e){}});
+    }
+    function micStart(){
+      if(busy)return;
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('이 브라우저에서는 마이크를 쓸 수 없어요');return;}
+      busy=true;
+      navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}).then(function(s){
+        busy=false;if(!window.cinKorIn||!window.cinKorIn()){s.getTracks().forEach(function(t){t.stop();});return;}
+        stream=s;micOn=true;var tk=s.getAudioTracks()[0];
+        Object.keys(peers).forEach(function(id){try{peers[id].tr.sender.replaceTrack(tk);}catch(e){}});
+        toast('🎤 마이크 켜짐 · 이어폰을 끼면 울림(하울링)이 없어요');
+      }).catch(function(){busy=false;toast('마이크 권한이 필요해요 · 주소창 옆 자물쇠에서 마이크를 허용해 줘요');});
+    }
+    btn.addEventListener('click',function(){if(micOn){micStop();toast('🎤 마이크를 껐어요');}else micStart();});
+    setInterval(function(){
+      try{
+        var inK=!!(window.cinKorIn&&window.cinKorIn()),dv=inK?'':'none';
+        if(btn.style.display!==dv)btn.style.display=dv;
+        if(inK&&joined&&chName!==roomName())leave();
+        if(inK&&!joined)join();else if(!inK&&joined)leave();
+        var tx=micOn?'마이크 끄기':'마이크 켜기';if(btn.textContent!==tx)btn.textContent=tx;
+        var n=Object.keys(peers).length,ti='방 안 음성 '+n+'명 연결';if(btn.title!==ti&&!btn.dataset.ic)btn.title=ti;
+        Object.keys(peers).forEach(function(id){var a=peers[id].a;if(a.muted!==!!window.__muted)a.muted=!!window.__muted;});
+      }catch(e){}
+    },400);
+    addEventListener('pagehide',function(){try{leave();}catch(e){}});
+  })();
+
   // ═══ 🚪 별실 4개 (드라마 · 숏츠 · 예능·음악 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
   (function(){
     var WH=15,wood=M(0x6a4a30,0x120c06),lampG=new THREE.SphereGeometry(.17,10,8),lampM=new THREE.MeshBasicMaterial({color:0xffd88a,fog:false}),poleG=new THREE.CylinderGeometry(.04,.05,1.2,6),poleM=M(0x2a2420);
@@ -822,6 +993,7 @@ function cinHomog(d,sw,sh){   // (sw x sh) 사각형 → 화면 위 네 점(d)�
 }
 function cinCorner(i){   // 지금 내가 있는 곳의 스크린 모서리 (별실 안이면 그 방 스크린)
   if(window.cinSecIn&&window.cinSecIn())return window.cinSecCorner(i);
+  if(window.cinKorIn&&window.cinKorIn())return window.cinKorCorner(i);
   var si=cinSuiteIdx();
   if(si>=0){var S=SUITES[si],hw2=S.w/2;return new THREE.Vector3(SU_SX,SU_SY+((i<2)?S.h/2:-S.h/2),S.c+((i===0||i===3)?hw2:-hw2));}
   return new THREE.Vector3(CIN_C[i][0],CIN_C[i][1],CIN_SZ);
@@ -860,7 +1032,7 @@ function cinTick(){
   if(linkB)linkB.addEventListener('click',function(){showUrl(!urlRow||urlRow.style.display==='none');});
   var loopOn=false,loopMode='off',loopB=document.getElementById('cinloop'),loopMenu=null;   // loopMode: off(끔) · all(이 방 추천+내 목록) · mine(내 목록만)
   window.cinPlayInfo=function(){return st?{id:st.id,playing:!st.paused&&!st.ended}:{id:null,playing:false};};   // ⭐ 마찌가 지금 노래가 나오는지 알아보는 용도
-  function inMusicRoom(){if(window.cinSecIn&&window.cinSecIn())return true;var si=cinSuiteIdx(),S=window.CIN_SUITES&&window.CIN_SUITES[si];return si>=0&&!!S&&/음악/.test(S.name||'');}   // 🎵 연속 재생 버튼은 딱 두 곳에서만 보여요: '음악' 이 이름에 들어간 별실 + 🤫 1인 아지트 (아지트는 추천 목록이 없어서 내 목록이 이어져요)
+  function inMusicRoom(){if(window.cinSecIn&&window.cinSecIn())return true;if(window.cinKorIn&&window.cinKorIn())return true;var si=cinSuiteIdx(),S=window.CIN_SUITES&&window.CIN_SUITES[si];return si>=0&&!!S&&/음악/.test(S.name||'');}   // 🎵 연속 재생 버튼은 딱 두 곳에서만 보여요: '음악' 이 이름에 들어간 별실 + 🤫 1인 아지트 (아지트는 추천 목록이 없어서 내 목록이 이어져요)
   function loopQueue(){   // all: 이 방 추천 → 내 목록 순서 (⏭ 와 같은 순서), mine: 내 목록만. 겹치는 영상은 한 번만
     var q=(loopMode==='mine')?[]:preItems().slice(),seen={};q.forEach(function(x){seen[x.id]=1;});
     loadL().forEach(function(x){if(!seen[x.id]){seen[x.id]=1;q.push({id:x.id,name:x.name});}});
@@ -1005,7 +1177,7 @@ function cinTick(){
   }
   // ⏭ 다음 영상: 목록에 보이는 순서(이 방 추천 → 내 목록)대로 다음 영상을 틀어요. 마지막이면 처음으로 돌아가요
   function preItems(){
-    var si0=cinSuiteIdx(),r=(window.cinSecIn&&window.cinSecIn())?null:(si0>=0?(window.CIN_SUITES&&window.CIN_SUITES[si0]):(window.CIN_ROOMS&&window.CIN_ROOMS[ch])),items=[];
+    var si0=cinSuiteIdx(),r=((window.cinSecIn&&window.cinSecIn())||(window.cinKorIn&&window.cinKorIn()))?null:(si0>=0?(window.CIN_SUITES&&window.CIN_SUITES[si0]):(window.CIN_ROOMS&&window.CIN_ROOMS[ch])),items=[];
     if(r&&r.list)r.list.forEach(function(p){var id=ytId(p&&p[0]);if(id)items.push({id:id,name:p[1]});});
     return items;
   }
@@ -1069,7 +1241,7 @@ function cinTick(){
   }
   function renderPre(){   // 이 방의 추천 영상 (파일 위쪽 CIN_ROOMS에서 가져와요)
     preBox.textContent='';
-    var si0=cinSuiteIdx(),r=(window.cinSecIn&&window.cinSecIn())?null:(si0>=0?(window.CIN_SUITES&&window.CIN_SUITES[si0]):(window.CIN_ROOMS&&window.CIN_ROOMS[ch])),n=0;
+    var si0=cinSuiteIdx(),r=((window.cinSecIn&&window.cinSecIn())||(window.cinKorIn&&window.cinKorIn()))?null:(si0>=0?(window.CIN_SUITES&&window.CIN_SUITES[si0]):(window.CIN_ROOMS&&window.CIN_ROOMS[ch])),n=0;
     if(!r||!r.list)return;
     var items=[];
     r.list.forEach(function(p){var id=ytId(p&&p[0]);if(id)items.push({id:id,name:p[1]});});
@@ -4552,8 +4724,8 @@ function cabinHit0(o,k){
 // 입력
 var yawP=0,pitP=0;var drag=null,rc=new THREE.Raycaster(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),hit=new THREE.Vector3();
 document.addEventListener('contextmenu',function(e){var t=e.target&&e.target.tagName;if(t==='INPUT'||t==='TEXTAREA')return;e.preventDefault();});   // 오른쪽 클릭·길게 누르기 메뉴는 안 떠요 (입력칸은 붙여넣기 때문에 그대로)
-cv.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse'&&e.button!==0)return;   // 마우스 오른쪽·가운데 버튼은 무시해요
-  drag={x:e.clientX,y:e.clientY,moved:false};try{cv.setPointerCapture(e.pointerId);}catch(err){}});
+cv.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse'&&e.button!==0&&e.button!==2)return;   // 마우스 가운데 버튼은 무시해요 (왼쪽·오른쪽은 드래그로 둘러보기)
+  drag={x:e.clientX,y:e.clientY,moved:e.button===2};try{cv.setPointerCapture(e.pointerId);}catch(err){}});   // 오른쪽 버튼은 게임처럼 바로 둘러보기 (클릭 이동은 안 해요)
 cv.addEventListener('pointermove',function(e){
   if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
   if(!drag.moved&&Math.abs(dx)+Math.abs(dy)<6)return;
@@ -5118,7 +5290,7 @@ lhBtn.addEventListener('click',function(){
 });
 var gobBtn=document.getElementById('gob'),goRow=document.getElementById('gorow');
 function goShow(v){goRow.style.display=v?'flex':'none';gobBtn.setAttribute('aria-pressed',v?'true':'false');}
-var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],cinema:[['hall','중앙 극장'],['su0','🎬 드라마 별실'],['su1','📱 숏츠 별실'],['su2','🎤 예능·음악 별실'],['su3','🎨 애니 웹툰 별실'],['shop','🍿 매점'],['arc','🎮 오락실'],['sec','📺 1인 아지트']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
+var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],cinema:[['hall','중앙 극장'],['su0','🎬 드라마 별실'],['su1','📱 숏츠 별실'],['su2','🎤 예능·음악 별실'],['su3','🎨 애니 웹툰 별실'],['shop','🍿 매점'],['arc','🎮 오락실'],['sec','📺 1인 아지트'],['kor','🎤 코인노래방']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
 function goBuild(sn){if(goBuilt===sn)return;goBuilt=sn;goShow(false);goRow.innerHTML='';(GO_SETS[sn]||[]).forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});}
 gobBtn.addEventListener('click',function(){goShow(goRow.style.display==='none');});
 goRow.addEventListener('click',function(e){
@@ -5127,7 +5299,7 @@ goRow.addEventListener('click',function(e){
   if(k==='ends'){goRow.innerHTML='';[['endL','왼쪽 끝'],['endR','오른쪽 끝'],['back','뒤로']].forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});return;}
   if(k==='cast'){goRow.innerHTML='';[['castL','왼쪽'],['castR','오른쪽'],['back','뒤로']].forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});return;}
   if(k==='back'){goBuilt='';goBuild(scene);goShow(true);return;}
-  if(scene==='cinema'){if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}me.want=null;if(k==='sec'){var sg0=window.cinSecGo&&window.cinSecGo();if(sg0){cinGoWay(cinRoutePt(sg0[0]).concat([sg0[1]]),true);toast('1인 아지트로 걸어가요 📺');goBuilt='';goBuild(scene);return;}}if(k==='arc'){var aw0=arcWorld(0,3.6);cinGoWay(cinRoutePt([aw0[0],aw0[1]]),true);toast('오락실로 걸어가요 🎮');goBuilt='';goBuild(scene);return;}if(k==='shop'){var sw0=snkWorld(0,3.8);cinGoWay(cinRoutePt([sw0[0],sw0[1]]),true);toast('매점으로 걸어가요 🍿');goBuilt='';goBuild(scene);return;}var di=(k==='hall')?-1:parseInt(String(k).slice(2),10);cinGoWay(cinRoutePt(di<0?[0,7.8]:[-39.5,SUITES[di].c]),true);toast(di<0?'중앙 극장으로 걸어가요':'별실로 걸어가요');goBuilt='';goBuild(scene);return;}
+  if(scene==='cinema'){if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}me.want=null;if(k==='sec'){var sg0=window.cinSecGo&&window.cinSecGo();if(sg0){cinGoWay(cinRoutePt(sg0[0]).concat([sg0[1]]),true);toast('1인 아지트로 걸어가요 📺');goBuilt='';goBuild(scene);return;}}if(k==='kor'){var kg0=window.cinKorGo&&window.cinKorGo();if(kg0){cinGoWay(cinRoutePt(kg0[0]).concat([kg0[1]]),true);toast('코인노래방으로 걸어가요 🎤');goBuilt='';goBuild(scene);return;}}if(k==='arc'){var aw0=arcWorld(0,3.6);cinGoWay(cinRoutePt([aw0[0],aw0[1]]),true);toast('오락실로 걸어가요 🎮');goBuilt='';goBuild(scene);return;}if(k==='shop'){var sw0=snkWorld(0,3.8);cinGoWay(cinRoutePt([sw0[0],sw0[1]]),true);toast('매점으로 걸어가요 🍿');goBuilt='';goBuild(scene);return;}var di=(k==='hall')?-1:parseInt(String(k).slice(2),10);cinGoWay(cinRoutePt(di<0?[0,7.8]:[-39.5,SUITES[di].c]),true);toast(di<0?'중앙 극장으로 걸어가요':'별실로 걸어가요');goBuilt='';goBuild(scene);return;}
   var T=(scene==='beach'?{shore:[0,-8.8,'물가로 걸어가요'],shr:[SHP_X,-24,'새우깡 부두로 걸어가요'],walk:[0,37,'모래 산책길로 걸어가요'],umb:[-4.8,11.4,'파라솔 쉼터로 걸어가요'],castL:[SAND_SPOTS[0].x,SAND_SPOTS[0].z,'왼쪽 모래성으로 걸어가요'],castR:[SAND_SPOTS[1].x,SAND_SPOTS[1].z,'오른쪽 모래성으로 걸어가요'],top:[0,BWALL+.6,'계단 위로 걸어가요'],pier:[PIER_X,-36.8,'등대로 걸어가요'],endL:[-57,END_Z,'왼쪽 끝 난간 길로 걸어가요'],endR:[57,END_Z,'오른쪽 끝 난간 길로 걸어가요']}:(scene==='cabin'?{wish:[WX,WZ-10,'소원 트리로 걸어가요'],yard:[0,-5,'마당으로 걸어가요'],ice:[ICE.x,ICE.z+5,'빙어 낚시터로 걸어가요'],cab:(function(){var bi=0,bd=1e9;for(var ci=0;ci<CAB.length;ci++){var dd=Math.hypot(me.x-CAB[ci][0],me.z-CAB[ci][1]);if(dd<bd){bd=dd;bi=ci;}}return [CAB[bi][0]-1.6,CAB[bi][1]+3.8,'오두막 앞으로 걸어가요'];})()}:{fire:[0,5.5,'모닥불 쪽으로 걸어가요'],gb:[GB_SPOTS[0].x,GB_SPOTS[0].z,'방명록 자리로 걸어가요'],rain:[0,-37,'다리 건너 비 오는 캠핑장으로 걸어가요'],cat:[CPX,CPZ-CPR+2,'고양이 놀이터로 걸어가요'],stone:lumGo()}))[k];
   if(!T)return;
   if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}
@@ -6427,16 +6599,17 @@ function frame(){var __n=performance.now();if(__n-__lt<12){requestAnimationFrame
     snow.geometry.attributes.position.needsUpdate=true;
   }
   sync();
-  var ci0=scene==='cabin'?cabIn():-1,inn=ci0>=0,cx0=inn?CAB[ci0][0]:0,cz0=inn?CAB[ci0][1]+9:0,wfv=(scene==='cabin'&&!inn&&!inTent&&!me.lh&&me.sit<3)?Math.max(0,Math.min(1,(20-Math.hypot(me.x-WX,me.z-WZ))/12)):0,wfu=(wishF+=(wfv-wishF)*.04),cd=(inTent?4.2:(inn?3.4:(me.lh?5:((scene==='cinema'&&window.cinSecIn&&window.cinSecIn())?4.6:7.5))))+7*wishF,want=new THREE.Vector3(me.x+Math.sin(yaw)*Math.cos(pit)*cd,Math.sin(pit)*cd+1.2+(me.y||0),me.z+Math.cos(yaw)*Math.cos(pit)*cd);
+  var ci0=scene==='cabin'?cabIn():-1,inn=ci0>=0,cx0=inn?CAB[ci0][0]:0,cz0=inn?CAB[ci0][1]+9:0,wfv=(scene==='cabin'&&!inn&&!inTent&&!me.lh&&me.sit<3)?Math.max(0,Math.min(1,(20-Math.hypot(me.x-WX,me.z-WZ))/12)):0,wfu=(wishF+=(wfv-wishF)*.04),cd=(inTent?4.2:(inn?3.4:(me.lh?5:((scene==='cinema'&&((window.cinSecIn&&window.cinSecIn())||(window.cinKorIn&&window.cinKorIn())))?4.2:7.5))))+7*wishF,want=new THREE.Vector3(me.x+Math.sin(yaw)*Math.cos(pit)*cd,Math.sin(pit)*cd+1.2+(me.y||0),me.z+Math.cos(yaw)*Math.cos(pit)*cd);
   if(wishVf>.002&&scene==='cabin'){var wdx=me.x-WX,wdz=me.z-WZ,wdl=Math.hypot(wdx,wdz)||1;wdx/=wdl;wdz/=wdl;if(wdz>-.4){wdz=-.4;var wl2=Math.hypot(wdx,wdz);wdx/=wl2;wdz/=wl2;}want.lerp(new THREE.Vector3(WX+wdx*15.5,5.4,WZ+wdz*15.5),wishVf);}
   if(scene==='beach'&&(me.y||0)<.9&&me.z<BWALL&&want.z>BWALL-.7)want.z=BWALL-.7;if(scene==='beach'&&me.z>29.5&&want.z<29.8)want.z=29.8;
   var fpOn=fpv&&!inTent&&(scene==='beach'||scene==='fire'||scene==='cabin'||scene==='cinema')&&(!me.sit||me.sit===1||me.sit===2);if(fpOn)want.set(me.x,(me.y||0)+((me.sit===1?.95:(me.sit===2?(scene==='cinema'?1.5:1.3):1.6))+(scene==='cinema'?(me.sit===1?.3:(me.sit===2?.9:.5)):0))*(inn?.55:1)+((scene==='beach'&&!me.lh&&(me.y||0)>2)?1.1:0),me.z);if(fpOn&&scene==='cabin'&&!inn){var fc2=cabFireNear();if(fc2&&fc2.d>.3){var fdx=me.x-fc2.x,fdz=me.z-fc2.z,fl=fc2.d,pb=Math.max(0,4.4-fl);want.x+=fdx/fl*pb;want.z+=fdz/fl*pb;}}for(var lg2=0;lg2<cabOut.length;lg2++){var lo=cabOut[lg2];if(lo.m){var hv=!(fpOn&&scene==='cabin'&&!inn&&me.sit&&Math.hypot(lo.x-me.x,lo.z-me.z)<.7);if(lo.m.visible!==hv)lo.m.visible=hv;}}
   if(inn){want.x=Math.max(cx0-2.7,Math.min(cx0+2.7,want.x));want.z=Math.max(cz0-10.95,Math.min(cz0-7.05,want.z));want.y=Math.min(want.y,2.5);}
+  if(scene==='cinema'&&!fpv&&me.sit&&window.cinSecIn&&window.cinSecIn())want.y+=1.5;   // 🤫 1인 아지트: 앉아서 볼 때 카메라를 더 높여서 내 캐릭터 머리가 TV 화면을 안 가리게
   if(scene==='cinema')cinCamClamp(want);
   if(scene==='cinema'&&!fpv&&me.x>-28&&me.x<16&&cinZone(me.x,me.z)===4&&Math.cos(yaw)>.5){var cTf=Math.tan(cam.fov*Math.PI/360),cHw=(cinVert?CIN_H*9/32+.5:CIN_W/2+.4)+1,cDm=Math.max(cHw/(cTf*cam.aspect),(CIN_H/2+1.5)/cTf);if(want.z<CIN_SZ+cDm)want.z=CIN_SZ+cDm;}
   if(inTent){var ex=want.x-IX,ez=want.z-IZ,er=Math.sqrt(ex*ex+ez*ez);if(er>3.8){want.x=IX+ex/er*3.8;want.z=IZ+ez/er*3.8;}want.y=Math.min(want.y,3);}
   var lyg=!lv3&&((inTent&&me.sit===3)||me.sit===4||(me.sit===5&&scene!=='cabin'&&(scene!=='cinema'||(window.cinSecIn&&window.cinSecIn())))),lyT=inTent&&me.sit===3,hamV=!lv3&&me.sit===4&&scene==='fire'&&!inTent;if(lyg)want.set(me.x,lyT?.8:(me.sit===5?((scene==='beach'||scene==='cinema')?1.3:.9):1.3),me.z+(me.sit===5&&(scene==='beach'||scene==='cinema')?1.1:.3));if(hamV)want.set(me.x+Math.sin(t*.011)*.04,1.3+Math.sin(t*.017)*.025,me.z+Math.cos(t*.013)*.04);var lyC=!lv3&&inn&&me.sit===5;if(lyC)want.set(me.x,1.02,me.z-1.55);var sd=lyT?'':'none';if(skyBtn.style.display!==sd)skyBtn.style.display=sd;if(!lyT&&sky){sky=false;skyBtn.textContent='하늘 보기';skyVis(false);setFold(foldPrev,false);}if(sky&&skyStars)skyStars.rotation.y+=.0006;if(scene==='cinema'&&me.sit===5&&typeof starsM!=='undefined'&&window.cinSecIn&&window.cinSecIn())starsM.rotation.y+=.0006;shoot(lyT);spkTick();if(lyg)for(var bk in players)if(players[bk].bub)players[bk].bub.visible=false;capO+=((lyT?1:0)-capO)*.05;iroof.visible=capO<.99&&!sky;cmat.opacity=1-capO;if(inTent){var tp=Math.sin(t*.04);slM[0].color.setRGB(1,.8+.12*tp,.52+.16*tp);slM[1].color.setRGB(1,.8-.12*tp,.52-.16*tp);}
-  snow.visible=true;if(scene==='cabin'){if(t%2===0)winDraw();var cbI=cabIn(),cbN=cbI,cbD=1e9;if(cbI<0)for(var cbQ=0;cbQ<CAB.length;cbQ++){var cbd=Math.hypot(me.x-CAB[cbQ][0]+1.6,me.z-CAB[cbQ][1]-3.8);if(cbd<6&&cbd<cbD){cbD=cbd;cbN=cbQ;}}cabT=cbN;for(var cbq=0;cbq<cabQ.length;cbq++)if(cabQ[cbq])cabGlow(cabQ[cbq],cbI===cbq&&me.sit===5);var cbS=cbN<0?'none':'';if(cabBtn.style.display!==cbS)cabBtn.style.display=cbS;var cbX=cbI>=0?'밖으로 나가기':'오두막 들어가기';if(cabBtn.textContent!==cbX)cabBtn.textContent=cbX;if(throwMode&&(cbI>=0||me.sit)){throwMode=false;snowBtn.textContent='눈 던지기';}var snD=(cbI<0&&!me.sit)?'':'none';if(snowBtn.style.display!==snD)snowBtn.style.display=snD;if(bubBtn.style.display!==snD)bubBtn.style.display=snD;snowStep();}else{if(cabBtn.style.display!=='none')cabBtn.style.display='none';snowBtn.style.display='none';bubBtn.style.display='none';if(wishBtn.style.display!=='none')wishBtn.style.display='none';if(wishRow.style.display!=='none')wishShow(false);}if(!(fpOn&&scene==='cinema'))window.cinShiftApply(0);if(scene==='cinema'){var cHs=!!(fpOn&&window.CIN_FP_HIDE_SEATS&&(innerWidth<=820||innerHeight>innerWidth));for(var cHi=0;cHi<cinChairGs.length;cHi++){if(cinChairGs[cHi].visible===cHs)cinChairGs[cHi].visible=!cHs;}}var tf=inn?76:(scene==='cinema'?(fpv?cinFpFov():68):(me.sit===4&&scene==='fire'&&!inTent?68:55+8*trkCamF));if(Math.abs(cam.fov-tf)>.05){cam.fov+=(tf-cam.fov)*.1;cam.updateProjectionMatrix();}if(trkCamF>.002&&!fpOn)trkCamApply(want);cpos.lerp(want,fpOn?.4:((inn||inTent||(scene==='cinema'&&cinZone(me.x,me.z)<4))?.2:.07));cam.position.copy(cpos);if(lyT&&!lv3){if(sky)cam.lookAt(me.x-Math.sin(yaw)*.3,12,me.z-Math.cos(yaw)*.3);else cam.lookAt(me.x-Math.sin(yaw)*1.2,7.2,me.z-Math.cos(yaw)*1.2);}else if(hamV){var hy=yaw+Math.sin(t*.006)*.02,he=1.2-pit*.65+Math.sin(t*.009)*.012,hc=Math.cos(he);cam.lookAt(cam.position.x-Math.sin(hy)*hc*10,cam.position.y+Math.sin(he)*10,cam.position.z-Math.cos(hy)*hc*10);}else if(lyC)cam.lookAt(cam.position.x-Math.sin(yaw)*1.3,3.0,cam.position.z-Math.cos(yaw)*1.3);else if(lyg&&me.sit===5&&(scene==='beach'||scene==='cinema')){var by=yaw,be=Math.max(.5,Math.min(1.5,1.34-(pit-.38)*.9)),bc=Math.cos(be);cam.lookAt(cam.position.x-Math.sin(by)*bc*10,cam.position.y+Math.sin(be)*10,cam.position.z-Math.cos(by)*bc*10);}else if(lyg)cam.lookAt(me.x,9,me.z-(me.sit===5&&scene==='beach'?.7:1.5));else if(scene==='cinema'&&!fpOn&&window.cinSecIn&&window.cinSecIn()){cam.lookAt(me.x-Math.sin(yaw)*3,1.2,me.z-Math.cos(yaw)*3);}else if(scene==='cinema'&&!fpOn){var cAm,cza=cinZone(me.x,me.z),cDa=Math.max(6,cza<3?me.x-SU_SX:me.z-CIN_SZ),cDot=cza<3?Math.sin(yaw):Math.cos(yaw),cWa=Math.max(0,Math.min(1,(cDot-.3)/.5)),cAm=(cza<3?SU_SY-1.5:CIN_Y-2),cYa=cam.position.y+(cAm-cam.position.y)*Math.min(1.6,20/cDa);cam.lookAt(me.x-Math.sin(yaw)*20,cAm+(cYa-cAm)*cWa,me.z-Math.cos(yaw)*20);}else if(fpOn){var fpB=0;if(scene==='cinema'){var czf=cinZone(me.x,me.z),cDf=Math.max(4,czf<3?me.x-SU_SX:me.z-CIN_SZ),cDt=czf<3?Math.sin(yaw):Math.cos(yaw),cWf=Math.max(0,Math.min(1,(cDt-.3)/.5));window.cinShiftApply(Math.tan(Math.atan2((czf<3?SU_SY-SUITES[czf].h*window.CIN_FP_AIM:CIN_Y-CIN_H*window.CIN_FP_AIM)-cam.position.y,cDf))*cWf);}var fpP=fpPit+fpB,cp0=Math.cos(fpP);cam.lookAt(cam.position.x-Math.sin(yaw)*cp0,cam.position.y+Math.sin(fpP),cam.position.z-Math.cos(yaw)*cp0);}else if(trkCamF>.002&&TRKS[trkCamI]){var tT=TRKS[trkCamI],tk=trkCamF*trkCamF*(3-2*trkCamF);cam.lookAt(me.x+(tT.x+tT.dir*.9-me.x)*tk,1.2+(me.y||0)+.35*tk,me.z+(tT.z-.45-me.z)*tk);}else{var wly=1.2+(me.y||0)+5.5*wishF;cam.lookAt(me.x+(WX-me.x)*wishVf,wly+(4.9-wly)*wishVf,me.z+(WZ-me.z)*wishVf);}
+  snow.visible=true;if(scene==='cabin'){if(t%2===0)winDraw();var cbI=cabIn(),cbN=cbI,cbD=1e9;if(cbI<0)for(var cbQ=0;cbQ<CAB.length;cbQ++){var cbd=Math.hypot(me.x-CAB[cbQ][0]+1.6,me.z-CAB[cbQ][1]-3.8);if(cbd<6&&cbd<cbD){cbD=cbd;cbN=cbQ;}}cabT=cbN;for(var cbq=0;cbq<cabQ.length;cbq++)if(cabQ[cbq])cabGlow(cabQ[cbq],cbI===cbq&&me.sit===5);var cbS=cbN<0?'none':'';if(cabBtn.style.display!==cbS)cabBtn.style.display=cbS;var cbX=cbI>=0?'밖으로 나가기':'오두막 들어가기';if(cabBtn.textContent!==cbX)cabBtn.textContent=cbX;if(throwMode&&(cbI>=0||me.sit)){throwMode=false;snowBtn.textContent='눈 던지기';}var snD=(cbI<0&&!me.sit)?'':'none';if(snowBtn.style.display!==snD)snowBtn.style.display=snD;if(bubBtn.style.display!==snD)bubBtn.style.display=snD;snowStep();}else{if(cabBtn.style.display!=='none')cabBtn.style.display='none';snowBtn.style.display='none';bubBtn.style.display='none';if(wishBtn.style.display!=='none')wishBtn.style.display='none';if(wishRow.style.display!=='none')wishShow(false);}if(!(fpOn&&scene==='cinema'))window.cinShiftApply(0);if(scene==='cinema'){var cHs=!!(fpOn&&window.CIN_FP_HIDE_SEATS&&(innerWidth<=820||innerHeight>innerWidth));for(var cHi=0;cHi<cinChairGs.length;cHi++){if(cinChairGs[cHi].visible===cHs)cinChairGs[cHi].visible=!cHs;}}var tf=inn?76:(scene==='cinema'?(fpv?cinFpFov():68):(me.sit===4&&scene==='fire'&&!inTent?68:55+8*trkCamF));if(Math.abs(cam.fov-tf)>.05){cam.fov+=(tf-cam.fov)*.1;cam.updateProjectionMatrix();}if(trkCamF>.002&&!fpOn)trkCamApply(want);cpos.lerp(want,fpOn?.4:((inn||inTent||(scene==='cinema'&&cinZone(me.x,me.z)<4))?.2:.07));cam.position.copy(cpos);if(lyT&&!lv3){if(sky)cam.lookAt(me.x-Math.sin(yaw)*.3,12,me.z-Math.cos(yaw)*.3);else cam.lookAt(me.x-Math.sin(yaw)*1.2,7.2,me.z-Math.cos(yaw)*1.2);}else if(hamV){var hy=yaw+Math.sin(t*.006)*.02,he=1.2-pit*.65+Math.sin(t*.009)*.012,hc=Math.cos(he);cam.lookAt(cam.position.x-Math.sin(hy)*hc*10,cam.position.y+Math.sin(he)*10,cam.position.z-Math.cos(hy)*hc*10);}else if(lyC)cam.lookAt(cam.position.x-Math.sin(yaw)*1.3,3.0,cam.position.z-Math.cos(yaw)*1.3);else if(lyg&&me.sit===5&&(scene==='beach'||scene==='cinema')){var by=yaw,be=Math.max(.5,Math.min(1.5,1.34-(pit-.38)*.9)),bc=Math.cos(be);cam.lookAt(cam.position.x-Math.sin(by)*bc*10,cam.position.y+Math.sin(be)*10,cam.position.z-Math.cos(by)*bc*10);}else if(lyg)cam.lookAt(me.x,9,me.z-(me.sit===5&&scene==='beach'?.7:1.5));else if(scene==='cinema'&&!fpOn&&((window.cinSecIn&&window.cinSecIn())||(window.cinKorIn&&window.cinKorIn()))){cam.lookAt(me.x-Math.sin(yaw)*3,me.sit?1.7:1.2,me.z-Math.cos(yaw)*3);}else if(scene==='cinema'&&!fpOn){var cAm,cza=cinZone(me.x,me.z),cDa=Math.max(6,cza<3?me.x-SU_SX:me.z-CIN_SZ),cDot=cza<3?Math.sin(yaw):Math.cos(yaw),cWa=Math.max(0,Math.min(1,(cDot-.3)/.5)),cAm=(cza<3?SU_SY-1.5:CIN_Y-2),cYa=cam.position.y+(cAm-cam.position.y)*Math.min(1.6,20/cDa);cam.lookAt(me.x-Math.sin(yaw)*20,cAm+(cYa-cAm)*cWa,me.z-Math.cos(yaw)*20);}else if(fpOn){var fpB=0;if(scene==='cinema'){var czf=cinZone(me.x,me.z),cDf=Math.max(4,czf<3?me.x-SU_SX:me.z-CIN_SZ),cDt=czf<3?Math.sin(yaw):Math.cos(yaw),cWf=Math.max(0,Math.min(1,(cDt-.3)/.5));window.cinShiftApply(Math.tan(Math.atan2((czf<3?SU_SY-SUITES[czf].h*window.CIN_FP_AIM:CIN_Y-CIN_H*window.CIN_FP_AIM)-cam.position.y,cDf))*cWf);}var fpP=fpPit+fpB,cp0=Math.cos(fpP);cam.lookAt(cam.position.x-Math.sin(yaw)*cp0,cam.position.y+Math.sin(fpP),cam.position.z-Math.cos(yaw)*cp0);}else if(trkCamF>.002&&TRKS[trkCamI]){var tT=TRKS[trkCamI],tk=trkCamF*trkCamF*(3-2*trkCamF);cam.lookAt(me.x+(tT.x+tT.dir*.9-me.x)*tk,1.2+(me.y||0)+.35*tk,me.z+(tT.z-.45-me.z)*tk);}else{var wly=1.2+(me.y||0)+5.5*wishF;cam.lookAt(me.x+(WX-me.x)*wishVf,wly+(4.9-wly)*wishVf,me.z+(WZ-me.z)*wishVf);}
   pntTick();window.__spTick&&window.__spTick();hamTick();try{tentPillTick();}catch(e){}try{mazziTick();}catch(e){}R.render(sc,cam);try{cinShapeTick();}catch(e){}try{cinTick();}catch(e){}if(window.__photoReq){window.__photoReq=false;try{window.__photoShot&&window.__photoShot();}catch(e){}}requestAnimationFrame(frame);
 }
 frame();
@@ -6777,7 +6950,7 @@ btn.addEventListener('click',function(){
 })();
 // 버튼 글자를 아이콘으로: 글자는 그대로 두고 화면에만 아이콘으로 보여요 (길게 누르면 이름이 보여요)
 (function(){
-  var IC={'설정':'⚙️','비눗방울 불기':EMO.bub,'내 모습 보기':'🙂','누운 시점으로':'👁️','텐트 들어가기':'⛺','텐트 나가기':'🚪','별실 나가기':'🚪','앉기':'🪑','이동':'🧭','일어나기':'🧍','눕기':'🛌','하늘 보기':'🌌','둘러보기':'👀','차 마시기':'🍵','찻잔 내려놓기':'⏹️','고구마 굽기':'🍠','고구마 굽는 중…':'⏳','고구마 먹기':'😋','마시멜로 굽기':'⭐','물 끼얹기':'💦','마시멜로 굽는 중…':'⏳','마시멜로 먹기':'😋','그만 먹기':'⏹️','음악 켜기':'🎵','응원봉 들기':EMO.wand,'응원봉 내리기':'⏹️','음악 끄기':'🔇','영상 소리 끄기':'🔇','영상 소리 켜기':'🔊','소리 켜기':'🔊','소리 끄기':'🔇','등대 올라가기':'🗼','등대에서 내려가기':'⬇️','불 보기':'🔥','바다 보기':'🌊','시점 돌아가기':'↩️','오두막 들어가기':'🏠','밖으로 나가기':'🚪','눈 던지기':'⛄','소원 걸기':'🌟','하늘에 그리기':'🖌️','던지기 끄기':'⏹️','고양이랑 놀기':'🐱','놀이 끄기':'⏹️','방명록':'📝','방명록 끝내기':'✖️','모래편지':'💌','모래편지 끝내기':'✖️','🎣 낚시 놀이':'🎣','🧶 털실 던지기':'🧶','🤚 쓰다듬기':'🤚','모래놀이':'🏖️','멍때리기':'☁️','멍때리기 끝내기':'⏹️','오로라 가루':'🌈','오로라 끄기':'🔥','푸드트럭':'🚚','먹기':'😋','새우깡':'🦐','새우깡 주기':'🦐','새우깡 내리기':'⏹️','채팅 숨기기':'🙈','채팅 보기':'💬','말하기':'🗨️'};
+  var IC={'설정':'⚙️','비눗방울 불기':EMO.bub,'내 모습 보기':'🙂','누운 시점으로':'👁️','텐트 들어가기':'⛺','텐트 나가기':'🚪','별실 나가기':'🚪','앉기':'🪑','이동':'🧭','일어나기':'🧍','눕기':'🛌','하늘 보기':'🌌','둘러보기':'👀','차 마시기':'🍵','찻잔 내려놓기':'⏹️','고구마 굽기':'🍠','고구마 굽는 중…':'⏳','고구마 먹기':'😋','마시멜로 굽기':'⭐','물 끼얹기':'💦','마시멜로 굽는 중…':'⏳','마시멜로 먹기':'😋','그만 먹기':'⏹️','음악 켜기':'🎵','응원봉 들기':EMO.wand,'응원봉 내리기':'⏹️','음악 끄기':'🔇','영상 소리 끄기':'🔇','영상 소리 켜기':'🔊','소리 켜기':'🔊','소리 끄기':'🔇','등대 올라가기':'🗼','등대에서 내려가기':'⬇️','불 보기':'🔥','바다 보기':'🌊','시점 돌아가기':'↩️','오두막 들어가기':'🏠','밖으로 나가기':'🚪','눈 던지기':'⛄','소원 걸기':'🌟','하늘에 그리기':'🖌️','던지기 끄기':'⏹️','고양이랑 놀기':'🐱','놀이 끄기':'⏹️','방명록':'📝','방명록 끝내기':'✖️','모래편지':'💌','모래편지 끝내기':'✖️','🎣 낚시 놀이':'🎣','🧶 털실 던지기':'🧶','🤚 쓰다듬기':'🤚','모래놀이':'🏖️','멍때리기':'☁️','멍때리기 끝내기':'⏹️','오로라 가루':'🌈','오로라 끄기':'🔥','푸드트럭':'🚚','먹기':'😋','새우깡':'🦐','새우깡 주기':'🦐','새우깡 내리기':'⏹️','채팅 숨기기':'🙈','채팅 보기':'💬','말하기':'🗨️','마이크 켜기':'🎤','마이크 끄기':'🎙️'};
   function upd(){var bs=document.querySelectorAll('.ui button,#fold');for(var i=0;i<bs.length;i++){var b=bs[i],tx=(b.textContent||'').trim(),ic=IC[tx],ti=tx;if(ic){if(b.dataset.ic!==ic)b.dataset.ic=ic;if(b.title!==ti)b.title=ti;b.setAttribute('aria-label',ti);}else if(b.dataset.ic)delete b.dataset.ic;}}
   var pend=false;function sch(){if(pend)return;pend=true;Promise.resolve().then(function(){pend=false;upd();});}
   if(window.MutationObserver){var mo=new MutationObserver(sch),o={childList:true,characterData:true,subtree:true};mo.observe(document.querySelector('.ui'),o);mo.observe(document.getElementById('fold'),o);}
@@ -6829,7 +7002,9 @@ btn.addEventListener('click',function(){
       ['🎬','빔프로젝터','삼각대 위 빔프로젝터가 스크린을 비춰요'],
       [EMO.wand,'응원봉','[활동] 메뉴의 '+EMO.wand+' 응원봉 들기를 누르면 손에 들고 흔들어요. 위에 뜬 동그라미로 색을 골라요. 같은 방 사람에게도 보여요 · 먹으면 자동으로 내려요'],
       ['🚪','별실 3개','별실은 뒤쪽 문으로 드나들어요. 뒷문 가까이 가면 저절로 열려요. 문 밖은 계단이고, 안에서는 단을 내려가며 자리에 앉아요. 어디든 눌러서 걸어가면 알아서 문을 지나가요. 같은 별실 사람끼리만 영상을 같이 봐요'],
-      ['🪑','앉기','캠핑 의자 · 돗자리에 앉아 스크린을 봐요']
+      ['🪑','앉기','캠핑 의자 · 돗자리에 앉아 스크린을 봐요'],
+      ['🎤','코인노래방','🧭 이동 메뉴에서 갈 수 있어요. 방 안에서 🔗에 "곡 제목 노래방"을 검색해 틀어요. 같은 방 친구에게 [같이 보기]가 떠요'],
+      ['🎙️','마이크','코인노래방 안에서 [활동] 메뉴의 🎤 마이크 켜기. 같은 방에 있는 친구에게만 목소리가 들려요. 마이크 권한을 허용해 줘야 하고, 🎧 이어폰을 끼면 울림이 없어요. 친구가 안 들리면 같은 방 번호인지 확인해요']
     ]}
   };
   var C=[
