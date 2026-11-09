@@ -238,7 +238,7 @@ window.CIN_ROOMS={
 /* ▼▼▼ 별빛 영화관 · 별실 3개(복도 끝 따로 떨어진 방)의 이름과 추천 영상 ▼▼▼
    - 순서대로 1번 드라마 / 2번 숏츠 / 3번 예능·음악 / 4번 애니 웹툰 별실이야. 형식은 위 CIN_ROOMS 랑 똑같아.
    - 별실 영상은 같은 별실 안에 있는 사람들끼리만 같이 봐요. (숏츠 별실은 스크린이 세로예요) */
-/* 🎤 코인노래방 기본 추천 영상 · ['유튜브 링크','이름'] 형식으로 한 줄씩 추가 */
+/* 💬 속닥방 기본 추천 영상 · ['유튜브 링크','이름'] 형식으로 한 줄씩 추가 */
 window.CIN_KOR_LIST=[
   ['https://youtu.be/F6hrbTqx9cs','그대라는 시 - 태연 (KY 노래방)'],
 ];
@@ -732,10 +732,10 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     window.cinSecGo=function(){return [[SX-5,SZ],[SX-1.4,SZ]];};   // 이동 탭에서 [📺 1인 아지트]를 누르면 걸어갈 곳
   })();
 
-  // ═══ 🎤 코인노래방: 오락실·매점 쪽 동쪽 끝, 노래방 반주기와 마이크가 있는 작은 룸 (친구랑 같이 들어가서 영상 보며 불러요) ═══
+  // ═══ 💬 속닥방: 오락실·매점 쪽 동쪽 끝, 테이블에 둘러앉아 속닥속닥 이야기하고 영상·음악을 같이 보는 작은 룸 (동쪽 벽 앞은 작은 무대) ═══
   (function(){
     var KX=35.8,KZ=-17,HX=7.4,HZ=5.6,WH=4.6,DW=1.9;   // 중심 · 방 반폭(x,z) · 벽 높이 · 문 폭 → 위치를 옮기려면 KX, KZ 만 바꿔요
-    var SCX=KX+HX-.2,SCY=2.2,SW=5.8,SH=3.26;   // TV 화면(동쪽 벽, 서쪽 문을 바라봐요)
+    var TCX=KX-.4,TTY=.56,TW=1.5,TH=.84,TA=.42,TBX=TCX+.55,TBY=TTY+.1,SCX=TBX+TH*Math.sin(TA)/2,SCY=TBY+TH*Math.cos(TA)/2,SW=TW,SH=TH;   // 테이블 중심 · 테이블 높이 · 태블릿 크기/기울기 · 태블릿 중심
     window.CIN_KOR={x:KX,z:KZ,hx:HX,hz:HZ};
     var RM=[KX-HX+.45,KX+HX-.45,KZ-HZ+.45,KZ+HZ-.45],DR=[KX-HX-5.6,KX-HX+.5,KZ-1,KZ+1];
     CIN_RECTS.push(RM,DR);   // 방 안 · 문 앞 길은 걸어다닐 수 있어요
@@ -745,82 +745,147 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     function bas(t){return new THREE.MeshBasicMaterial({map:t,fog:false,toneMapped:false});}
     var FONT='"Gowun Batang","Noto Sans KR","Apple SD Gothic Neo","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
     function glow(rgb,op,size){var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:rgb,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));sp.scale.set(size,size,1);return sp;}
-    // 바닥: 보라색 카펫 + 반짝이 별무늬
-    var fl=add(new THREE.Mesh(new THREE.PlaneGeometry(HX*2,HZ*2),new THREE.MeshLambertMaterial({map:tex(256,256,function(x,w,h){x.fillStyle='#2a1440';x.fillRect(0,0,w,h);x.strokeStyle='#ff5fa8';x.lineWidth=5;x.strokeRect(10,10,w-20,h-20);x.strokeStyle='#4fd3ff';x.lineWidth=2;x.strokeRect(22,22,w-44,h-44);x.fillStyle='#ffe9a8';for(var q=0;q<26;q++){x.globalAlpha=.35+(q%3)*.15;x.beginPath();x.arc((q*53)%230+12,(q*97)%230+12,1.5+(q%3),0,6.283);x.fill();}}),emissive:0x1a0c2a})),0,.03,0);
+    // 바닥: 따뜻한 원목 마루 + 호박색 테두리
+    var fl=add(new THREE.Mesh(new THREE.PlaneGeometry(HX*2,HZ*2),new THREE.MeshLambertMaterial({map:tex(256,256,function(x,w,h){x.fillStyle='#5a3d2a';x.fillRect(0,0,w,h);for(var q=0;q<8;q++){x.fillStyle=q%2?'#4f3424':'#634430';x.fillRect(0,q*32,w,31);x.fillStyle='#2e1b10';x.fillRect(0,q*32+31,w,1);}x.strokeStyle='#ffb347';x.lineWidth=5;x.strokeRect(10,10,w-20,h-20);x.strokeStyle='#fff1cf';x.lineWidth=2;x.strokeRect(22,22,w-44,h-44);}),emissive:0x1a0f08})),0,.03,0);
     fl.rotation.x=-Math.PI/2;fl.position.set(KX,.03,KZ);
-    // 벽 (방음 패널 줄무늬 · 안쪽 바깥쪽 둘 다 보여요) + 지붕
-    var wt=tex(256,128,function(x,w,h){x.fillStyle='#34194f';x.fillRect(0,0,w,h);for(var q=0;q<16;q++){x.fillStyle=q%2?'#3f2060':'#2a1442';x.fillRect(q*16,0,16,h);}x.fillStyle='#ff5fa8';x.fillRect(0,h-10,w,3);x.fillStyle='#4fd3ff';x.fillRect(0,h-5,w,2);});wt.wrapS=wt.wrapT=THREE.RepeatWrapping;
-    var wM=new THREE.MeshLambertMaterial({map:wt,emissive:0x1c0e2e,side:THREE.DoubleSide});
+    // 벽 (짙은 청록 줄무늬 · 안쪽 바깥쪽 둘 다 보여요) + 지붕
+    var wt=tex(256,128,function(x,w,h){x.fillStyle='#e9dcc0';x.fillRect(0,0,w,h);for(var q=0;q<16;q++){x.fillStyle=q%2?'#e0d0b2':'#e9dcc0';x.fillRect(q*16,0,16,h);}x.fillStyle='#ffb347';x.fillRect(0,h-10,w,3);x.fillStyle='#fff1cf';x.fillRect(0,h-5,w,2);});wt.wrapS=wt.wrapT=THREE.RepeatWrapping;   // 베이지 벽지
+    var wM=new THREE.MeshLambertMaterial({map:wt,emissive:0x4a4030,side:THREE.DoubleSide});
     function wall(w,h,x,y,z,ry){var p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),wM);p.position.set(x,y,z);p.rotation.y=ry;G.add(p);return p;}
     wall(HX*2,WH,KX,WH/2,KZ-HZ,0);wall(HX*2,WH,KX,WH/2,KZ+HZ,Math.PI);wall(HZ*2,WH,KX+HX,WH/2,KZ,-Math.PI/2);   // 북 · 남 · 동
     var sd=HZ-DW/2;wall(sd,WH,KX-HX,WH/2,KZ-DW/2-sd/2,Math.PI/2);wall(sd,WH,KX-HX,WH/2,KZ+DW/2+sd/2,Math.PI/2);wall(DW,WH-2.4,KX-HX,2.4+(WH-2.4)/2,KZ,Math.PI/2);   // 서쪽 벽(문 틈 있음)
-    var rf=new THREE.Mesh(new THREE.PlaneGeometry(HX*2+.4,HZ*2+.4),new THREE.MeshLambertMaterial({color:0x1d0f2e,emissive:0x0c0616,side:THREE.DoubleSide}));rf.rotation.x=-Math.PI/2;rf.position.set(KX,WH+.02,KZ);G.add(rf);
+    var rf=new THREE.Mesh(new THREE.PlaneGeometry(HX*2+.4,HZ*2+.4),new THREE.MeshLambertMaterial({color:0x14232b,emissive:0x070e12,side:THREE.DoubleSide}));rf.rotation.x=-Math.PI/2;rf.position.set(KX,WH+.02,KZ);G.add(rf);
     // 문틀 네온 + 지붕 위 큰 간판
-    var neonP=new THREE.MeshBasicMaterial({color:0xff5fa8,fog:false}),neonC=new THREE.MeshBasicMaterial({color:0x4fd3ff,fog:false});
+    var neonP=new THREE.MeshBasicMaterial({color:0xffb347,fog:false}),neonC=new THREE.MeshBasicMaterial({color:0x7fe0d0,fog:false});
     add(new THREE.Mesh(new THREE.BoxGeometry(.08,2.42,.08),neonP),KX-HX-.08,1.21,KZ-DW/2);add(new THREE.Mesh(new THREE.BoxGeometry(.08,2.42,.08),neonP),KX-HX-.08,1.21,KZ+DW/2);add(new THREE.Mesh(new THREE.BoxGeometry(.08,.08,DW+.08),neonC),KX-HX-.08,2.42,KZ);
-    var sgn=add(new THREE.Mesh(new THREE.PlaneGeometry(5.2,1.5),new THREE.MeshBasicMaterial({map:tex(512,148,function(x,w,h){x.fillStyle='#14081f';x.fillRect(0,0,w,h);x.strokeStyle='#ff5fa8';x.lineWidth=7;x.strokeRect(8,8,w-16,h-16);x.strokeStyle='#4fd3ff';x.lineWidth=3;x.strokeRect(20,20,w-40,h-40);x.textAlign='center';x.textBaseline='middle';x.shadowColor='#ff5fa8';x.shadowBlur=24;x.fillStyle='#ffe3f1';x.font='bold 62px '+FONT;x.fillText('🎤 코인노래방',w/2,h/2+4);}),side:THREE.DoubleSide,fog:false,toneMapped:false})),KX-HX-.25,WH+1.1,KZ);sgn.rotation.y=-Math.PI/2;
-    add(glow(0xff5fa8,.5,5),KX-HX-.9,WH+1.1,KZ);
+    var sgn=add(new THREE.Mesh(new THREE.PlaneGeometry(5.2,1.5),new THREE.MeshBasicMaterial({map:tex(512,148,function(x,w,h){x.fillStyle='#0e1a20';x.fillRect(0,0,w,h);x.strokeStyle='#ffb347';x.lineWidth=7;x.strokeRect(8,8,w-16,h-16);x.strokeStyle='#7fe0d0';x.lineWidth=3;x.strokeRect(20,20,w-40,h-40);x.textAlign='center';x.textBaseline='middle';x.shadowColor='#ffb347';x.shadowBlur=24;x.fillStyle='#fff1cf';x.font='bold 62px '+FONT;x.fillText('💬 속닥방',w/2,h/2+4);}),side:THREE.DoubleSide,fog:false,toneMapped:false})),KX-HX-.25,WH+1.1,KZ);sgn.rotation.y=-Math.PI/2;
+    add(glow(0xffb347,.5,5),KX-HX-.9,WH+1.1,KZ);
     [-1,1].forEach(function(s2){add(new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.2,6),M(0x2a2030)),KX-HX-.25,WH+.4,KZ+s2*2.3);});   // 간판 기둥
     // 문 앞 길: 판 3개 + 꼬마전구 가로등
-    var slab=M(0x4a3a5a,0x140c1c);for(var sl=0;sl<3;sl++)add(new THREE.Mesh(new THREE.BoxGeometry(1.5,.08,1.9),slab),KX-HX-1.0-sl*1.55,.04,KZ);
-    [-1,1].forEach(function(s2){for(var lp=0;lp<2;lp++){var lx=KX-HX-1.8-lp*2.6;add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,1.3,6),M(0x2a2420)),lx,.65,KZ+s2*1.5);add(new THREE.Mesh(new THREE.SphereGeometry(.15,10,8),new THREE.MeshBasicMaterial({color:lp?0x7fe0ff:0xffa8d8,fog:false})),lx,1.4,KZ+s2*1.5);}});
+    var slab=M(0x3b4a52,0x0c1418);for(var sl=0;sl<3;sl++)add(new THREE.Mesh(new THREE.BoxGeometry(1.5,.08,1.9),slab),KX-HX-1.0-sl*1.55,.04,KZ);
+    [-1,1].forEach(function(s2){for(var lp=0;lp<2;lp++){var lx=KX-HX-1.8-lp*2.6;add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,1.3,6),M(0x2a2420)),lx,.65,KZ+s2*1.5);add(new THREE.Mesh(new THREE.SphereGeometry(.15,10,8),new THREE.MeshBasicMaterial({color:lp?0x7fe0d0:0xffc87a,fog:false})),lx,1.4,KZ+s2*1.5);}});
     // 입구 표지판 (극장 쪽에서 보여요)
     add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.07,2.2,6),M(0x2a2420)),KX-HX-6.4,1.1,KZ-1.6);
-    var ab=add(new THREE.Mesh(new THREE.PlaneGeometry(2.8,.8),new THREE.MeshBasicMaterial({map:tex(448,128,function(x,w,h){x.fillStyle='#2b1d3a';x.fillRect(0,0,w,h);x.strokeStyle='#ff9ad0';x.lineWidth=5;x.strokeRect(8,8,w-16,h-16);x.fillStyle='#ffe3f1';x.textAlign='center';x.textBaseline='middle';x.font='bold 40px '+FONT;x.fillText('🎤 코인노래방 →',w/2,h/2+2);}),side:THREE.DoubleSide,fog:false})),KX-HX-6.4,2.3,KZ-1.6);ab.rotation.y=-Math.PI/2;
-    // 📺 노래방 화면 (영상이 틀어지면 이 자리에 얹혀요)
-    add(new THREE.Mesh(new THREE.BoxGeometry(.14,SH+.36,SW+.36),M(0x0d0d14)),KX+HX-.1,SCY,KZ);
-    var scr=add(new THREE.Mesh(new THREE.PlaneGeometry(SW,SH),bas(tex(512,288,function(x,w,h){var gr=x.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#1a0f4a');gr.addColorStop(1,'#5a1d6e');x.fillStyle=gr;x.fillRect(0,0,w,h);x.textAlign='center';x.textBaseline='middle';x.fillStyle='#ffe3f1';x.shadowColor='#ff5fa8';x.shadowBlur=16;x.font='bold 46px '+FONT;x.fillText('🎤 코인노래방',w/2,70);x.shadowBlur=0;x.font='24px '+FONT;x.fillStyle='#cfe8ff';x.fillText('아래 🔗 에서 "곡 제목 + 노래방" 검색!',w/2,135);x.fillStyle='rgba(255,255,255,.14)';x.fillRect(60,196,w-120,46);x.fillStyle='#ff9ad0';x.fillRect(60,196,(w-120)*.38,46);x.fillStyle='#fff';x.font='bold 26px '+FONT;x.fillText('가사가 여기에 나와요 ♪',w/2,220);}))),SCX,SCY,KZ);scr.rotation.y=-Math.PI/2;
-    add(glow(0xb08aff,.35,5),KX+HX-1.2,SCY,KZ);
-    // 노래방 반주기 (TV 옆 서랍장 위)
-    var mx=KX+HX-.5,mz=KZ+SW/2+.85;
-    add(new THREE.Mesh(new THREE.BoxGeometry(.6,1.0,.95),M(0x1b1626,0x08060c)),mx,.5,mz);
-    var mp=add(new THREE.Mesh(new THREE.PlaneGeometry(.88,.9),bas(tex(256,256,function(x,w,h){x.fillStyle='#17141f';x.fillRect(0,0,w,h);x.fillStyle='#062a2a';x.fillRect(24,20,w-48,50);x.fillStyle='#4fffe0';x.font='bold 40px monospace';x.textAlign='center';x.textBaseline='middle';x.fillText('0 0 0 0',w/2,46);for(var r=0;r<4;r++)for(var q=0;q<3;q++){x.fillStyle='#2e2a3e';x.fillRect(32+q*52,92+r*38,44,30);x.fillStyle='#ffe3f1';x.font='bold 20px sans-serif';x.fillText(['1','2','3','4','5','6','7','8','9','*','0','#'][r*3+q],54+q*52,108+r*38);}x.fillStyle='#ff5fa8';x.beginPath();x.arc(204,112,14,0,6.283);x.fill();x.fillStyle='#59d46b';x.beginPath();x.arc(204,160,14,0,6.283);x.fill();x.fillStyle='#cfe8ff';x.font='bold 18px '+FONT;x.fillText('SING',204,206);}))),mx-.31,.5,mz);mp.rotation.y=-Math.PI/2;
-    add(new THREE.Mesh(new THREE.BoxGeometry(.5,.12,.8),M(0x2a2434)),mx,1.06,mz);
-    // 마이크 스탠드 (노래 부르는 자리) + 탁자 위 마이크 · 탬버린
-    add(new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.04,14),M(0x2a2a34)),KX+2.4,.05,KZ-1.8);
-    add(new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.5,6),M(0x9a9aa6,0x101012)),KX+2.4,.8,KZ-1.8);
-    add(new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),M(0x2a2a34,0x0a0a10)),KX+2.4,1.58,KZ-1.8);
-    add(new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.06,18),M(0x3a2a4a,0x120a1c)),KX-.7,.4,KZ);add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.4,8),M(0x2a2030)),KX-.7,.2,KZ);
-    [[-.15,.12],[.1,-.1]].forEach(function(p,k){var mc=add(new THREE.Mesh(new THREE.CylinderGeometry(.025,.03,.26,8),M(0x2a2a34)),KX-.7+p[0],.46,KZ+p[1]);mc.rotation.z=Math.PI/2;mc.rotation.y=k*.8;add(new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),M(0xc9c9d4,0x181820)),KX-.7+p[0]+(k?.12:-.12),.46,KZ+p[1]);});
-    var tb=add(new THREE.Mesh(new THREE.TorusGeometry(.13,.025,6,16),M(0xd9a441,0x20140a)),KX-.45,.45,KZ-.3);tb.rotation.x=Math.PI/2;
-    // 자리: 벽 쪽 벤치 2개 (북쪽·남쪽 벽, 한 줄에 3명씩 앉아서 TV를 봐요)
-    [[KZ-HZ+.55,-1],[KZ+HZ-.55,1]].forEach(function(B){
-      var bz=B[0],sg=B[1],bx=KX-.8,L=4.8,bg=new THREE.Group();bg.position.set(bx,0,bz);G.add(bg);cinChairGs.push(bg);
-      var bd=M(0x7a3a6a,0x1c0a1a),sf=M(0xb0508a,0x24101e),bs=M(0x2a2030);
-      bg.add(mesh(new THREE.BoxGeometry(L,.28,.62),bs,0,.17,0));        // 받침
-      bg.add(mesh(new THREE.BoxGeometry(L,.16,.7),sf,0,.4,0));          // 방석
-      bg.add(mesh(new THREE.BoxGeometry(L,.8,.16),bd,0,.88,sg*.34));    // 등받이 (벽 쪽)
-      [-1,1].forEach(function(s2){bg.add(mesh(new THREE.BoxGeometry(.16,.4,.7),bd,s2*(L/2-.08),.58,0));});   // 팔걸이
-      [-1,0,1].forEach(function(k){var px=bx+k*1.5,pd=mesh(new THREE.BoxGeometry(1.3,.1,.7),mpadM,px,.55,bz);G.add(pd);mSeats.push({m:pd,x:px,z:bz,fx:SCX,fz:KZ});});   // 눌러서 앉는 칸 3개
+    var ab=add(new THREE.Mesh(new THREE.PlaneGeometry(2.8,.8),new THREE.MeshBasicMaterial({map:tex(448,128,function(x,w,h){x.fillStyle='#16282f';x.fillRect(0,0,w,h);x.strokeStyle='#ffb347';x.lineWidth=5;x.strokeRect(8,8,w-16,h-16);x.fillStyle='#fff1cf';x.textAlign='center';x.textBaseline='middle';x.font='bold 40px '+FONT;x.fillText('💬 속닥방 →',w/2,h/2+2);}),side:THREE.DoubleSide,fog:false})),KX-HX-6.4,2.3,KZ-1.6);ab.rotation.y=-Math.PI/2;
+    // ── 무대: 동쪽 벽 앞 낮은 무대 + 영상 태블릿 ──
+    var stX=KX+HX-2.0;
+    add(new THREE.Mesh(new THREE.BoxGeometry(3.1,.08,HZ*2-1.2),M(0x8a5a36,0x1e1008)),stX,.04,KZ);   // 무대 바닥
+    add(new THREE.Mesh(new THREE.BoxGeometry(.06,.05,HZ*2-1.2),neonP),KX+HX-3.55,.1,KZ);            // 무대 앞 가장자리 불빛
+    // 🖼️ 동쪽 벽 액자 5개 + 천 깃발 줄 + 무대 스피커 (번쩍이는 LP판 대신 · 가는 줄무늬 없이 큼직한 면과 단색만 써서 깜빡이지 않아요)
+    var PIC=[['#f6d9a8','#ff9a5c','#6bb39e'],['#cfe6e0','#ffd27a','#4f9a8e'],['#f3c9c0','#fff1cf','#c2574a'],['#d7dff0','#ffb347','#5b7fa8'],['#f1e2c4','#e8a0a8','#7fa66a']];
+    function picTex(c){return tex(160,160,function(x,w,h){x.fillStyle=c[0];x.fillRect(0,0,w,h);x.fillStyle=c[1];x.beginPath();x.arc(w*.68,h*.32,h*.17,0,6.283);x.fill();x.fillStyle=c[2];x.beginPath();x.moveTo(0,h);x.lineTo(0,h*.72);x.quadraticCurveTo(w*.3,h*.5,w*.6,h*.74);x.quadraticCurveTo(w*.8,h*.62,w,h*.7);x.lineTo(w,h);x.fill();});}
+    var frM=M(0x5a3a22,0x120a06);
+    for(var pk=0;pk<5;pk++){var pw=pk%2?1.15:.9,ph=pk%2?.9:1.15,pz=KZ-3.6+pk*1.8;
+      add(new THREE.Mesh(new THREE.BoxGeometry(.06,ph+.14,pw+.14),frM),KX+HX-.05,2.75,pz);
+      var pp=add(new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),bas(picTex(PIC[pk]))),KX+HX-.09,2.75,pz);pp.rotation.y=-Math.PI/2;}
+    // 🎏 천 깃발 줄 (벽 위쪽, 단색 삼각 깃발)
+    var FLC=[0xff9a5c,0x6bb39e,0xffd27a,0xe8a0a8,0x7fa6c9],FLG=new THREE.Shape();FLG.moveTo(-.17,0);FLG.lineTo(.17,0);FLG.lineTo(0,-.4);FLG.lineTo(-.17,0);
+    var FLGeo=new THREE.ShapeGeometry(FLG);
+    for(var fk=0;fk<12;fk++){var fz=KZ-4.4+fk*.8,fy=4.1-Math.sin(fk/11*Math.PI)*.22;
+      var fl2=add(new THREE.Mesh(FLGeo,new THREE.MeshBasicMaterial({color:FLC[fk%5],side:THREE.DoubleSide,fog:false})),KX+HX-.1,fy,fz);fl2.rotation.y=-Math.PI/2;}
+    add(new THREE.Mesh(new THREE.BoxGeometry(.02,.02,HZ*2-1.2),M(0xe9dcc0,0x2a2418)),KX+HX-.1,4.12,KZ);
+    // 🔈 무대 스피커 한 쌍 (나무 상자 + 단색 스피커 면)
+    [-3.1,3.1].forEach(function(dz){
+      add(new THREE.Mesh(new THREE.BoxGeometry(.5,.9,.5),M(0x7a4e2e,0x180e06)),KX+HX-.9,.53,KZ+dz);
+      [[.3,.15],[.62,.1]].forEach(function(c){var sp=add(new THREE.Mesh(new THREE.CylinderGeometry(c[1]*1.25,c[1]*1.25,.03,16),M(0x23232b,0x08080a)),KX+HX-1.16,c[0]+.08,KZ+dz);sp.rotation.z=Math.PI/2;});
     });
-    // 천장: 미러볼 + 줄조명 + 움직이는 불빛
-    var DB=new THREE.Group();DB.position.set(KX,WH-.55,KZ);G.add(DB);
-    var dbt=tex(128,64,function(x,w,h){for(var r=0;r<8;r++)for(var q=0;q<16;q++){var v=150+((q*7+r*13)%5)*20;x.fillStyle='rgb('+v+','+v+','+(v+10)+')';x.fillRect(q*8,r*8,7,7);}});dbt.wrapS=THREE.RepeatWrapping;
-    DB.add(new THREE.Mesh(new THREE.SphereGeometry(.32,16,12),new THREE.MeshBasicMaterial({map:dbt,fog:false})));
-    add(new THREE.Mesh(new THREE.CylinderGeometry(.01,.01,.5,4),M(0x888888)),KX,WH-.25,KZ);
-    var LS=[0xff5fa8,0x4fd3ff,0xffd24a,0x8aff9a,0xb08aff].map(function(c,k){var sp=glow(c,.55,1.5+k*.1);G.add(sp);return sp;});
+    // 🎤 마이크 스탠드 (무대 앞)
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.04,14),M(0x2a2a34)),KX+HX-3.0,.1,KZ);
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.4,6),M(0x9a9aa6,0x101012)),KX+HX-3.0,.8,KZ);
+    add(new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),M(0x2a2a34,0x0a0a10)),KX+HX-3.0,1.52,KZ);
+    // ── 가운데 낮은 원형 테이블 + 큰 방석 (여럿이 같이 앉아요) ──
+    var wood=M(0x8a5a36,0x20120a),woodD=M(0x5a3a22,0x120a06),cream=M(0xf3e6cc,0x2a2418);
+    var rug=add(new THREE.Mesh(new THREE.CircleGeometry(3.5,48),new THREE.MeshLambertMaterial({map:tex(256,256,function(x,w,h){x.fillStyle='#f1e2c4';x.fillRect(0,0,w,h);[['#d9824f',126],['#f1e2c4',112],['#4f9a8e',100],['#f1e2c4',86],['#ffb347',74],['#f1e2c4',60]].forEach(function(r){x.fillStyle=r[0];x.beginPath();x.arc(128,128,r[1],0,6.283);x.fill();});}),emissive:0x141008})),TCX,.045,KZ);rug.rotation.x=-Math.PI/2;   // 동그란 러그
+    add(new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,.08,36),wood),TCX,TTY-.04,KZ);
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.22,.4,TTY-.08,16),woodD),TCX,(TTY-.08)/2,KZ);
+    var dl=add(new THREE.Mesh(new THREE.CircleGeometry(.9,32),cream),TCX,TTY+.004,KZ);dl.rotation.x=-Math.PI/2;   // 레이스 받침
+    // 📺 테이블 위 태블릿 (영상이 틀어지면 이 자리에 얹혀요)
+    var TS=Math.sin(TA),TC2=Math.cos(TA),tq=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,-Math.PI/2,0)).premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-TA));
+    add(new THREE.Mesh(new THREE.BoxGeometry(.5,.04,TW*.55),woodD),TBX+.12,TTY+.03,KZ);   // 받침
+    var tfr=add(new THREE.Mesh(new THREE.BoxGeometry(TW+.1,TH+.1,.06),M(0x15191c)),SCX+TC2*.04,SCY-TS*.04,KZ);tfr.quaternion.copy(tq);
+    var scr=add(new THREE.Mesh(new THREE.PlaneGeometry(SW,SH),bas(tex(512,288,function(x,w,h){var gr=x.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#16323d');gr.addColorStop(1,'#4a2f22');x.fillStyle=gr;x.fillRect(0,0,w,h);x.textAlign='center';x.fillStyle='#ffd27a';x.font='bold 40px '+FONT;x.fillText('💬 속닥방',w/2,110);x.fillStyle='#fff1cf';x.font='28px '+FONT;x.fillText('🔗 에서 영상 검색!',w/2,165);x.fillStyle='rgba(255,255,255,.14)';x.fillRect(60,196,w-120,46);x.fillStyle='#ffb347';x.fillRect(60,196,(w-120)*.38,46);x.fillStyle='#fff';x.font='bold 26px '+FONT;x.fillText('같이 들어요 ♪',w/2,229);}))),SCX-TC2*.005,SCY+TS*.005,KZ);scr.quaternion.copy(tq);
+    add(glow(0xffb347,.3,3),SCX-.3,SCY,KZ);
+    // 🫖 찻주전자 소품 (은은한 무광 · 반짝이는 LP는 뺐어요)
+    var LX=TCX-.15,LZ=KZ-.62;
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.03,24),woodD),LX,TTY+.015,LZ);
+    var tpb=add(new THREE.Mesh(new THREE.SphereGeometry(.17,16,12),M(0xe8e0d0,0x201c18)),LX,TTY+.17,LZ);tpb.scale.y=.85;
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.07,.09,.03,14),M(0x4f9a8e,0x0c1a16)),LX,TTY+.33,LZ);
+    add(new THREE.Mesh(new THREE.SphereGeometry(.03,8,6),M(0x4f9a8e,0x0c1a16)),LX,TTY+.36,LZ);
+    var tps=add(new THREE.Mesh(new THREE.CylinderGeometry(.025,.045,.17,8),M(0xe8e0d0,0x201c18)),LX+.2,TTY+.22,LZ);tps.rotation.z=-.95;
+    var tph=add(new THREE.Mesh(new THREE.TorusGeometry(.08,.016,6,14),M(0xe8e0d0,0x201c18)),LX-.17,TTY+.18,LZ);
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.05,.09,10),M(0xe8e0d0,0x201c18)),LX+.05,TTY+.075,LZ+.3);   // 찻잔
+    var rg={rotation:{y:0}};   // (tick 자리만 남김)
+    // 🍪 아기자기 소품: 머그컵 · 쿠키 접시 · 캔들 · 미니 화분
+    [[-.5,.45,0xe8e0d0],[-.85,.1,0xe8a0a8]].forEach(function(p){add(new THREE.Mesh(new THREE.CylinderGeometry(.07,.06,.12,10),M(p[2],0x201c18)),TCX+p[0],TTY+.06,KZ+p[1]);});
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.2,.17,.03,16),cream),TCX-.55,TTY+.015,KZ-.2);
+    [[-.08,0],[.07,.05],[0,-.08]].forEach(function(p){add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.03,10),M(0xc98a4a,0x2a1a0a)),TCX-.55+p[0],TTY+.045,KZ-.2+p[1]);});
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.1,10),M(0xffe0a0,0x5a4010)),TCX+.2,TTY+.05,KZ+.75);add(glow(0xffc87a,.5,.9),TCX+.2,TTY+.18,KZ+.75);
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.09,.07,.12,10),M(0xc2574a,0x2a100c)),TCX+.2,TTY+.06,KZ-.78);
+    [[0,.2,.1],[.05,.26,.07]].forEach(function(p){add(new THREE.Mesh(new THREE.SphereGeometry(p[2]+.03,8,6),M(0x5b9a6a,0x0c1a10)),TCX+.2+p[0],TTY+p[1]-.04,KZ-.78);});
+    // 🧘 큰 방석 6개 (한 방석에 둘씩 나란히 앉아요 · 태블릿을 바라봐요)
+    var CC=[0xd9824f,0x4f9a8e,0xf1c27a,0xc2574a,0x7fa6c9,0xe8a0a8];
+    [-110,-65,-22,22,65,110].forEach(function(dg,ci){
+      var th=dg*Math.PI/180,px=TCX-Math.cos(th)*2.2,pz=KZ+Math.sin(th)*2.2,ry=Math.atan2(Math.cos(th),-Math.sin(th));
+      var cg=new THREE.Group();cg.position.set(px,0,pz);cg.rotation.y=ry;G.add(cg);cinChairGs.push(cg);
+      var lt=new THREE.Color(CC[ci]).multiplyScalar(1.2).getHex(),dk=new THREE.Color(CC[ci]).multiplyScalar(.7).getHex();
+      cg.add(mesh(new THREE.BoxGeometry(1.6,.16,1.15),M(dk,0x0a0806),0,.1,0));
+      var tp=mesh(new THREE.SphereGeometry(.8,24,10),M(lt,0x120c08),0,.18,0);tp.scale.set(1,.2,.72);cg.add(tp);
+      cg.add(mesh(new THREE.BoxGeometry(1.2,.4,.2),M(dk,0x0a0806),0,.36,-.5));   // 등받이 쿠션
+      [-.4,.4].forEach(function(s){var wx=px+Math.cos(ry)*s,wz=pz-Math.sin(ry)*s,pd=mesh(new THREE.BoxGeometry(.8,.1,.9),mpadM,wx,.3,wz);G.add(pd);mSeats.push({m:pd,x:wx,z:wz,fx:SCX,fz:KZ,ground:true});});   // 눌러서 앉는 칸
+    });
+    // 🪴 화분 · 🧸 곰인형 · 별 스탠드
+    [[KX-HX+1.2,KZ-HZ+1.1],[KX-HX+1.2,KZ+HZ-1.1]].forEach(function(p){add(new THREE.Mesh(new THREE.CylinderGeometry(.3,.22,.45,12),M(0xb8643a,0x2a1208)),p[0],.23,p[1]);[[0,.8,.3],[.15,.6,.22],[-.15,.55,.2]].forEach(function(q){var lf=add(new THREE.Mesh(new THREE.SphereGeometry(q[2],10,8),M(0x4f8a5a,0x0c1a10)),p[0]+q[0],q[1],p[1]);lf.scale.y=1.3;});});
+    [-1.6,1.4].forEach(function(dz,bi){var bx=stX+.4,bz=KZ+dz,bc=bi?0xe8c9a0:0xa8703c;add(new THREE.Mesh(new THREE.SphereGeometry(.26,12,10),M(bc,0x1a1008)),bx,.36,bz);add(new THREE.Mesh(new THREE.SphereGeometry(.19,12,10),M(bc,0x1a1008)),bx,.72,bz);[-.13,.13].forEach(function(e){add(new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),M(bc,0x1a1008)),bx,.88,bz+e);});add(new THREE.Mesh(new THREE.SphereGeometry(.04,6,6),M(0x2a2030)),bx-.17,.74,bz-.06);add(new THREE.Mesh(new THREE.SphereGeometry(.04,6,6),M(0x2a2030)),bx-.17,.74,bz+.06);});
+    add(new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.6,6),M(0x2a2030)),KX+HX-1.2,.8,KZ-HZ+.9);add(new THREE.Mesh(new THREE.CylinderGeometry(.14,.3,.34,12),M(0xffd27a,0x5a4010)),KX+HX-1.2,1.7,KZ-HZ+.9);add(glow(0xffc87a,.5,1.8),KX+HX-1.2,1.6,KZ-HZ+.9);
+    // 천장: 무대 위 미러볼 + 테이블 위 펜던트 등 + 줄조명 + 움직이는 불빛
+    var DB={rotation:{y:0}};   // 미러볼은 뺐어요 (tick 자리만 남김)
+    [-2.4,-1.15,.1].forEach(function(dx){
+      add(new THREE.Mesh(new THREE.CylinderGeometry(.01,.01,1.5,4),M(0x888888)),KX+dx,WH-.75,KZ);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(.12,.36,.3,12),M(0xffb347,0x4a2c08)),KX+dx,WH-1.6,KZ);
+      add(glow(0xffc87a,.4,1.7),KX+dx,WH-1.85,KZ);
+    });
+    var LS=[];   // (노래방 조명은 뺐어요)
     [[0,-1],[0,1]].forEach(function(p){add(new THREE.Mesh(new THREE.BoxGeometry(HX*2-.2,.05,.05),neonP),KX,WH-.12,KZ+p[1]*(HZ-.1));});
     [[-1],[1]].forEach(function(p){add(new THREE.Mesh(new THREE.BoxGeometry(.05,.05,HZ*2-.2),neonC),KX+p[0]*(HX-.1),WH-.12,KZ);});
     // 방이 은은하게 보이도록 (동적 불빛)
     var t0=Date.now();
     (function tick(){
-      try{if(scene==='cinema'&&Math.hypot(me.x-KX,me.z-KZ)<45){var t=(Date.now()-t0)/1000;DB.rotation.y=t*.6;
-        for(var k=0;k<LS.length;k++){var a=t*(.5+k*.17)+k*1.3;LS[k].position.set(KX+Math.cos(a)*(HX-.9),.12+(k%2)*1.2+Math.sin(a*1.7)*.4,KZ+Math.sin(a*1.3)*(HZ-.8));LS[k].material.opacity=.35+.25*Math.sin(t*2+k);}}}catch(e){}
+      try{if(scene==='cinema'&&Math.hypot(me.x-KX,me.z-KZ)<45){var t=(Date.now()-t0)/1000;DB.rotation.y=t*.6;rg.rotation.y=t*1.6;
+        for(var k=0;k<LS.length;k++){var a=t*(.5+k*.17)+k*1.3;LS[k].position.set(KX+Math.cos(a)*(HX-.9),.12+(k%2)*1.2+Math.sin(a*1.7)*.4,KZ+Math.sin(a*1.3)*(HZ-.8));LS[k].material.opacity=.3+.2*Math.sin(t*2+k);}}}catch(e){}
       requestAnimationFrame(tick);
     })();
+    // 📋 벽 메뉴판 '속닥방 메뉴': 누르면 방 설명 창이 열려요 (🎤 음성 · 💬 방 안 전용 채팅 · 🎵 영상/노래). 채팅은 기본 [말하기] 버튼을 그대로 써요
+    var mnT=tex(512,384,function(x,w,h){x.fillStyle='#6b4a2e';x.fillRect(0,0,w,h);x.fillStyle='#1f2d2a';x.fillRect(16,16,w-32,h-32);x.strokeStyle='#ffd27a';x.lineWidth=3;x.strokeRect(26,26,w-52,h-52);x.textAlign='center';x.fillStyle='#ffd27a';x.font='bold 46px '+FONT;x.fillText('☕ 속닥방 메뉴',w/2,92);x.textAlign='left';x.fillStyle='#fff1cf';x.font='28px '+FONT;x.fillText('🎤 음성 대화',60,160);x.fillText('💬 속닥 채팅 (이 방 안에서만)',60,212);x.fillText('🎵 영상 같이 보기',60,264);x.textAlign='center';x.fillStyle='#7fe0d0';x.font='bold 26px '+FONT;x.fillText('👆 눌러서 방 설명 보기',w/2,332);});
+    var mnB=add(new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.8),bas(mnT)),KX-.5,2.3,KZ-HZ+.06);
+    // 📖 방 설명 창 (벽 메뉴판을 누르면 열려요)
+    var inf=document.createElement('div');inf.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);width:min(92vw,420px);display:none;flex-direction:column;gap:8px;padding:12px;border-radius:18px;background:rgba(20,14,10,.9);border:1px solid rgba(255,190,120,.5);z-index:30;color:#e9dcc8;font-size:.95rem;backdrop-filter:blur(6px)';inf.style.display='none';inf.style.gap='10px';inf.style.maxHeight='70vh';inf.style.overflowY='auto';
+    inf.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>☕ 속닥방 이야기</b><button type="button" id="kix" style="padding:4px 14px">✕</button></div>'
+      +'<div style="line-height:1.6">둘러앉아 속닥속닥, 이야기하고 노래·영상을 같이 즐기는 작은 방이에요. 이 방 안에 있는 친구끼리만 연결돼요.</div>'
+      +'<div style="line-height:1.55"><b>🎤 음성 대화</b><br><span style="opacity:.85">화면 아래 <b>마이크 켜기</b> 버튼을 누르면 같은 방 친구와 목소리로 이야기해요. 🎧 이어폰을 끼면 울림 없이 또렷해요.</span></div>'
+      +'<div style="line-height:1.55"><b>💬 속닥 채팅</b><br><span style="opacity:.85">평소 쓰던 <b>말하기</b> 버튼 그대로예요. 이 방 안에서 남기면 머리 위 말풍선이 이 방 친구에게만 보이고 바깥 공간에는 나오지 않아서 부담 없이 써도 돼요.</span></div>'
+      +'<div style="line-height:1.55"><b>🎵 노래 · 영상</b><br><span style="opacity:.85">테이블 위 태블릿으로 좋아하는 노래나 영상을 자유롭게 틀어요. 🔗 유튜브 링크를 붙여넣거나 검색하면 방 안 모두가 같이 보고 들어요.</span></div>'
+      ;
+    document.body.appendChild(inf);
+    function iopen(o){inf.style.display=o?'flex':'none';}
+    inf.querySelector('#kix').addEventListener('click',function(){iopen(false);});
+    // 💬 속닥방 채팅: 별도 창·버튼 없이, 화면 아래 기본 [말하기]를 그대로 써요. 이 방 안에 있으면 자동으로 '방 안 친구에게만' 전달돼요
+    setInterval(function(){try{if(typeof chatIn==='undefined'||!chatIn)return;var ph=window.cinKorIn()?'속닥속닥… (이 방 친구에게만 보여요)':'한마디 남겨요';if(chatIn.placeholder!==ph)chatIn.placeholder=ph;if(!window.cinKorIn()&&inf.style.display!=='none')iopen(false);}catch(e){}},400);
+    window.korChatIn=function(d){try{if(!window.cinKorIn())return;var pl=(typeof players!=='undefined')&&players[d.id];if(pl&&typeof pl.x==='number'&&!window.cinKorAt(pl.x,pl.z))return;var c=typeof chatCheck==='function'?chatCheck(String(d.t).slice(5)):{ok:true,t:String(d.t).slice(5)};if(!c||!c.ok)return;if(chatHidden)return;var n=String(d.n||'나그네').slice(0,8);if(pl)bubble(pl,c.t,true);addLog('💬 '+n,c.t);try{if(window.__ttsSpeak)window.__ttsSpeak(c.t);}catch(e){}}catch(e){}};
+    var dn=null;cv.addEventListener('pointerdown',function(e){dn=[e.clientX,e.clientY,Date.now()];});
+    cv.addEventListener('pointerup',function(e){try{if(!dn||!window.cinKorIn())return;var mv=Math.hypot(e.clientX-dn[0],e.clientY-dn[1]),dt=Date.now()-dn[2];dn=null;if(mv>8||dt>600)return;var r=cv.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-((e.clientY-r.top)/r.height)*2+1},cam);if(rc.intersectObject(mnB,false).length)iopen(true);}catch(x){}});
     // 🎤 안에 있는지 · 영상 위치 · 1인칭 · 길 안내
     function inRoom(x,z){return x>KX-HX+.1&&x<KX+HX&&Math.abs(z-KZ)<HZ;}
     window.cinKorIn=function(){return scene==='cinema'&&inRoom(me.x,me.z);};window.cinKorAt=function(x,z){return scene==='cinema'&&inRoom(x,z);};
-    window.cinKorCorner=function(i){return new THREE.Vector3(SCX,SCY+((i<2)?SH/2:-SH/2),KZ+((i===0||i===3)?-SW/2:SW/2));};
-    window.cinKorFp=function(){if(!window.cinKorIn())return null;return {sw:SW,sh:SH,d:Math.max(1.6,SCX-me.x),cy:SCY,lat:Math.abs(me.z-KZ)*.5};};
+    window.cinKorCorner=function(i){var top=i<2;return new THREE.Vector3(top?TBX+TH*Math.sin(TA):TBX,top?TBY+TH*Math.cos(TA):TBY,KZ+((i===0||i===3)?-SW/2:SW/2));};   // 테이블 위 태블릿 네 모서리 (왼위·오른위·오른아래·왼아래)
+    window.cinKorFp=function(){if(!window.cinKorIn())return null;return {sw:SW,sh:SH,d:Math.max(1.2,SCX-me.x),cy:SCY,lat:Math.abs(me.z-KZ)*.5};};
     window.cinKorCamClamp=function(w){w.x=Math.max(KX-HX+.3,Math.min(KX+HX-.3,w.x));w.z=Math.max(KZ-HZ+.3,Math.min(KZ+HZ-.3,w.z));w.y=Math.max(.8,Math.min(WH-.3,w.y));};
     function inKor(x,z){return inRoom(x,z)||(x>KX-HX-5.9&&x<=KX-HX+.1&&Math.abs(z-KZ)<1.3);}
     window.cinKorRoute=function(tp){var A=inKor(me.x,me.z),B=inKor(tp[0],tp[1]);if(A===B)return null;return [[KX-HX-2.6,KZ],tp];};
-    window.cinKorGo=function(){return [[KX-HX-2.6,KZ],[KX-HX+1.4,KZ]];};   // 이동 탭에서 [🎤 코인노래방]을 누르면 걸어갈 곳
-    var was=false,seen=false;setInterval(function(){try{var d=window.cinKorIn();if(d&&!was){toast(seen?'🎤 코인노래방이에요 · 🔗로 노래방 영상 틀기 · 활동 메뉴에서 🎤 마이크':'🎤 코인노래방! 🔗에 "곡 제목 노래방" 검색 → 활동 메뉴 🎤 마이크 켜기 · 🎧 이어폰이 있으면 더 좋아요');seen=true;}was=d;}catch(e){}},250);
+    window.cinKorGo=function(){return [[KX-HX-2.6,KZ],[KX-HX+1.4,KZ]];};   // 이동 탭에서 [💬 속닥방]을 누르면 걸어갈 곳
+    var was=false,seen=false;setInterval(function(){try{var d=window.cinKorIn();if(d&&!was){toast(seen?'💬 속닥방이에요 · [말하기]를 누르면 이 방 친구에게만 보여요':'💬 속닥방! [말하기]를 누르면 이 방 친구에게만 보여요 · 🎤 마이크도 켤 수 있어요 · 🎧 이어폰이 있으면 더 좋아요');seen=true;}was=d;}catch(e){}},250);
   })();
 
-  // ═══ 🎙️ 코인노래방 음성: 방 안에 있는 사람끼리 마이크 소리를 주고받아요 (WebRTC · 연결 신호는 Supabase 방송으로 주고받아요) ═══
+  // ═══ 🎙️ 속닥방 음성: 방 안에 있는 사람끼리 마이크 소리를 주고받아요 (WebRTC · 연결 신호는 Supabase 방송으로 주고받아요) ═══
   (function(){
     var row=document.getElementById('actrow');if(!row)return;
     var btn=document.createElement('button');btn.type='button';btn.id='korvoice';btn.style.display='none';btn.textContent='마이크 켜기';row.appendChild(btn);
@@ -1402,7 +1467,7 @@ function cinTick(){
       if(st&&st.id===id)return;
       var fresh=!pend||pend.id!==id;
       pend={id:id,t:t,ref:Date.now(),paused:a[4]==='1',n:nm};showJoin();
-      if(cinPlace()==='K'&&!pend.paused){   // 🎤 코인노래방은 버튼 없이 바로 같이 재생 (불러오는 시간만큼 늦어지니 잠시 뒤 한 번 맞춰요)
+      if(cinPlace()==='K'&&!pend.paused){   // 💬 속닥방은 버튼 없이 바로 같이 재생 (불러오는 시간만큼 늦어지니 잠시 뒤 한 번 맞춰요)
         var kp=pend,kid=id;toast(nm+'님이 튼 노래를 같이 들어요 🎤');
         play(kid,t,true);
         setTimeout(function(){try{if(st&&st.id===kid&&cinFr&&!st.paused&&cinPlace()==='K'){var ex=kp.t+(Date.now()-kp.ref)/1000;st.t0=ex;st.ref=Date.now();cmd('seekTo',[ex,true]);cmd('playVideo');}}catch(e){}},3500);
@@ -5404,11 +5469,12 @@ function chatCheck(raw){
   if(/https?:|www\.|\.com|\.kr|\.net|@/i.test(tx)||tx.replace(/\D/g,'').length>=7)return {ok:false,why:'링크나 연락처는 남길 수 없어요'};
   return {ok:true,t:tx};
 }
-function onChat(d){if(d&&typeof d.t==='string'&&d.t.charCodeAt(0)===1){try{if(d.t.slice(1,5)==='PGI|'){if(window.arcPgInvite)window.arcPgInvite(d);}else if(d.t.slice(1,5)==='BGI|'){if(window.arcBgInvite)window.arcBgInvite(d);}else cinNet(d);}catch(e){}return;}
+function onChat(d){if(d&&typeof d.t==='string'&&d.t.charCodeAt(0)===1){try{if(d.t.slice(1,5)==='PGI|'){if(window.arcPgInvite)window.arcPgInvite(d);}else if(d.t.slice(1,5)==='BGI|'){if(window.arcBgInvite)window.arcBgInvite(d);}else if(d.t.slice(1,5)==='KCH|'){if(window.korChatIn)window.korChatIn(d);}else cinNet(d);}catch(e){}return;}
   if(chatHidden)return;
   var c=chatCheck(d&&d.t);if(!c.ok)return;
   var p=players[d.id];if(p)bubble(p,c.t,true);
   addLog(String(d.n||'나그네').slice(0,8),c.t);
+  try{if(window.__ttsSpeak)window.__ttsSpeak(c.t);}catch(e){}
 }
 var inTent=null,tentBtn=document.getElementById('tent'),sitBtn=document.getElementById('sit'),lieBtn=document.getElementById('lie');
 function enterTent(){
@@ -5699,7 +5765,7 @@ lhBtn.addEventListener('click',function(){
 });
 var gobBtn=document.getElementById('gob'),goRow=document.getElementById('gorow');
 function goShow(v){goRow.style.display=v?'flex':'none';gobBtn.setAttribute('aria-pressed',v?'true':'false');}
-var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],cinema:[['hall','중앙 극장'],['su0','🎬 드라마 별실'],['su1','📱 숏츠 별실'],['su2','🎤 예능·음악 별실'],['su3','🎨 애니 웹툰 별실'],['shop','🍿 매점'],['arc','🎮 오락실'],['sec','📺 1인 아지트'],['kor','🎤 코인노래방']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
+var GO_SETS={fire:[['fire','모닥불'],['gb','방명록 자리'],['rain','비 오는 캠핑장'],['cat','고양이 놀이터'],['stone','야광돌 산']],cabin:[['wish','소원 트리'],['yard','마당'],['cab','오두막'],['ice','빙어 낚시터']],cinema:[['hall','중앙 극장'],['su0','🎬 드라마 별실'],['su1','📱 숏츠 별실'],['su2','🎤 예능·음악 별실'],['su3','🎨 애니 웹툰 별실'],['shop','🍿 매점'],['arc','🎮 오락실'],['sec','📺 1인 아지트'],['kor','💬 속닥방']],beach:[['shore','바닷가'],['shr','새우깡 부두'],['cast','모래성'],['top','계단 위'],['walk','산책길'],['ends','해변 끝'],['pier','등대']]},goBuilt='';
 function goBuild(sn){if(goBuilt===sn)return;goBuilt=sn;goShow(false);goRow.innerHTML='';(GO_SETS[sn]||[]).forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});}
 gobBtn.addEventListener('click',function(){goShow(goRow.style.display==='none');});
 goRow.addEventListener('click',function(e){
@@ -5708,7 +5774,7 @@ goRow.addEventListener('click',function(e){
   if(k==='ends'){goRow.innerHTML='';[['endL','왼쪽 끝'],['endR','오른쪽 끝'],['back','뒤로']].forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});return;}
   if(k==='cast'){goRow.innerHTML='';[['castL','왼쪽'],['castR','오른쪽'],['back','뒤로']].forEach(function(q){var bt=document.createElement('button');bt.type='button';bt.setAttribute('data-g',q[0]);bt.textContent=q[1];goRow.appendChild(bt);});return;}
   if(k==='back'){goBuilt='';goBuild(scene);goShow(true);return;}
-  if(scene==='cinema'){if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}me.want=null;if(k==='sec'){var sg0=window.cinSecGo&&window.cinSecGo();if(sg0){cinGoWay(cinRoutePt(sg0[0]).concat([sg0[1]]),true);toast('1인 아지트로 걸어가요 📺');goBuilt='';goBuild(scene);return;}}if(k==='kor'){var kg0=window.cinKorGo&&window.cinKorGo();if(kg0){cinGoWay(cinRoutePt(kg0[0]).concat([kg0[1]]),true);toast('코인노래방으로 걸어가요 🎤');goBuilt='';goBuild(scene);return;}}if(k==='arc'){var aw0=arcWorld(0,3.6);cinGoWay(cinRoutePt([aw0[0],aw0[1]]),true);toast('오락실로 걸어가요 🎮');goBuilt='';goBuild(scene);return;}if(k==='shop'){var sw0=snkWorld(0,3.8);cinGoWay(cinRoutePt([sw0[0],sw0[1]]),true);toast('매점으로 걸어가요 🍿');goBuilt='';goBuild(scene);return;}var di=(k==='hall')?-1:parseInt(String(k).slice(2),10);cinGoWay(cinRoutePt(di<0?[0,7.8]:[-39.5,SUITES[di].c]),true);toast(di<0?'중앙 극장으로 걸어가요':'별실로 걸어가요');goBuilt='';goBuild(scene);return;}
+  if(scene==='cinema'){if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}me.want=null;if(k==='sec'){var sg0=window.cinSecGo&&window.cinSecGo();if(sg0){cinGoWay(cinRoutePt(sg0[0]).concat([sg0[1]]),true);toast('1인 아지트로 걸어가요 📺');goBuilt='';goBuild(scene);return;}}if(k==='kor'){var kg0=window.cinKorGo&&window.cinKorGo();if(kg0){cinGoWay(cinRoutePt(kg0[0]).concat([kg0[1]]),true);toast('속닥방으로 걸어가요 💬');goBuilt='';goBuild(scene);return;}}if(k==='arc'){var aw0=arcWorld(0,3.6);cinGoWay(cinRoutePt([aw0[0],aw0[1]]),true);toast('오락실로 걸어가요 🎮');goBuilt='';goBuild(scene);return;}if(k==='shop'){var sw0=snkWorld(0,3.8);cinGoWay(cinRoutePt([sw0[0],sw0[1]]),true);toast('매점으로 걸어가요 🍿');goBuilt='';goBuild(scene);return;}var di=(k==='hall')?-1:parseInt(String(k).slice(2),10);cinGoWay(cinRoutePt(di<0?[0,7.8]:[-39.5,SUITES[di].c]),true);toast(di<0?'중앙 극장으로 걸어가요':'별실로 걸어가요');goBuilt='';goBuild(scene);return;}
   var T=(scene==='beach'?{shore:[0,-8.8,'물가로 걸어가요'],shr:[SHP_X,-24,'새우깡 부두로 걸어가요'],walk:[0,37,'모래 산책길로 걸어가요'],umb:[-4.8,11.4,'파라솔 쉼터로 걸어가요'],castL:[SAND_SPOTS[0].x,SAND_SPOTS[0].z,'왼쪽 모래성으로 걸어가요'],castR:[SAND_SPOTS[1].x,SAND_SPOTS[1].z,'오른쪽 모래성으로 걸어가요'],top:[0,BWALL+.6,'계단 위로 걸어가요'],pier:[PIER_X,-36.8,'등대로 걸어가요'],endL:[-57,END_Z,'왼쪽 끝 난간 길로 걸어가요'],endR:[57,END_Z,'오른쪽 끝 난간 길로 걸어가요']}:(scene==='cabin'?{wish:[WX,WZ-10,'소원 트리로 걸어가요'],yard:[0,-5,'마당으로 걸어가요'],ice:[ICE.x,ICE.z+5,'빙어 낚시터로 걸어가요'],cab:(function(){var bi=0,bd=1e9;for(var ci=0;ci<CAB.length;ci++){var dd=Math.hypot(me.x-CAB[ci][0],me.z-CAB[ci][1]);if(dd<bd){bd=dd;bi=ci;}}return [CAB[bi][0]-1.6,CAB[bi][1]+3.8,'오두막 앞으로 걸어가요'];})()}:{fire:[0,5.5,'모닥불 쪽으로 걸어가요'],gb:[GB_SPOTS[0].x,GB_SPOTS[0].z,'방명록 자리로 걸어가요'],rain:[0,-37,'다리 건너 비 오는 캠핑장으로 걸어가요'],cat:[CPX,CPZ-CPR+2,'고양이 놀이터로 걸어가요'],stone:lumGo()}))[k];
   if(!T)return;
   if(me.sit){me.sit=0;sitBtn.textContent='앉기';lieBtn.textContent='눕기';}
@@ -6451,8 +6517,9 @@ function chatSend(){
   if(c.t===chatPrev&&now-chatPrevAt<10000)return;
   chatLast=now;chatPrev=c.t;chatPrevAt=now;
   var pm=players.me;if(pm)bubble(pm,c.t,true);
-  addLog(me.name||'나',c.t);
-  var sent=!!(room&&room.sendChat&&room.sendChat(c.t,(me.name||'나그네').slice(0,8)));
+  var kor=!!(window.cinKorIn&&window.cinKorIn());
+  addLog((kor?'💬 ':'')+(me.name||'나'),c.t);
+  var sent=!!(room&&room.sendChat&&room.sendChat((kor?'\u0001KCH|':'')+c.t,(me.name||'나그네').slice(0,8)));
   if(!sent&&!chatSolo){chatSolo=true;msgEl.textContent='지금은 혼자 있거나 연결 중이라 나한테만 보여요';msg.classList.add('on');}
   chatIn.value='';
 }
@@ -7015,7 +7082,7 @@ function frame(){var __n=performance.now();if(__n-__lt<12){requestAnimationFrame
   var fpOn=fpv&&!inTent&&(scene==='beach'||scene==='fire'||scene==='cabin'||scene==='cinema')&&(!me.sit||me.sit===1||me.sit===2);if(fpOn)want.set(me.x,(me.y||0)+((me.sit===1?.95:(me.sit===2?(scene==='cinema'?1.5:1.3):1.6))+(scene==='cinema'?(me.sit===1?.3:(me.sit===2?.9:.5)):0))*(inn?.55:1)+((scene==='beach'&&!me.lh&&(me.y||0)>2)?1.1:0),me.z);if(fpOn&&scene==='cabin'&&!inn){var fc2=cabFireNear();if(fc2&&fc2.d>.3){var fdx=me.x-fc2.x,fdz=me.z-fc2.z,fl=fc2.d,pb=Math.max(0,4.4-fl);want.x+=fdx/fl*pb;want.z+=fdz/fl*pb;}}for(var lg2=0;lg2<cabOut.length;lg2++){var lo=cabOut[lg2];if(lo.m){var hv=!(fpOn&&scene==='cabin'&&!inn&&me.sit&&Math.hypot(lo.x-me.x,lo.z-me.z)<.7);if(lo.m.visible!==hv)lo.m.visible=hv;}}
   if(inn){want.x=Math.max(cx0-2.7,Math.min(cx0+2.7,want.x));want.z=Math.max(cz0-10.95,Math.min(cz0-7.05,want.z));want.y=Math.min(want.y,2.5);}
   if(scene==='cinema'&&!fpv&&me.sit&&window.cinSecIn&&window.cinSecIn())want.y+=1.5;   // 🤫 1인 아지트: 앉아서 볼 때 카메라를 더 높여서 내 캐릭터 머리가 TV 화면을 안 가리게
-  if(scene==='cinema'&&!fpv&&window.cinKorIn&&window.cinKorIn())want.y+=1.4;   // 🎤 코인노래방: 카메라를 더 높여서 내 캐릭터 머리가 TV 화면을 안 가리게
+  if(scene==='cinema'&&!fpv&&window.cinKorIn&&window.cinKorIn())want.y+=1.4;   // 💬 속닥방: 카메라를 더 높여서 내 캐릭터 머리가 TV 화면을 안 가리게
   if(scene==='cinema')cinCamClamp(want);
   if(scene==='cinema'&&!fpv&&me.x>-28&&me.x<16&&cinZone(me.x,me.z)===4&&Math.cos(yaw)>.5){var cTf=Math.tan(cam.fov*Math.PI/360),cHw=(cinVert?CIN_H*9/32+.5:CIN_W/2+.4)+1,cDm=Math.max(cHw/(cTf*cam.aspect),(CIN_H/2+1.5)/cTf);if(want.z<CIN_SZ+cDm)want.z=CIN_SZ+cDm;}
   if(inTent){var ex=want.x-IX,ez=want.z-IZ,er=Math.sqrt(ex*ex+ez*ez);if(er>3.8){want.x=IX+ex/er*3.8;want.z=IZ+ez/er*3.8;}want.y=Math.min(want.y,3);}
@@ -7414,8 +7481,8 @@ btn.addEventListener('click',function(){
       [EMO.wand,'응원봉','[활동] 메뉴의 '+EMO.wand+' 응원봉 들기를 누르면 손에 들고 흔들어요. 위에 뜬 동그라미로 색을 골라요. 같은 방 사람에게도 보여요 · 먹으면 자동으로 내려요'],
       ['🚪','별실 3개','별실은 뒤쪽 문으로 드나들어요. 뒷문 가까이 가면 저절로 열려요. 문 밖은 계단이고, 안에서는 단을 내려가며 자리에 앉아요. 어디든 눌러서 걸어가면 알아서 문을 지나가요. 같은 별실 사람끼리만 영상을 같이 봐요'],
       ['🪑','앉기','캠핑 의자 · 돗자리에 앉아 스크린을 봐요'],
-      ['🎤','코인노래방','🧭 이동 메뉴에서 갈 수 있어요. 방 안에서 🔗에 "곡 제목 노래방"을 검색해 틀어요. 같은 방 친구에게 [같이 보기]가 떠요'],
-      ['🎙️','마이크','코인노래방 안에서 [활동] 메뉴의 🎤 마이크 켜기. 같은 방에 있는 친구에게만 목소리가 들려요. 마이크 권한을 허용해 줘야 해요. 이어폰 없이도 되지만, 스피커로 들으면 소리가 겹치거나 울릴 수 있어서 🎧 이어폰을 끼면 더 깔끔해요. 친구가 안 들리면 같은 방 번호인지 확인해요']
+      ['🎤','속닥방','🧭 이동 메뉴에서 갈 수 있어요. 방 안에서 🔗로 영상을 검색해 틀어요. 같은 방 친구에게 [같이 보기]가 떠요'],
+      ['🎙️','마이크','속닥방 안에서 [활동] 메뉴의 🎤 마이크 켜기. 같은 방에 있는 친구에게만 목소리가 들려요. 마이크 권한을 허용해 줘야 해요. 이어폰 없이도 되지만, 스피커로 들으면 소리가 겹치거나 울릴 수 있어서 🎧 이어폰을 끼면 더 깔끔해요. 친구가 안 들리면 같은 방 번호인지 확인해요']
     ]}
   };
   var C=[
@@ -7423,7 +7490,7 @@ btn.addEventListener('click',function(){
     ['🛌','눕기','누우면 🌌 하늘 보기. 불멍 · 바닷가에선 🖌️ 하늘에 그리기'],
     ['🧍','일어나기','앉거나 누운 걸 풀어요'],
     ['👁️','시점','1인칭 / 3인칭. 화면을 끌면 둘러봐요'],
-    ['🗨️','말하기','한마디를 남겨요. 🙈로 채팅을 숨기고 💬로 다시 봐요'],
+    ['🗨️','말하기','한마디를 남겨요. 💬 속닥방 안에서는 방 친구에게만 보여요. 🙈로 채팅을 숨기고 💬로 다시 봐요'],
     ['📋','활동','지금 할 수 있는 것들이 모여 있어요'],
     ['⚙️','설정','닉네임 · 방 · 소리'],
     ['🔥','장소 바꾸기','왼쪽 위에서 다른 곳으로 옮겨가요'],
@@ -7477,6 +7544,43 @@ btn.addEventListener('click',function(){
   gt.addEventListener('click',function(){fbSay('');});
   setInterval(show,400);
 })();
+})();
+</script>
+
+<script>
+// 🗣️ 채팅 읽어주기(TTS): 마이크가 안 될 때 글자로 치면 상대 폰이 소리내어 읽어줘요
+(function(){
+  var ok='speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined';
+  var on=true;try{on=localStorage.getItem('hy-tts')!=='0';}catch(e){}
+  var koVoice=null;
+  function pick(){try{var vs=speechSynthesis.getVoices();for(var i=0;i<vs.length;i++){if(/^ko/i.test(vs[i].lang)){koVoice=vs[i];break;}}}catch(e){}}
+  if(ok){pick();try{speechSynthesis.onvoiceschanged=pick;}catch(e){}}
+  window.__ttsSpeak=function(t){
+    if(!ok||!on||window.__muted)return;
+    t=String(t||'').trim();if(!t)return;
+    try{
+      if(speechSynthesis.pending)speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(t.slice(0,80));
+      u.lang='ko-KR';if(koVoice)u.voice=koVoice;u.rate=1.05;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  };
+  // 아이폰 등은 화면을 한 번 눌러야 소리가 나서, 첫 터치 때 미리 깨워둬요
+  addEventListener('pointerdown',function(){
+    if(!ok)return;try{var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}
+  },{once:true,capture:true});
+  var row=document.getElementById('actrow');
+  if(ok&&row){
+    var b=document.createElement('button');b.type='button';b.id='ttsbtn';
+    function lab(){b.textContent=on?'읽어주기 끄기':'읽어주기 켜기';}
+    lab();
+    b.addEventListener('click',function(){
+      on=!on;try{localStorage.setItem('hy-tts',on?'1':'0');}catch(e){}
+      if(!on){try{speechSynthesis.cancel();}catch(e){}}
+      lab();
+    });
+    row.appendChild(b);
+  }
 })();
 </script>
 </body>
