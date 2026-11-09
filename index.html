@@ -830,7 +830,7 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
       var pc=new RTCPeerConnection(ICE),tr=pc.addTransceiver('audio',{direction:'sendrecv'}),a=document.createElement('audio');a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a);
       var p={pc:pc,tr:tr,a:a,t0:Date.now()};peers[id]=p;
       if(stream){var tk=stream.getAudioTracks()[0];if(tk)try{tr.sender.replaceTrack(tk);}catch(e){}}
-      pc.ontrack=function(e){try{var rv=e.receiver;if(rv){if('jitterBufferTarget' in rv)rv.jitterBufferTarget=70;if('playoutDelayHint' in rv)rv.playoutDelayHint=.07;}}catch(x){}try{var st=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.srcObject=st;a.muted=!!window.__muted;var vc=vxCtx();if(vc){try{var sr=vc.createMediaStreamSource(st),gn=vc.createGain(),cp=vc.createDynamicsCompressor();gn.gain.value=window.__muted?0:KVOX;cp.threshold.value=-18;cp.ratio.value=6;sr.connect(gn);gn.connect(cp);cp.connect(vc.destination);p.sr=sr;p.gn=gn;}catch(e3){p.gn=null;}}   // 친구 목소리를 키워서 (마이크는 반주보다 작게 들려서) 들려줘요
+      pc.ontrack=function(e){try{var rv=e.receiver;if(rv){if('jitterBufferTarget' in rv)rv.jitterBufferTarget=30;if('playoutDelayHint' in rv)rv.playoutDelayHint=.03;}}catch(x){}try{var st=(e.streams&&e.streams[0])||new MediaStream([e.track]);a.srcObject=st;a.muted=!!window.__muted;var vc=vxCtx();if(vc){try{var sr=vc.createMediaStreamSource(st),gn=vc.createGain(),cp=vc.createDynamicsCompressor();gn.gain.value=window.__muted?0:KVOX;cp.threshold.value=-18;cp.ratio.value=6;sr.connect(gn);gn.connect(cp);cp.connect(vc.destination);p.sr=sr;p.gn=gn;}catch(e3){p.gn=null;}}   // 친구 목소리를 키워서 (마이크는 반주보다 작게 들려서) 들려줘요
 var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
       pc.onconnectionstatechange=function(){var s=pc.connectionState;p.t0=Date.now();if(s==='connected'){try{toast('🎙️ 친구와 음성이 연결됐어요');}catch(e){}}if((s==='failed'||s==='closed')&&peers[id]===p)dropPeer(id);};
       return p;
@@ -890,7 +890,7 @@ var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
         var inK=!!(window.cinKorIn&&window.cinKorIn()),dv=inK?'':'none',n=Object.keys(peers).length;
         if(btn.style.display!==dv)btn.style.display=dv;
         if(inK&&joined&&chName!==roomName())leave();
-        if(inK&&!joined)join();else if(!inK&&joined)leave();
+        if(inK&&!joined)join();else if(!inK&&joined)leave();if(inK)wlOn();else wlOff();
         var tx=micOn?'마이크 끄기':'마이크 켜기';if(btn.textContent!==tx)btn.textContent=tx;
         var ti='방 안 음성 '+n+'명 연결';if(btn.title!==ti&&!btn.dataset.ic)btn.title=ti;
         if(VX&&VX.state==='suspended')VX.resume().catch(function(){});Object.keys(peers).forEach(function(id){var q9=peers[id],a=q9.a,mu9=!!window.__muted,wa=!!(q9.gn&&VX&&VX.state==='running');if(q9.gn&&q9.gn.gain.value!==(mu9?0:KVOX))q9.gn.gain.value=mu9?0:KVOX;var am=wa?true:mu9;if(a.muted!==am)a.muted=am;if(a.srcObject&&a.paused){var pp=a.play();if(pp&&pp.catch)pp.catch(function(){});}});
@@ -901,6 +901,9 @@ var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(err){}};
     },400);
     addEventListener('pointerdown',function(){if(VX&&VX.state==='suspended')VX.resume().catch(function(){});Object.keys(peers).forEach(function(id){var a=peers[id].a;if(a&&a.srcObject&&a.paused){var q=a.play();if(q&&q.catch)q.catch(function(){});}});},true);
     addEventListener('pagehide',function(){try{leave();}catch(e){}});
+    var wl=null;   // 노래방 안에서는 화면이 꺼지지 않게 해요
+    function wlOn(){try{if(!navigator.wakeLock||wl||document.hidden)return;navigator.wakeLock.request('screen').then(function(l){wl=l;l.addEventListener('release',function(){if(wl===l)wl=null;});}).catch(function(){});}catch(e){}}
+    function wlOff(){try{if(wl){var l=wl;wl=null;l.release().catch(function(){});}}catch(e){}}
   })();
 
   // ═══ 🚪 별실 4개 (드라마 · 숏츠 · 예능·음악 · 애니 웹툰): 세로 복도 서쪽에 문이 달린 작은 상영방 ═══
@@ -1036,8 +1039,9 @@ function cinTick(){
   function send(s){s=String(s).replace('CIN|','CIN|@'+cinPlace()+'|');try{if(room&&room.sendChat)room.sendChat('\u0001'+s,(me.name||'나그네').slice(0,8));}catch(e){}}
   function cmd(fn,args){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:args||[]}),'*');}catch(e){}}
   function mutedNow(){return !!(window.__muted||window.__vmuted);}
-  function applyMute(){var m=mutedNow();try{if(lvEl)lvEl.muted=m;}catch(e){}if(m)cmd('mute');else{cmd('unMute');cmd('setVolume',[100]);}}   // [소리 끄기/켜기] 를 따라 영상 소리도 같이 꺼요
+  function applyMute(){var m=mutedNow();try{if(lvEl)lvEl.muted=m;}catch(e){}if(m)cmd('mute');else{cmd('unMute');cmd('setVolume',[window.__vvol||100]);}}   // [소리 끄기/켜기] 를 따라 영상 소리도 같이 꺼요
   window.cinApplyMute=applyMute;
+  (function(){var vb=document.getElementById('vmute');if(!vb||document.getElementById('vvol'))return;var b=document.createElement('button');b.id='vvol';b.type='button';b.style.display='none';b.textContent='🔉 영상 소리 100%';vb.parentNode.insertBefore(b,vb.nextSibling);var L=[100,60,30,10];window.__vvol=100;b.addEventListener('click',function(){var i=L.indexOf(window.__vvol);window.__vvol=L[(i+1)%L.length];b.textContent='🔉 영상 소리 '+window.__vvol+'%';if(!mutedNow())cmd('setVolume',[window.__vvol]);});})();
   (function(){var vb=document.getElementById('vmute');if(vb)vb.addEventListener('click',function(){window.__vmuted=!window.__vmuted;applyMute();vb.textContent=window.__vmuted?'영상 소리 켜기':'영상 소리 끄기';});})();
   var linkB=document.getElementById('cinlink'),urlRow=document.getElementById('cinurlrow');
   function showUrl(v){if(urlRow)urlRow.style.display=v?'flex':'none';if(linkB)linkB.setAttribute('aria-expanded',v?'true':'false');if(v)setTimeout(function(){try{urlEl.focus();}catch(e){}},30);}
@@ -1126,7 +1130,7 @@ function cinTick(){
     cinWrap.appendChild(cinFr);
     var frNow=cinFr;
     cinFr.addEventListener('load',function(){try{cinFr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*');}catch(e){}if(mutedNow()){[0,600,1800,3500].forEach(function(ms){setTimeout(function(){if(mutedNow()&&cinFr===frNow)cmd('mute');},ms);});}
-      [0,700,2000,4000,7000].forEach(function(ms){setTimeout(function(){if(cinFr===frNow){cmd('unloadModule',['captions']);cmd('unloadModule',['cc']);}},ms);});});   // 자동 자막은 계속 꺼둬요
+      [0,700,2000,4000,7000].forEach(function(ms){setTimeout(function(){if(cinFr===frNow){cmd('unloadModule',['captions']);cmd('unloadModule',['cc']);}},ms);});if((window.__vvol||100)<100&&!mutedNow()){[0,700,2000,4000].forEach(function(ms){setTimeout(function(){if(cinFr===frNow)cmd('setVolume',[window.__vvol]);},ms);});}});   // 자동 자막은 계속 꺼둬요
     if(location.protocol.indexOf('http')!==0)toast('지금 파일로 열려 있어요 · 유튜브는 https:// 웹 주소에서만 나와요');
     try{if(!localStorage.getItem('cin-ad-note')){localStorage.setItem('cin-ad-note','1');setTimeout(function(){toast('광고가 나오면 건너뛸 수 없어요 · 유튜브 프리미엄이면 광고 없이 나와요');},1200);}}catch(e){}
     cinOn=true;cinPaused=false;
@@ -5548,7 +5552,7 @@ setInterval(function(){
 function spkTick(){
   var md=inTent?'':'none';if(musBtn.style.display!==md)musBtn.style.display=md;
   if(musicOn&&!inTent)toggleMusic();   // 텐트 밖이거나 영화관이면 음악은 꺼요 (영화관에는 [영상 소리 끄기]만 있어요)
-  if(vmEl){var vv=(scene==='cinema'&&cinOn)?'':'none';if(vmEl.style.display!==vv)vmEl.style.display=vv;if(!cinOn&&window.__vmuted){window.__vmuted=false;vmEl.textContent='영상 소리 끄기';}}   // 영상이 나올 때만 [영상 소리 끄기]가 떠요
+  if(vmEl){var vv=(scene==='cinema'&&cinOn)?'':'none';if(vmEl.style.display!==vv)vmEl.style.display=vv;var vq=document.getElementById('vvol');if(vq&&vq.style.display!==vv)vq.style.display=vv;if(!cinOn&&window.__vmuted){window.__vmuted=false;vmEl.textContent='영상 소리 끄기';}}   // 영상이 나올 때만 [영상 소리 끄기]가 떠요
   if(mg&&t%15===0){mg.gain.setTargetAtTime(musicTarget(),mac.currentTime,.5);duckAmb();}
   spkLed.color.setHex(musicOn?(t%90<45?0x6ad6ff:0x3aa0d0):0x4a4f5a);spkGlow.material.opacity=musicOn?.35+.2*Math.sin(t*.08):0;
 }
