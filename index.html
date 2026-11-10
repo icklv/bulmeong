@@ -845,11 +845,15 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     var mnT=tex(512,384,function(x,w,h){x.fillStyle='#6b4a2e';x.fillRect(0,0,w,h);x.fillStyle='#1f2d2a';x.fillRect(16,16,w-32,h-32);x.strokeStyle='#ffd27a';x.lineWidth=3;x.strokeRect(26,26,w-52,h-52);x.textAlign='center';x.fillStyle='#ffd27a';x.font='bold 46px '+FONT;x.fillText('☕ 속닥방 메뉴',w/2,92);x.textAlign='left';x.fillStyle='#fff1cf';x.font='28px '+FONT;x.fillText('🎤 음성 대화',60,160);x.fillText('💬 속닥 채팅 (이 방 안에서만)',60,212);x.fillText('🎵 영상 같이 보기',60,264);x.textAlign='center';x.fillStyle='#7fe0d0';x.font='bold 26px '+FONT;x.fillText('👆 눌러서 열어보세요',w/2,332);});
     var mnB=add(new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.8),bas(mnT)),KX-.5,2.3,KZ-HZ+.06);
     var pn=document.createElement('div');pn.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);width:min(92vw,420px);display:none;flex-direction:column;gap:8px;padding:12px;border-radius:18px;background:rgba(20,14,10,.9);border:1px solid rgba(255,190,120,.5);z-index:30;color:#e9dcc8;font-size:.95rem;backdrop-filter:blur(6px)';
-    pn.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>☕ 속닥방</b><button type="button" id="kpx" style="padding:4px 14px">✕</button></div><button type="button" id="kpm" style="padding:8px">🎤 마이크 켜기</button><div id="kpl" style="overflow-y:auto;height:120px;font-size:.9rem"></div><div style="display:flex;gap:6px"><input id="kpi" maxlength="60" placeholder="속닥속닥… (이 방 친구에게만 보여요)" autocomplete="off" style="flex:1;width:auto;min-width:0;text-align:left;border-radius:14px"><button type="button" id="kps">보내기</button></div><div style="font-size:.78rem;opacity:.75">🎧 마이크가 연결되면 같은 방 친구와 음성으로, 안 되면 여기 채팅으로 이야기해요</div>';
+    pn.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>📜 속닥방 대화 기록</b><button type="button" id="kpx" style="padding:4px 14px">✕</button></div><button type="button" id="kpm" style="padding:8px">🎤 마이크 켜기</button><div id="kpl" style="overflow-y:auto;height:190px;font-size:.9rem"></div><div style="display:flex;gap:6px"><input id="kpi" maxlength="60" placeholder="여기서도 보낼 수 있어요 (이 방 친구에게만)" autocomplete="off" style="flex:1;width:auto;min-width:0;text-align:left;border-radius:14px"><button type="button" id="kps">보내기</button></div><div style="font-size:.78rem;opacity:.75">💬 평소엔 아래 말하기 버튼으로 이야기해요 · 사라진 말은 여기서 다시 볼 수 있어요</div>';
     document.body.appendChild(pn);
     var kl=pn.querySelector('#kpl'),ki=pn.querySelector('#kpi'),km=pn.querySelector('#kpm'),lastM={t:'',at:0},lastS=0;
-    function kadd(n,tx,mine){var d=document.createElement('div');d.style.cssText='padding:2px 6px;word-break:break-all'+(mine?';text-align:right;color:#ffd27a':'');d.textContent=mine?tx:n+': '+tx;kl.appendChild(d);while(kl.children.length>40)kl.removeChild(kl.firstChild);kl.scrollTop=kl.scrollHeight;}
-    function kopen(o){pn.style.display=o?'flex':'none';if(o)kl.scrollTop=kl.scrollHeight;}
+    var KLOG=[];try{KLOG=JSON.parse(localStorage.getItem('hy-korlog')||'[]');if(!Array.isArray(KLOG))KLOG=[];}catch(e){KLOG=[];}
+    function krender(n,tx,mine,ts){var d=document.createElement('div');d.style.cssText='padding:2px 6px;word-break:break-all'+(mine?';text-align:right;color:#ffd27a':'');var tm=new Date(ts),hh=('0'+tm.getHours()).slice(-2)+':'+('0'+tm.getMinutes()).slice(-2),sp=document.createElement('span');sp.style.cssText='font-size:.72rem;opacity:.55;margin:0 6px';sp.textContent=hh;if(mine){d.appendChild(sp);d.appendChild(document.createTextNode(tx));}else{d.appendChild(document.createTextNode(n+': '+tx));d.appendChild(sp);}kl.appendChild(d);while(kl.children.length>150)kl.removeChild(kl.firstChild);}
+    function kadd(n,tx,mine){var ts=Date.now();krender(n,tx,mine,ts);KLOG.push([n,tx,mine?1:0,ts]);if(KLOG.length>150)KLOG.shift();try{localStorage.setItem('hy-korlog',JSON.stringify(KLOG));}catch(e){}kl.scrollTop=kl.scrollHeight;}
+    KLOG.forEach(function(r){krender(r[0],r[1],!!r[2],r[3]);});
+    window.korLogAdd=kadd;
+    function kopen(o){pn.style.display=o?'flex':'none';if(o){kl.scrollTop=kl.scrollHeight;setTimeout(function(){try{ki.focus();}catch(e){}},50);}else{try{ki.blur();}catch(e){}}}
     function ksend(){var v=(ki.value||'').trim().slice(0,60);if(!v||Date.now()-lastS<700)return;var c=typeof chatCheck==='function'?chatCheck(v):{ok:true,t:v};if(!c||!c.ok){toast('지금은 보낼 수 없어요');return;}try{if(!room||!room.sendChat){toast('아직 연결 중이에요');return;}room.sendChat('\u0001KCH|'+c.t,(me.name||'나그네').slice(0,8));}catch(e){return;}lastS=Date.now();lastM={t:c.t,at:lastS};kadd('',c.t,true);ki.value='';}
     pn.querySelector('#kpx').addEventListener('click',function(){kopen(false);});
     pn.querySelector('#kps').addEventListener('click',ksend);
@@ -860,18 +864,18 @@ function nearMBed(){for(var nb=0;nb<mBeds.length;nb++)if(Math.hypot(mBeds[nb].x-
     inf.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b>☕ 속닥방 이야기</b><button type="button" id="kix" style="padding:4px 14px">✕</button></div>'
       +'<div style="line-height:1.6">둘러앉아 속닥속닥, 이야기하고 노래·영상을 같이 즐기는 작은 방이에요. 이 방 안에 있는 친구끼리만 연결돼요.</div>'
       +'<div style="line-height:1.55"><b>🎤 음성 대화</b><br><span style="opacity:.85">화면 아래 <b>마이크 켜기</b> 버튼을 누르면 같은 방 친구와 목소리로 이야기해요. 🎧 이어폰을 끼면 울림 없이 또렷해요.</span></div>'
-      +'<div style="line-height:1.55"><b>💬 속닥 채팅</b><br><span style="opacity:.85">마이크 연결이 매끄럽지 않을 때는 글자로 이야기해요. 이 방 안 친구에게만 보이고 바깥 공간 채팅에는 나오지 않아서 부담 없이 써도 돼요.</span></div>'
+      +'<div style="line-height:1.55"><b>💬 속닥 채팅 · 📜 대화 기록</b><br><span style="opacity:.85">방 안에서 <b>말하기</b>로 쓴 말은 이 방 친구에게만 보이고 바깥 공간 채팅에는 나오지 않아요. 금방 사라지는 말은 활동 메뉴의 <b>📜 속닥 대화 기록</b>에서 다시 볼 수 있어요.</span></div>'
       +'<div style="line-height:1.55"><b>🎵 노래 · 영상</b><br><span style="opacity:.85">테이블 위 태블릿으로 좋아하는 노래나 영상을 자유롭게 틀어요. 🔗 유튜브 링크를 붙여넣거나 검색하면 방 안 모두가 같이 보고 들어요.</span></div>'
-      +'<button type="button" id="kic" style="padding:9px">💬 속닥 채팅 열기</button>';
+      +'<button type="button" id="kic" style="padding:9px">📜 대화 기록 열기</button>';
     document.body.appendChild(inf);
     function iopen(o){inf.style.display=o?'flex':'none';}
     inf.querySelector('#kix').addEventListener('click',function(){iopen(false);});
     inf.querySelector('#kic').addEventListener('click',function(){iopen(false);kopen(true);});
     // 💬 속닥 채팅 버튼 (방 안에서만 보여요) - 벽 판까지 안 가도 바로 열려요
-    (function(){var row=document.getElementById('actrow');if(!row)return;var cb=document.createElement('button');cb.type='button';cb.id='korchatbtn';cb.style.display='none';cb.textContent='💬 속닥 채팅';row.appendChild(cb);
+    (function(){var row=document.getElementById('actrow');if(!row)return;var cb=document.createElement('button');cb.type='button';cb.id='korchatbtn';cb.style.display='none';cb.textContent='📜 속닥 대화 기록';row.appendChild(cb);
       cb.addEventListener('click',function(){kopen(pn.style.display==='none');});
       setInterval(function(){try{var d=window.cinKorIn();var v=d?'':'none';if(cb.style.display!==v)cb.style.display=v;if(!d&&inf.style.display!=='none')iopen(false);}catch(e){}},400);})();
-    window.korChatIn=function(d){try{if(!window.cinKorIn())return;var pl=(typeof players!=='undefined')&&players[d.id];if(pl&&typeof pl.x==='number'&&!window.cinKorAt(pl.x,pl.z))return;var c=typeof chatCheck==='function'?chatCheck(String(d.t).slice(5)):{ok:true,t:String(d.t).slice(5)};if(!c||!c.ok)return;var n=String(d.n||'나그네').slice(0,8);if(lastM.t===c.t&&Date.now()-lastM.at<4000&&n===(me.name||'나그네').slice(0,8))return;kadd(n,c.t,false);if(pn.style.display==='none')toast('💬 '+n+': '+c.t);}catch(e){}};
+    window.korChatIn=function(d){try{if(!window.cinKorIn())return;var pl=(typeof players!=='undefined')&&players[d.id];if(pl&&typeof pl.x==='number'&&!window.cinKorAt(pl.x,pl.z))return;var c=typeof chatCheck==='function'?chatCheck(String(d.t).slice(5)):{ok:true,t:String(d.t).slice(5)};if(!c||!c.ok)return;var n=String(d.n||'나그네').slice(0,8);if(lastM.t===c.t&&Date.now()-lastM.at<4000&&n===(me.name||'나그네').slice(0,8))return;kadd(n,c.t,false);try{if(pl&&typeof bubble==='function')bubble(pl,c.t,true);}catch(e1){}try{if(window.__ttsSpeak)window.__ttsSpeak(c.t);}catch(e2){}}catch(e){}};
     setInterval(function(){try{if(pn.style.display==='none')return;if(!window.cinKorIn()){kopen(false);return;}var vb=document.getElementById('korvoice'),on=vb&&/끄기/.test(vb.textContent);km.textContent=on?'🎤 마이크 끄기 (켜져 있어요)':'🎤 마이크 켜기';}catch(e){}},400);
     var dn=null;cv.addEventListener('pointerdown',function(e){dn=[e.clientX,e.clientY,Date.now()];});
     cv.addEventListener('pointerup',function(e){try{if(!dn||!window.cinKorIn())return;var mv=Math.hypot(e.clientX-dn[0],e.clientY-dn[1]),dt=Date.now()-dn[2];dn=null;if(mv>8||dt>600)return;var r=cv.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-((e.clientY-r.top)/r.height)*2+1},cam);if(rc.intersectObject(mnB,false).length)iopen(true);}catch(x){}});
@@ -6683,7 +6687,7 @@ function wishTick(){
   wishFx();var st=wishG.userData.star;if(st)st.rotation.y+=.01;
   for(var j=0;j<wishTags.length;j++){var o=wishTags[j];if(!o)continue;var age=t-o.born;o.g.rotation.y=Math.atan2(cam.position.x-WX-o.sl.x,cam.position.z-WZ-o.sl.z);o.g.rotation.z=Math.sin(t*.03+o.ph)*.07+(age>=0&&age<90?Math.sin(age*.35)*.3*Math.pow(1-age/90,2):0);o.g.position.y=o.sl.y+(age>=0&&age<26?Math.pow(1-age/26,2)*3:0);}
 }
-var chatBtn=document.createElement('button');chatBtn.type='button';chatBtn.textContent='말하기';
+var chatBtn=document.createElement('button');chatBtn.type='button';chatBtn.id='chatbtn';chatBtn.textContent='말하기';
 var chatRow=document.createElement('div');chatRow.className='chatrow';chatRow.style.display='none';
 chatRow.innerHTML='<input type="text" maxlength="30" placeholder="한마디 남겨요" aria-label="채팅" autocomplete="off"><button type="button" data-c="ok">보내기</button><button type="button" data-c="no">닫기</button>';
 (function(){var tr=document.getElementById('tent');tr.parentNode.insertBefore(chatBtn,tr);tr.parentNode.parentNode.insertBefore(chatRow,tr.parentNode);})();
@@ -6706,7 +6710,8 @@ function chatSend(){
   chatLast=now;chatPrev=c.t;chatPrevAt=now;
   var pm=players.me;if(pm)bubble(pm,c.t,true);
   addLog(me.name||'나',c.t);
-  var sent=!!(room&&room.sendChat&&room.sendChat(c.t,(me.name||'나그네').slice(0,8)));
+  var kin=!!(window.cinKorIn&&window.cinKorIn()&&window.korLogAdd),sent=kin?!!(room&&room.sendChat&&room.sendChat('\u0001KCH|'+c.t,(me.name||'나그네').slice(0,8))):!!(room&&room.sendChat&&room.sendChat(c.t,(me.name||'나그네').slice(0,8)));
+  if(kin)window.korLogAdd('',c.t,true);
   if(!sent&&!chatSolo){chatSolo=true;msgEl.textContent='지금은 혼자 있거나 연결 중이라 나한테만 보여요';msg.classList.add('on');}
   chatIn.value='';
 }
@@ -7746,7 +7751,7 @@ btn.addEventListener('click',function(){
     if(!ok||!on||window.__muted)return;
     t=String(t||'').trim();if(!t)return;
     try{
-      if(speechSynthesis.pending)speechSynthesis.cancel();
+      try{speechSynthesis.resume();}catch(e0){}if(speechSynthesis.pending)speechSynthesis.cancel();
       var u=new SpeechSynthesisUtterance(t.slice(0,80));
       u.lang='ko-KR';if(koVoice)u.voice=koVoice;u.rate=1.05;
       speechSynthesis.speak(u);
